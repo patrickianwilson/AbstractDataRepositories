@@ -1,0 +1,10 @@
+package com.patrickwilson.mock.sources;
+
+import com.patrickwilson.ardm.api.annotation.Repository;
+
+@Repository
+public class StubSourceRepository {
+
+
+
+}
