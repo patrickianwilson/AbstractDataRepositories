@@ -1,11 +1,12 @@
 package com.patrickwilson.ardm.proxy.query.transform;
 
 import com.patrickwilson.ardm.proxy.query.QueryData;
-import com.patrickwilson.ardm.proxy.query.transform.NativeQueryWrapper;
 
 /**
  * Implementors can transform a generic query data object into a native query for a target data source.
  * User: pwilson
+ *
+ * @param <NATIVE_FORMAT> the native format for the query.
  */
 public interface QueryLogicTreeTransformer<NATIVE_FORMAT> {
 

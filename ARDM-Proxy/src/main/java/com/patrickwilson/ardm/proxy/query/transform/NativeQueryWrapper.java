@@ -3,6 +3,8 @@ package com.patrickwilson.ardm.proxy.query.transform;
 /**
  * Allow a query object to be wrapped in some metadata for convenience.
  * User: pwilson
+ *
+ * @param <NATIVE_FORMAT> a native query format (ie: javax.jpa.Query object)
  */
 public class NativeQueryWrapper<NATIVE_FORMAT> {
 

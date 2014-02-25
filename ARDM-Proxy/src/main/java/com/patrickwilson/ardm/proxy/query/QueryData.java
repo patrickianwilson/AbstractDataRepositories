@@ -7,6 +7,9 @@ package com.patrickwilson.ardm.proxy.query;
  */
 public class QueryData {
 
+    /**
+     * specifify the intenet of the query.
+     */
     public static enum QueryMethod {
         FIND_ALL, FIND_BY_CRITERIA;
     }

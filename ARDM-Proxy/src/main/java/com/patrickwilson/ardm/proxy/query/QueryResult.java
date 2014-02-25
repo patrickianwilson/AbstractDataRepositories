@@ -1,7 +1,6 @@
 package com.patrickwilson.ardm.proxy.query;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
+
 import com.google.gson.JsonObject;
 
 import java.util.List;
