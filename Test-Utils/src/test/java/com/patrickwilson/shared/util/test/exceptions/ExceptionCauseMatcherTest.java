@@ -45,6 +45,9 @@ public class ExceptionCauseMatcherTest {
 
     }
 
+    /**
+     * testing exception.
+     */
     public static final class MyException extends Exception {
 
         /**

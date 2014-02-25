@@ -15,12 +15,14 @@ import static org.hamcrest.CoreMatchers.*;
 public class BeanBuilderTest {
 
 
+    protected static final int SAMPLE_INT = 232;
+
     @Test
     public void testObjectClone() throws Exception {
 
         Complex input = new Complex();
         input.setM("test");
-        input.setMyInt(232);
+        input.setMyInt(SAMPLE_INT);
 
         Complex actual = BeanBuilder.newInstance(Complex.class)
                 .fromObject(input)
@@ -29,7 +31,7 @@ public class BeanBuilderTest {
 
         Complex expected = new Complex();
 
-        expected.setMyInt(232);
+        expected.setMyInt(SAMPLE_INT);
         expected.setM("test");
         expected.setSimple("testS");
         expected.setMyObj(actual.getMyObj());
@@ -64,7 +66,7 @@ public class BeanBuilderTest {
                 .withSubObject("single", NestedObject.class, new BeanBuilder.SubObjectTemplate<NestedObject>() {
                     @Override
                     public void defineObject(BeanBuilder<NestedObject> builder) throws Exception {
-                       builder.with("a","test")
+                       builder.with("a", "test")
                               .with("b", -1);
 
                     }
@@ -72,7 +74,7 @@ public class BeanBuilderTest {
                 .withAdditionalEntry("multiple", ArrayList.class, NestedObject.class, new BeanBuilder.SubObjectTemplate<NestedObject>() {
                     @Override
                     public void defineObject(BeanBuilder<NestedObject> builder) throws Exception {
-                        builder .with("a","test")
+                        builder .with("a", "test")
                                 .with("b", -1);
                     }
                 })
@@ -88,6 +90,9 @@ public class BeanBuilderTest {
 
     }
 
+    /**
+     * sample complex class.
+     */
     public static class Complex {
         private String simple;
         private String m;
@@ -158,6 +163,10 @@ public class BeanBuilderTest {
         //CheckStyle:ON
     }
 
+
+    /**
+     * used for testing.
+     */
     public static class RootObject {
 
         private NestedObject single;
@@ -203,6 +212,10 @@ public class BeanBuilderTest {
         //CheckStyle:ON
     }
 
+
+    /**
+     * used for testing.
+     */
     public static class NestedObject {
 
         private String a;
