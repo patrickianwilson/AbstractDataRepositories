@@ -20,4 +20,9 @@ public class NotImplementedDataSourceAdaptor implements DataSourceAdaptor {
     public QueryResult findByCriteria(QueryData query) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
+
+    @Override
+    public <ENTITY> ENTITY save(ENTITY entity, Class<ENTITY> clazz) {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
 }

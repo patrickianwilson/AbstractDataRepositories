@@ -13,4 +13,6 @@ public interface DataSourceAdaptor {
 
     QueryResult findByCriteria(QueryData query);
 
+    <ENTITY> ENTITY save(ENTITY entity, Class<ENTITY> clazz);
+
 }
