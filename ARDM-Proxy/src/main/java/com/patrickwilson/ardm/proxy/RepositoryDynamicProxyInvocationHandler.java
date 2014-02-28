@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.patrickwilson.ardm.api.annotation.Query;
 import com.patrickwilson.ardm.api.annotation.Repository;
+import com.patrickwilson.ardm.proxy.query.QueryResult;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -19,9 +20,12 @@ import java.util.Map;
 public class RepositoryDynamicProxyInvocationHandler implements InvocationHandler {
 
     private Map<String, Method> passthroughMethods = null;
+    private Map<String, Method> queryMethods = null;
     private DataSourceAdaptor adaptor;
 
     public static final List<String> BASE_METHODS = Lists.newArrayList("toString", "hashCode", "clone", "finalize", "equals", "wait", "notify", "notifyAll");
+
+    public static final List<String> QUERY_METHODS = Lists.newArrayList("findByCriteria", "findAll");
 
     /**
      * Processes a method invocation on a proxy instance and returns
@@ -71,6 +75,10 @@ public class RepositoryDynamicProxyInvocationHandler implements InvocationHandle
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
+        if (args == null) {
+            args = new Object[]{};
+        }
+
         if (method.getAnnotation(Query.class) != null) {
             //this is a query invocation.
             return null;
@@ -89,27 +97,29 @@ public class RepositoryDynamicProxyInvocationHandler implements InvocationHandle
             Method passthroughMethod = passthroughMethods.get(method.getName());
 
             Object[] passThroughArgs = Arrays.copyOf(args, args.length + 1);
-
-            Class[] allInterfaces = proxy.getClass().getInterfaces();
-
-            Class entityType = null;
-            for (Class type: allInterfaces) {
-                if (type.getAnnotation(Repository.class) != null) {
-                   entityType = ((Repository) type.getAnnotation(Repository.class)).value();
-                }
-            }
-            if (entityType == null) {
-                throw new RepositoryInvocationException("No @Repository annotation can be found on any of the repository interfaces.");
-            }
+            Class entityType = getRepositoryInterface(proxy);
 
             passThroughArgs[args.length] = entityType;
 
-            try {
-                return passthroughMethod.invoke(this.adaptor, passThroughArgs);
-            } catch (IllegalAccessException | IllegalArgumentException e) {
-                throw new RepositoryInvocationException(e);
-            } catch (InvocationTargetException e) {
-                throw new RepositoryInteractionException(e.getTargetException());
+            return  invokeDataSource(passthroughMethod, passThroughArgs);
+
+        } else if (this.queryMethods.get(method.getName()) != null) {
+            //this is a query style of method.
+            Method queryPassthoughMethod = queryMethods.get(method.getName());
+            Object[] passthroughArgs = Arrays.copyOf(args, args.length + 1);
+            Class entityType = getRepositoryInterface(proxy);
+            passthroughArgs[args.length] = entityType;
+
+            QueryResult result = (QueryResult) invokeDataSource(queryPassthoughMethod, passthroughArgs);
+
+            if (List.class.isAssignableFrom(method.getReturnType())) {
+                //repository method is a List return type.
+                return result.getResults();
+            } else if (QueryResult.class.isAssignableFrom(method.getReturnType())) {
+                return result;
+            } else {
+                throw new RepositoryDeclarationException("Invalid return type from method: " + method.getName() + ", return type " + method.getReturnType().getName() + " is not valid. Should be java.util.List or QueryResult object.");
+
             }
         }
 
@@ -117,20 +127,46 @@ public class RepositoryDynamicProxyInvocationHandler implements InvocationHandle
 
     }
 
+    private Class getRepositoryInterface(Object proxy) {
+        Class[] allInterfaces = proxy.getClass().getInterfaces();
+
+        Class entityType = null;
+        for (Class type: allInterfaces) {
+            if (type.getAnnotation(Repository.class) != null) {
+                entityType = ((Repository) type.getAnnotation(Repository.class)).value();
+            }
+        }
+
+        return entityType;
+    }
+
+    private Object invokeDataSource(Method passthroughMethod, Object[] passThroughArgs) {
+        try {
+            return passthroughMethod.invoke(this.adaptor, passThroughArgs);
+        } catch (IllegalAccessException | IllegalArgumentException e) {
+            throw new RepositoryInvocationException(e);
+        } catch (InvocationTargetException e) {
+            throw new RepositoryInteractionException(e.getTargetException());
+        }
+    }
 
     private void bindDatastoreAdaptor(DataSourceAdaptor adaptor) {
         this.adaptor = adaptor;
 
         ImmutableMap.Builder<String, Method> methodMapBuilder = ImmutableMap.<String, Method>builder();
+        ImmutableMap.Builder<String, Method> queryMapBuilder = ImmutableMap.<String, Method>builder();
 
         Method[] adaptorReflectionMethods = DataSourceAdaptor.class.getMethods();
         for (Method method: adaptorReflectionMethods) {
-            if (!BASE_METHODS.contains(method.getName())) {
+            if (QUERY_METHODS.contains(method.getName())) {
+                queryMapBuilder.put(method.getName(), method);
+            } else if (!BASE_METHODS.contains(method.getName())) {
                methodMapBuilder.put(method.getName(), method);
             }
         }
 
         this.passthroughMethods = methodMapBuilder.build();
+        this.queryMethods = queryMapBuilder.build();
 
     }
 }

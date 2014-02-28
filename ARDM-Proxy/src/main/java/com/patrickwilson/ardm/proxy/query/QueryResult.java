@@ -1,25 +1,24 @@
 package com.patrickwilson.ardm.proxy.query;
 
 
-import com.google.gson.JsonObject;
-
 import java.util.List;
 
 /**
  * A wrapper to hold the result that comes back in native format.
  * User: pwilson
+ * @param <ENTITY_TYPE> the type of the underlying entity
  */
-public class QueryResult {
+public class QueryResult<ENTITY_TYPE> {
 
-    private List<JsonObject> results;
+    private List<ENTITY_TYPE> results;
     private int startIndex;
     private int numResults;
 
-    public List<JsonObject> getResults() {
+    public List<ENTITY_TYPE> getResults() {
         return results;
     }
 
-    public void setResults(List<JsonObject> results) {
+    public void setResults(List<ENTITY_TYPE> results) {
         this.results = results;
     }
 
