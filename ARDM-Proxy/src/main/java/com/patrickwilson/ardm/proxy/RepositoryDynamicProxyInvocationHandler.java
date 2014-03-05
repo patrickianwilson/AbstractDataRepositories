@@ -4,14 +4,21 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.patrickwilson.ardm.api.annotation.Query;
 import com.patrickwilson.ardm.api.annotation.Repository;
+import com.patrickwilson.ardm.proxy.query.QueryData;
+import com.patrickwilson.ardm.proxy.query.QueryPage;
+import com.patrickwilson.ardm.proxy.query.QueryParser;
 import com.patrickwilson.ardm.proxy.query.QueryResult;
+import com.patrickwilson.ardm.proxy.query.SimpleQueryParser;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Magic invocation handler for dynamic data repository proxy instances.
@@ -22,56 +29,15 @@ public class RepositoryDynamicProxyInvocationHandler implements InvocationHandle
     private Map<String, Method> passthroughMethods = null;
     private Map<String, Method> queryMethods = null;
     private DataSourceAdaptor adaptor;
+    private QueryParser queryParser = new SimpleQueryParser();
 
     public static final List<String> BASE_METHODS = Lists.newArrayList("toString", "hashCode", "clone", "finalize", "equals", "wait", "notify", "notifyAll");
 
     public static final List<String> QUERY_METHODS = Lists.newArrayList("findByCriteria", "findAll");
 
-    /**
-     * Processes a method invocation on a proxy instance and returns
-     * the result.  This method will be invoked on an invocation handler
-     * when a method is invoked on a proxy instance that it is
-     * associated with.
-     *
-     * @param proxy  the proxy instance that the method was invoked on
-     * @param method the {@code Method} instance corresponding to
-     *               the interface method invoked on the proxy instance.  The declaring
-     *               class of the {@code Method} object will be the interface that
-     *               the method was declared in, which may be a superinterface of the
-     *               proxy interface that the proxy class inherits the method through.
-     * @param args   an array of objects containing the values of the
-     *               arguments passed in the method invocation on the proxy instance,
-     *               or {@code null} if interface method takes no arguments.
-     *               Arguments of primitive types are wrapped in instances of the
-     *               appropriate primitive wrapper class, such as
-     *               {@code java.lang.Integer} or {@code java.lang.Boolean}.
-     * @return the value to return from the method invocation on the
-     *         proxy instance.  If the declared return type of the interface
-     *         method is a primitive type, then the value returned by
-     *         this method must be an instance of the corresponding primitive
-     *         wrapper class; otherwise, it must be a type assignable to the
-     *         declared return type.  If the value returned by this method is
-     *         {@code null} and the interface method's return type is
-     *         primitive, then a {@code NullPointerException} will be
-     *         thrown by the method invocation on the proxy instance.  If the
-     *         value returned by this method is otherwise not compatible with
-     *         the interface method's declared return type as described above,
-     *         a {@code ClassCastException} will be thrown by the method
-     *         invocation on the proxy instance.
-     * @throws Throwable the exception to throw from the method
-     *                   invocation on the proxy instance.  The exception's type must be
-     *                   assignable either to any of the exception types declared in the
-     *                   {@code throws} clause of the interface method or to the
-     *                   unchecked exception types {@code java.lang.RuntimeException}
-     *                   or {@code java.lang.Error}.  If a checked exception is
-     *                   thrown by this method that is not assignable to any of the
-     *                   exception types declared in the {@code throws} clause of
-     *                   the interface method, then an
-     *                   {@link java.lang.reflect.UndeclaredThrowableException} containing the
-     *                   exception that was thrown by this method will be thrown by the
-     *                   method invocation on the proxy instance.
-     * @see java.lang.reflect.UndeclaredThrowableException
-     */
+    public static final Pattern BASIC_QUERY_METHOD_PATTERN = Pattern.compile("findBy(.*)");
+
+
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
@@ -79,8 +45,20 @@ public class RepositoryDynamicProxyInvocationHandler implements InvocationHandle
             args = new Object[]{};
         }
 
+        if (method == null) {
+            //I can't see this happening
+            return null;
+        }
+
+        Class entityType = getRepositoryInterface(proxy);
+
         if (method.getAnnotation(Query.class) != null) {
             //this is a query invocation.
+            Matcher queryMethodMatcher = BASIC_QUERY_METHOD_PATTERN.matcher(method.getName());
+
+            String query = queryMethodMatcher.group(1);
+
+
             return null;
         } else if ("to".equals(method.getName())) {
             if (args.length == 1) {
@@ -97,7 +75,6 @@ public class RepositoryDynamicProxyInvocationHandler implements InvocationHandle
             Method passthroughMethod = passthroughMethods.get(method.getName());
 
             Object[] passThroughArgs = Arrays.copyOf(args, args.length + 1);
-            Class entityType = getRepositoryInterface(proxy);
 
             passThroughArgs[args.length] = entityType;
 
@@ -107,12 +84,11 @@ public class RepositoryDynamicProxyInvocationHandler implements InvocationHandle
             //this is a query style of method.
             Method queryPassthoughMethod = queryMethods.get(method.getName());
             Object[] passthroughArgs = Arrays.copyOf(args, args.length + 1);
-            Class entityType = getRepositoryInterface(proxy);
             passthroughArgs[args.length] = entityType;
 
             QueryResult result = (QueryResult) invokeDataSource(queryPassthoughMethod, passthroughArgs);
 
-            if (List.class.isAssignableFrom(method.getReturnType())) {
+            if (Collection.class.isAssignableFrom(method.getReturnType())) {
                 //repository method is a List return type.
                 return result.getResults();
             } else if (QueryResult.class.isAssignableFrom(method.getReturnType())) {

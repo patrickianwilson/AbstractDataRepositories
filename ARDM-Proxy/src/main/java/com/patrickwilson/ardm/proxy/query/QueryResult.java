@@ -37,4 +37,26 @@ public class QueryResult<ENTITY_TYPE> {
     public void setNumResults(int numResults) {
         this.numResults = numResults;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof QueryResult)) return false;
+
+        QueryResult that = (QueryResult) o;
+
+        if (numResults != that.numResults) return false;
+        if (startIndex != that.startIndex) return false;
+        if (results != null ? !results.equals(that.results) : that.results != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = results != null ? results.hashCode() : 0;
+        result = 31 * result + startIndex;
+        result = 31 * result + numResults;
+        return result;
+    }
 }
