@@ -35,6 +35,7 @@ public class QueryData {
         this.page = page;
     }
 
+    //CheckStyle:OFF
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -54,4 +55,15 @@ public class QueryData {
         result = 31 * result + (criteria != null ? criteria.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "QueryData{" +
+                "page=" + page +
+                ", criteria=" + criteria +
+                '}';
+    }
+
+
+    //CheckStyle:ON
 }

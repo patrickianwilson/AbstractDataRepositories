@@ -1,6 +1,5 @@
 package com.patrickwilson.ardm.proxy.query;
 
-import java.lang.reflect.Method;
 
 /**
  * Parse queryMethod names and generate query trees.

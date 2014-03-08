@@ -5,7 +5,6 @@ import com.patrickwilson.ardm.api.annotation.Repository;
 import com.patrickwilson.ardm.api.key.SimpleEnitityKey;
 import com.patrickwilson.ardm.api.repository.CRUDRepository;
 import com.patrickwilson.ardm.proxy.query.QueryData;
-import com.patrickwilson.ardm.proxy.query.QueryPage;
 import com.patrickwilson.ardm.proxy.query.QueryResult;
 import com.patrickwilson.shared.util.test.BaseJMockTest;
 import com.patrickwilson.shared.util.test.BeanBuilder;
@@ -122,6 +121,8 @@ public class RepositoryProxyQueryTests extends BaseJMockTest {
             this.secondProperty = secondProperty;
         }
 
+
+        //CheckStyle:OFF
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
@@ -145,9 +146,23 @@ public class RepositoryProxyQueryTests extends BaseJMockTest {
             result = 31 * result + (secondProperty != null ? secondProperty.hashCode() : 0);
             return result;
         }
+
+        @Override
+        public String toString() {
+            return "MyEntity{" +
+                    "id=" + id +
+                    ", entityName='" + entityName + '\'' +
+                    ", secondProperty='" + secondProperty + '\'' +
+                    '}';
+        }
+        //CheckStyle:ON
+
     }
 
 
+    /**
+     * for unit testing.
+     */
     public static class MyEntityKey extends SimpleEnitityKey<String> {
 
         private String key;
@@ -165,6 +180,8 @@ public class RepositoryProxyQueryTests extends BaseJMockTest {
         public String getKey() {
             return key;
         }
+
+        //CheckStyle:OFF
 
         @Override
         public boolean equals(Object o) {
@@ -185,6 +202,16 @@ public class RepositoryProxyQueryTests extends BaseJMockTest {
             result = 31 * result + (key != null ? key.hashCode() : 0);
             return result;
         }
+
+        @Override
+        public String toString() {
+            return "MyEntityKey{" +
+                    "key='" + key + '\'' +
+                    '}';
+        }
+
+        //CheckStyle:ON
+
     }
 
 

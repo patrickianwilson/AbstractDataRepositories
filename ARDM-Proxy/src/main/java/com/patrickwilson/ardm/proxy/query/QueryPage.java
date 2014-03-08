@@ -35,6 +35,7 @@ public class QueryPage {
         this.numberOfResults = numberOfResults;
     }
 
+    //CheckStyle:OFF
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -54,4 +55,14 @@ public class QueryPage {
         result = 31 * result + numberOfResults;
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "QueryPage{" +
+                "startIndex=" + startIndex +
+                ", numberOfResults=" + numberOfResults +
+                '}';
+    }
+
+    //CheckStyle:ON
 }

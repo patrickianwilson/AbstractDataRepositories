@@ -37,6 +37,8 @@ public class ValueLogicTreeNode extends LogicTreeNode {
         return null;
     }
 
+    //CheckStyle:OFF
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -64,4 +66,7 @@ public class ValueLogicTreeNode extends LogicTreeNode {
                 ", valueArgIndex=" + valueArgIndex +
                 '}';
     }
+
+    //CheckStyle:ON
+
 }

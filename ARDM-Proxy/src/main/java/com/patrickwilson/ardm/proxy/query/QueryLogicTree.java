@@ -16,6 +16,7 @@ public class QueryLogicTree {
         this.rootCriteria = rootCriteria;
     }
 
+    //CheckStyle:OFF
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -39,4 +40,5 @@ public class QueryLogicTree {
                 "rootCriteria=" + rootCriteria +
                 '}';
     }
+    //CheckStyle:ON
 }

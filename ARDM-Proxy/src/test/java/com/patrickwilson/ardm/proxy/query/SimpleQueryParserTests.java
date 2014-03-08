@@ -10,7 +10,7 @@ import org.junit.Test;
 public class SimpleQueryParserTests {
 
 
-    SimpleQueryParser underTest = new SimpleQueryParser();
+    private SimpleQueryParser underTest = new SimpleQueryParser();
 
     @Test
     public void tryFindByFirstName() {

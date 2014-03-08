@@ -38,6 +38,7 @@ public class QueryResult<ENTITY_TYPE> {
         this.numResults = numResults;
     }
 
+    //CheckStyle:OFF
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -59,4 +60,15 @@ public class QueryResult<ENTITY_TYPE> {
         result = 31 * result + numResults;
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "QueryResult{" +
+                "results=" + results +
+                ", startIndex=" + startIndex +
+                ", numResults=" + numResults +
+                '}';
+    }
+
+    //CheckStyle:ON
 }

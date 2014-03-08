@@ -18,6 +18,8 @@ public abstract class SimpleEnitityKey<KEY_TYPE> implements EntityKey<KEY_TYPE> 
         return keyTypeClass;
     }
 
+    //CheckStyle:OFF
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -34,4 +36,14 @@ public abstract class SimpleEnitityKey<KEY_TYPE> implements EntityKey<KEY_TYPE> 
     public int hashCode() {
         return keyTypeClass != null ? keyTypeClass.hashCode() : 0;
     }
+
+    @Override
+    public String toString() {
+        return "SimpleEnitityKey{" +
+                "keyTypeClass=" + keyTypeClass +
+                '}';
+    }
+
+    //CheckStyle:ON
+
 }

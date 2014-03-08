@@ -2,8 +2,6 @@ package com.patrickwilson.ardm.proxy.query;
 
 import com.google.common.base.Strings;
 
-import java.lang.reflect.Method;
-import java.util.Collection;
 
 /**
  * Simple implementation of a query parser.  Only handles

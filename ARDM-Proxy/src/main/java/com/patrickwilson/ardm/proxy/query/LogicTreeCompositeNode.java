@@ -12,6 +12,9 @@ public class LogicTreeCompositeNode extends LogicTreeNode {
     private List<LogicTreeNode> subNodes = new ArrayList<>();
     private Conjection conjection;
 
+    /**
+     * a list of conjunctions that are currently supported.
+     */
     public enum Conjection { OR, AND }
 
     @Override
@@ -36,6 +39,7 @@ public class LogicTreeCompositeNode extends LogicTreeNode {
         this.conjection = conjection;
     }
 
+    //CheckStyle:OFF
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -64,4 +68,6 @@ public class LogicTreeCompositeNode extends LogicTreeNode {
                 ", conjection=" + conjection +
                 '}';
     }
+
+    //CheckStyle:ON
 }

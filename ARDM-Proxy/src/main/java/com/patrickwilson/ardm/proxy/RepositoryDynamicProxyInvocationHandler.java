@@ -4,8 +4,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.patrickwilson.ardm.api.annotation.Query;
 import com.patrickwilson.ardm.api.annotation.Repository;
-import com.patrickwilson.ardm.proxy.query.QueryData;
-import com.patrickwilson.ardm.proxy.query.QueryPage;
 import com.patrickwilson.ardm.proxy.query.QueryParser;
 import com.patrickwilson.ardm.proxy.query.QueryResult;
 import com.patrickwilson.ardm.proxy.query.SimpleQueryParser;
