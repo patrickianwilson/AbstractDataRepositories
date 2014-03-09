@@ -1,7 +1,22 @@
+apply plugin: "jacoco"
+
 dependencies {
 
     compile 'com.google.code.gson:gson:2.2.4'
     compile project (":ARDM-API")
     testCompile project (":Test-Utils")
 
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        csv.enabled false
+        html.destination "${buildDir}/jacocoHtml"
+    }
+}
+
+tasks.withType(Compile) {
+    options.debug = true
+    options.compilerArgs = ["-g"]
 }

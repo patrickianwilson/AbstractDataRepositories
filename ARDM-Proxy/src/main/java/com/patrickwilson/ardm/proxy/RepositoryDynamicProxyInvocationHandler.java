@@ -4,6 +4,10 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.patrickwilson.ardm.api.annotation.Query;
 import com.patrickwilson.ardm.api.annotation.Repository;
+import com.patrickwilson.ardm.proxy.query.InvalidMethodNameException;
+import com.patrickwilson.ardm.proxy.query.QueryData;
+import com.patrickwilson.ardm.proxy.query.QueryLogicTree;
+import com.patrickwilson.ardm.proxy.query.QueryPage;
 import com.patrickwilson.ardm.proxy.query.QueryParser;
 import com.patrickwilson.ardm.proxy.query.QueryResult;
 import com.patrickwilson.ardm.proxy.query.SimpleQueryParser;
@@ -31,7 +35,7 @@ public class RepositoryDynamicProxyInvocationHandler implements InvocationHandle
 
     public static final List<String> BASE_METHODS = Lists.newArrayList("toString", "hashCode", "clone", "finalize", "equals", "wait", "notify", "notifyAll");
 
-    public static final List<String> QUERY_METHODS = Lists.newArrayList("findByCriteria", "findAll");
+    public static final List<String> QUERY_METHODS = Lists.newArrayList("findAll");
 
     public static final Pattern BASIC_QUERY_METHOD_PATTERN = Pattern.compile("findBy(.*)");
 
@@ -54,7 +58,42 @@ public class RepositoryDynamicProxyInvocationHandler implements InvocationHandle
             //this is a query invocation.
             Matcher queryMethodMatcher = BASIC_QUERY_METHOD_PATTERN.matcher(method.getName());
 
+            if (!queryMethodMatcher.matches()) {
+                throw new InvalidMethodNameException("The query method does not have a valid query name", method.getName());
+            }
+
             String query = queryMethodMatcher.group(1);
+
+            QueryLogicTree queryTree = this.queryParser.parse(query);
+
+            if (this.adaptor instanceof QueriableDatasourceAdaptor) {
+                QueryData queryData = new QueryData();
+                QueryPage page = new QueryPage();
+                queryData.setParameters(args);
+
+                if (entityType.isAssignableFrom(method.getReturnType())) {
+                    //repository method is a List return type.
+                    page.setNumberOfResults(1);
+                }
+
+                queryData.setPage(page);
+                queryData.setCriteria(queryTree);
+
+                QueryResult result = ((QueriableDatasourceAdaptor) this.adaptor).findByCriteria(queryData);
+
+                if (Collection.class.isAssignableFrom(method.getReturnType())) {
+                    //repository method is a List return type.
+                    return result.getResults();
+                } else if (QueryResult.class.isAssignableFrom(method.getReturnType())) {
+                    return result;
+                } else if (entityType.isAssignableFrom(method.getReturnType())) {
+                    //can return null if no entity is actually found.
+                    return result.getResults().get(0);
+                } else {
+                    throw new RepositoryDeclarationException("Invalid return type from method: " + method.getName() + ", return type " + method.getReturnType().getName() + " is not valid. Should be java.util.List or QueryResult object.");
+
+                }
+            }
 
 
             return null;
@@ -97,7 +136,8 @@ public class RepositoryDynamicProxyInvocationHandler implements InvocationHandle
             }
         }
 
-        return null;
+        throw new RepositoryDeclarationException("Method " + method.getName() +  " cannot be bound to Abstract Repository");
+
 
     }
 
@@ -130,14 +170,21 @@ public class RepositoryDynamicProxyInvocationHandler implements InvocationHandle
         ImmutableMap.Builder<String, Method> methodMapBuilder = ImmutableMap.<String, Method>builder();
         ImmutableMap.Builder<String, Method> queryMapBuilder = ImmutableMap.<String, Method>builder();
 
-        Method[] adaptorReflectionMethods = DataSourceAdaptor.class.getMethods();
+        Method[] adaptorReflectionMethods = CRUDDatasourceAdaptor.class.getMethods();
         for (Method method: adaptorReflectionMethods) {
-            if (QUERY_METHODS.contains(method.getName())) {
-                queryMapBuilder.put(method.getName(), method);
-            } else if (!BASE_METHODS.contains(method.getName())) {
+           if (!BASE_METHODS.contains(method.getName())) {
                methodMapBuilder.put(method.getName(), method);
             }
         }
+
+
+        adaptorReflectionMethods = ScanableDatasourceAdaptor.class.getMethods();
+        for (Method method: adaptorReflectionMethods) {
+            if (QUERY_METHODS.contains(method.getName())) {
+                queryMapBuilder.put(method.getName(), method);
+            }
+        }
+
 
         this.passthroughMethods = methodMapBuilder.build();
         this.queryMethods = queryMapBuilder.build();

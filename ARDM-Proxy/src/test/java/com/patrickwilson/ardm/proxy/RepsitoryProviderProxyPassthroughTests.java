@@ -13,7 +13,7 @@ import org.junit.Test;
  */
 public class RepsitoryProviderProxyPassthroughTests extends BaseJMockTest {
 
-     private final DataSourceAdaptor mockDataSource = createMock(DataSourceAdaptor.class);
+     private final CRUDDatasourceAdaptor mockDataSource = createMock(CRUDDatasourceAdaptor.class);
 
     @Test
     public void testGenericsApi() {

@@ -10,7 +10,7 @@ import com.patrickwilson.ardm.proxy.query.QueryResult;
  *
  * User: pwilson
  */
-public class NotImplementedDataSourceAdaptor implements DataSourceAdaptor {
+public class NotImplementedDataSourceAdaptor implements DataSourceAdaptor, QueriableDatasourceAdaptor, CRUDDatasourceAdaptor, ScanableDatasourceAdaptor {
 
     @Override
     public <ENTITY> ENTITY save(ENTITY entity, Class<ENTITY> clazz) {

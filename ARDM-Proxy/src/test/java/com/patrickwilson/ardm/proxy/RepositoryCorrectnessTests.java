@@ -17,7 +17,7 @@ import java.util.List;
  */
 public class RepositoryCorrectnessTests extends BaseJMockTest {
 
-    private final DataSourceAdaptor mockDataSource = createMock(DataSourceAdaptor.class);
+    private final ScanableDatasourceAdaptor mockDataSource = createMock(ScanableDatasourceAdaptor.class);
 
     @Test(expected = RepositoryDeclarationException.class)
     public void testInvalidFindAllReturnType() {
@@ -33,11 +33,7 @@ public class RepositoryCorrectnessTests extends BaseJMockTest {
             will(returnValue(buildQueryResult(entity)));
         } });
 
-
-        final MyEntity saved = underTest.findAll();
-
-
-
+        underTest.findAll();
 
     }
 
@@ -80,7 +76,7 @@ public class RepositoryCorrectnessTests extends BaseJMockTest {
     @Repository(MyEntity.class)
     public interface MyDataRepository extends CRUDRepository<MyEntity> {
 
-         MyEntity findAll();
+         String findAll();
         
     }
 

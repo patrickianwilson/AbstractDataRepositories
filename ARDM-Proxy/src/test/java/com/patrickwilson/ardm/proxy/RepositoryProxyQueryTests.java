@@ -1,11 +1,15 @@
 package com.patrickwilson.ardm.proxy;
 
 import com.google.common.collect.Lists;
+import com.patrickwilson.ardm.api.annotation.Query;
 import com.patrickwilson.ardm.api.annotation.Repository;
 import com.patrickwilson.ardm.api.key.SimpleEnitityKey;
 import com.patrickwilson.ardm.api.repository.CRUDRepository;
 import com.patrickwilson.ardm.proxy.query.QueryData;
+import com.patrickwilson.ardm.proxy.query.QueryLogicTree;
+import com.patrickwilson.ardm.proxy.query.QueryPage;
 import com.patrickwilson.ardm.proxy.query.QueryResult;
+import com.patrickwilson.ardm.proxy.query.ValueLogicTreeNode;
 import com.patrickwilson.shared.util.test.BaseJMockTest;
 import com.patrickwilson.shared.util.test.BeanBuilder;
 import org.jmock.Expectations;
@@ -21,15 +25,21 @@ import static org.hamcrest.CoreMatchers.*;
  */
 public class RepositoryProxyQueryTests extends BaseJMockTest {
 
-    private final DataSourceAdaptor mockDataSource = createMock(DataSourceAdaptor.class);
+    private final QueriableDatasourceAdaptor mockDataSource = createMock(QueriableDatasourceAdaptor.class);
 
     @Test
     public void doListReturnType() throws Exception {
 
         MyDataRepository underTest = new RepositoryProvider().bind(MyDataRepository.class).to(mockDataSource);
+        final String param = "argument";
 
         final QueryData data = BeanBuilder.newInstance(QueryData.class)
-               .build();
+                .with("page", getMultiEntityQueryPage())
+                .with("criteria", getSingleNodeQueryTree("entityname"))
+                .with("parameters", new Object[] {param })
+                .build();
+
+
 
         final QueryResult<MyEntity> adaptorResponse = new QueryResult<>();
 
@@ -43,7 +53,7 @@ public class RepositoryProxyQueryTests extends BaseJMockTest {
             }
         });
 
-        List<MyEntity> result = underTest.findByEntityName();
+        List<MyEntity> result = underTest.findByEntityName(param);
 
         Assert.assertThat(result, equalTo(getExpectedResult()));
 
@@ -51,8 +61,31 @@ public class RepositoryProxyQueryTests extends BaseJMockTest {
 
 
     @Test
-    public void doEntityReturnType() {
+    public void doEntityReturnType() throws Exception {
+        MyDataRepository underTest = new RepositoryProvider().bind(MyDataRepository.class).to(mockDataSource);
 
+        int param = 1;
+        final QueryData data = BeanBuilder.newInstance(QueryData.class)
+                .with("page", getSingleEntityRequestPage())
+                .with("criteria", getSingleNodeQueryTree("secondproperty"))
+                .with("parameters", new Object[] {param })
+                .build();
+
+        final QueryResult<MyEntity> adaptorResponse = new QueryResult<>();
+
+        adaptorResponse.setResults(getExpectedResult());
+        adaptorResponse.setNumResults(2);
+
+        addExpectations(new Expectations() {
+            {
+                oneOf(mockDataSource).findByCriteria(with(data));
+                will(returnValue(adaptorResponse));
+            }
+        });
+
+        MyEntity result = underTest.findBySecondProperty(param);
+
+        Assert.assertThat(result, equalTo(getFirstEntity()));
     }
 
     private List<MyEntity> getExpectedResult() throws Exception {
@@ -74,15 +107,43 @@ public class RepositoryProxyQueryTests extends BaseJMockTest {
                 .build();
     }
 
+    private QueryPage getSingleEntityRequestPage() {
+        QueryPage page = new QueryPage();
+        page.setStartIndex(0);
+        page.setNumberOfResults(1);
+
+        return page;
+    }
+
+    private QueryPage getMultiEntityQueryPage() {
+        QueryPage page = getSingleEntityRequestPage();
+        page.setNumberOfResults(QueryPage.NOT_SET);
+        return page;
+    }
+    
+    private QueryLogicTree getSingleNodeQueryTree(String propertyName) {
+        QueryLogicTree result = new QueryLogicTree();
+
+        ValueLogicTreeNode node = new ValueLogicTreeNode();
+        node.setValueArgIndex(0);
+        node.setColumnName(propertyName);
+        result.setRootCriteria(node);
+
+
+        return result;
+    }
+
     /**
      * used for testing.
      */
     @Repository(MyEntity.class)
     public interface MyDataRepository extends CRUDRepository<MyEntity> {
 
-        List<MyEntity> findByEntityName();
+        @Query
+        List<MyEntity> findByEntityName(String entityName);
 
-        MyEntity findBySecondProperty();
+        @Query
+        MyEntity findBySecondProperty(int arg);
 
     }
 
