@@ -1,5 +1,7 @@
 package com.patrickwilson.ardm.proxy;
 
+import com.patrickwilson.ardm.datasource.api.exception.RepositoryException;
+
 /**
  * Thrown if a repository interface is declaring an unknown return type.
  * User: pwilson

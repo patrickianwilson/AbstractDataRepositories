@@ -1,18 +1,17 @@
-package com.patrickwilson.ardm.proxy;
-
-import com.patrickwilson.ardm.datasource.api.exception.RepositoryException;
+package com.patrickwilson.ardm.datasource.api.exception;
 
 /**
- * Thrown if there is a problem calling the underlying datasource adator.
+ * Thrown if there is a problem interacting with the underlying data source.
  * User: pwilson
  */
-public class RepositoryInvocationException extends RepositoryException {
+public class RepositoryInteractionException extends RepositoryException {
+
     /**
      * Constructs a new runtime exception with {@code null} as its
      * detail message.  The cause is not initialized, and may subsequently be
      * initialized by a call to {@link #initCause}.
      */
-    public RepositoryInvocationException() {
+    public RepositoryInteractionException() {
     }
 
     /**
@@ -23,7 +22,7 @@ public class RepositoryInvocationException extends RepositoryException {
      * @param message the detail message. The detail message is saved for
      *                later retrieval by the {@link #getMessage()} method.
      */
-    public RepositoryInvocationException(String message) {
+    public RepositoryInteractionException(String message) {
         super(message);
     }
 
@@ -41,7 +40,7 @@ public class RepositoryInvocationException extends RepositoryException {
      *                unknown.)
      * @since 1.4
      */
-    public RepositoryInvocationException(String message, Throwable cause) {
+    public RepositoryInteractionException(String message, Throwable cause) {
         super(message, cause);
     }
 
@@ -58,7 +57,7 @@ public class RepositoryInvocationException extends RepositoryException {
      *              unknown.)
      * @since 1.4
      */
-    public RepositoryInvocationException(Throwable cause) {
+    public RepositoryInteractionException(Throwable cause) {
         super(cause);
     }
 
@@ -76,7 +75,7 @@ public class RepositoryInvocationException extends RepositoryException {
      *                           be writable
      * @since 1.7
      */
-    public RepositoryInvocationException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    public RepositoryInteractionException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

@@ -1,16 +1,27 @@
-package com.patrickwilson.ardm.proxy;
+package com.patrickwilson.ardm.datasource.derby;
 
 import com.patrickwilson.ardm.api.key.EntityKey;
+import com.patrickwilson.ardm.datasource.api.CRUDDatasourceAdaptor;
+import com.patrickwilson.ardm.datasource.api.DataSourceAdaptor;
+import com.patrickwilson.ardm.datasource.api.QueriableDatasourceAdaptor;
+import com.patrickwilson.ardm.datasource.api.ScanableDatasourceAdaptor;
 import com.patrickwilson.ardm.datasource.api.query.QueryData;
 import com.patrickwilson.ardm.datasource.api.query.QueryResult;
 
 /**
- * This adaptor is deliberately created to make the API more readible. It does nothing except prevent configuration
- * problems.
- *
+ * An embedded derby server adaptor.
  * User: pwilson
  */
-public class NotImplementedDataSourceAdaptor implements DataSourceAdaptor, QueriableDatasourceAdaptor, CRUDDatasourceAdaptor, ScanableDatasourceAdaptor {
+public class EmbeddedDerbyDatasourceAdaptor implements QueriableDatasourceAdaptor, CRUDDatasourceAdaptor, ScanableDatasourceAdaptor {
+
+
+
+
+    public EmbeddedDerbyDatasourceAdaptor(String connectionInfo) {
+
+    }
+
+
 
     @Override
     public <ENTITY> ENTITY save(ENTITY entity, Class<ENTITY> clazz) {
@@ -28,12 +39,12 @@ public class NotImplementedDataSourceAdaptor implements DataSourceAdaptor, Queri
     }
 
     @Override
-    public <ENTITY> QueryResult<ENTITY> findAll(Class<ENTITY> clazz) {
+    public <ENTITY> QueryResult<ENTITY> findByCriteria(QueryData query) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public <ENTITY> QueryResult<ENTITY> findByCriteria(QueryData query) {
+    public <ENTITY> QueryResult<ENTITY> findAll(Class<ENTITY> clazz) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 }

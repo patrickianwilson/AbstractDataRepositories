@@ -1,5 +1,10 @@
 package com.patrickwilson.ardm.proxy.query;
 
+import com.patrickwilson.ardm.datasource.api.query.LogicTreeCompositeNode;
+import com.patrickwilson.ardm.datasource.api.query.QueryLogicTree;
+import com.patrickwilson.ardm.datasource.api.query.QueryPage;
+import com.patrickwilson.ardm.datasource.api.query.SimpleQueryParser;
+import com.patrickwilson.ardm.datasource.api.query.ValueLogicTreeNode;
 import org.junit.Assert;
 import org.junit.Test;
 

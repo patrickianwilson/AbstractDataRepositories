@@ -3,7 +3,8 @@ include ":ARDM-API"
 include ":ARDM-Proxy"
 include ":ARDM-Processors"
 include ':ARDM-Processors-Tests'
-include ":ARDM-Impl-Memory"
+include ":ARDM-Datasource-Derby"
+include ":ARDM-Datasource-API"
 
 //sub repository locations.
 include ":Test-Utils"

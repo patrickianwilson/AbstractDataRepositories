@@ -3,7 +3,7 @@ package com.patrickwilson.ardm.proxy;
 import com.google.common.collect.Lists;
 import com.patrickwilson.ardm.api.annotation.Repository;
 import com.patrickwilson.ardm.api.repository.CRUDRepository;
-import com.patrickwilson.ardm.proxy.query.QueryResult;
+import com.patrickwilson.ardm.datasource.api.query.QueryResult;
 import com.patrickwilson.shared.util.test.BaseJMockTest;
 import org.jmock.Expectations;
 import org.junit.Assert;
