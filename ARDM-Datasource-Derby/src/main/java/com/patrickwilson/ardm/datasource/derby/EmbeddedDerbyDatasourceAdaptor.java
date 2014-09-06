@@ -2,7 +2,6 @@ package com.patrickwilson.ardm.datasource.derby;
 
 import com.patrickwilson.ardm.api.key.EntityKey;
 import com.patrickwilson.ardm.datasource.api.CRUDDatasourceAdaptor;
-import com.patrickwilson.ardm.datasource.api.DataSourceAdaptor;
 import com.patrickwilson.ardm.datasource.api.QueriableDatasourceAdaptor;
 import com.patrickwilson.ardm.datasource.api.ScanableDatasourceAdaptor;
 import com.patrickwilson.ardm.datasource.api.query.QueryData;
