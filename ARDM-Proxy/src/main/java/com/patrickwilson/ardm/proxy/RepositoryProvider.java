@@ -1,5 +1,6 @@
 package com.patrickwilson.ardm.proxy;
 
+import com.patrickwilson.ardm.datasource.api.DataSourceAdaptor;
 import com.patrickwilson.ardm.datasource.api.exception.RepositoryInstantiationExcepiton;
 
 import java.lang.reflect.Proxy;

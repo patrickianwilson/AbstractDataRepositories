@@ -5,6 +5,7 @@ import com.patrickwilson.ardm.api.annotation.Query;
 import com.patrickwilson.ardm.api.annotation.Repository;
 import com.patrickwilson.ardm.api.key.SimpleEnitityKey;
 import com.patrickwilson.ardm.api.repository.CRUDRepository;
+import com.patrickwilson.ardm.datasource.api.QueriableDatasourceAdaptor;
 import com.patrickwilson.ardm.datasource.api.query.QueryData;
 import com.patrickwilson.ardm.datasource.api.query.QueryLogicTree;
 import com.patrickwilson.ardm.datasource.api.query.QueryPage;
