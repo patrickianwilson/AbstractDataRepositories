@@ -34,9 +34,9 @@ repositories {
         url "http://repo.springsource.org/libs-release"
     }
     mavenCentral();
-    maven {
-        url "http://10.1.7.162:8081/nexus/content/repositories/thirdparty/"
-    }
+//    maven {
+//        url "http://10.1.7.162:8081/nexus/content/repositories/thirdparty/"
+//    }
     mavenLocal()
 }
 

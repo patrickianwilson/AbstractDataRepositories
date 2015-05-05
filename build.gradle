@@ -35,12 +35,12 @@ allprojects {
             url "http://repo.springsource.org/libs-release"
         }
         mavenCentral();
-        maven {
-            url "http://http://10.1.8.159:8081/nexus/content/repositories/thirdparty/"
-        }
-        maven {
-            url "http://10.1.8.159:8081/nexus/content/repositories/snapshots/"
-        }
+//        maven {
+//            url "http://10.1.8.159:8081/nexus/content/repositories/thirdparty/"
+//        }
+//        maven {
+//            url "http://10.1.8.159:8081/nexus/content/repositories/snapshots/"
+//        }
 
 
         maven {
