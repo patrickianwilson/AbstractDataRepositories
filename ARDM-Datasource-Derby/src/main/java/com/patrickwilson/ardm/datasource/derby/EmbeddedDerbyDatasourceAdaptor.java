@@ -14,8 +14,6 @@ import com.patrickwilson.ardm.datasource.api.query.QueryResult;
 public class EmbeddedDerbyDatasourceAdaptor implements QueriableDatasourceAdaptor, CRUDDatasourceAdaptor, ScanableDatasourceAdaptor {
 
 
-
-
     public EmbeddedDerbyDatasourceAdaptor(String connectionInfo) {
 
     }

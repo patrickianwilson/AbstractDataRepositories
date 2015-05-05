@@ -1,5 +1,7 @@
 package com.patrickwilson.ardm.api.repository;
 
+import com.patrickwilson.ardm.api.key.EntityKey;
+
 /**
  * Basic CRUD capabilities.
  * User: pwilson
@@ -9,4 +11,7 @@ public interface CRUDRepository<ENTITY> {
 
     ENTITY save(ENTITY entity);
 
+    void delete(ENTITY entity);
+
+    ENTITY findOne(EntityKey id);
 }

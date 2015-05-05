@@ -1,0 +1,16 @@
+
+ext {
+    awsSdkVersion = '1.7.2'
+}
+
+dependencies {
+
+
+    compile project (":ARDM-Datasource-API")
+
+    /* AWS Java SDK */
+    compile "com.amazonaws:aws-java-sdk:$awsSdkVersion"
+
+    compile 'commons-beanutils:commons-beanutils:1.9.2' //used to parse the entity.
+
+}

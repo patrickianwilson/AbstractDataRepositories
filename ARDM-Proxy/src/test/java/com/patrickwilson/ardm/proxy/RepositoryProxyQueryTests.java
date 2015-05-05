@@ -25,7 +25,7 @@ import static org.hamcrest.CoreMatchers.*;
  * User: pwilson
  */
 public class RepositoryProxyQueryTests extends BaseJMockTest {
-
+/*
     private final QueriableDatasourceAdaptor mockDataSource = createMock(QueriableDatasourceAdaptor.class);
 
     @Test
@@ -133,10 +133,12 @@ public class RepositoryProxyQueryTests extends BaseJMockTest {
 
         return result;
     }
-
+*/
     /**
      * used for testing.
      */
+
+    /*
     @Repository(MyEntity.class)
     public interface MyDataRepository extends CRUDRepository<MyEntity> {
 
@@ -147,10 +149,13 @@ public class RepositoryProxyQueryTests extends BaseJMockTest {
         MyEntity findBySecondProperty(int arg);
 
     }
+    */
 
     /**
      * used for testing.
      */
+
+    /*
     public static class MyEntity {
 
         private MyEntityKey id;
@@ -220,17 +225,18 @@ public class RepositoryProxyQueryTests extends BaseJMockTest {
         //CheckStyle:ON
 
     }
-
+*/
 
     /**
      * for unit testing.
      */
+
+    /*
     public static class MyEntityKey extends SimpleEnitityKey<String> {
 
-        private String key;
 
         public MyEntityKey(String key) {
-            super(String.class);
+            super(key, String.class);
 
         }
 
@@ -276,5 +282,6 @@ public class RepositoryProxyQueryTests extends BaseJMockTest {
 
     }
 
+*/
 
 }

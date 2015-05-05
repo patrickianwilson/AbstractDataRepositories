@@ -17,7 +17,7 @@ jacocoTestReport {
     }
 }
 
-tasks.withType(Compile) {
+tasks.withType(JavaCompile) {
     options.debug = true
     options.compilerArgs = ["-g"]
 }
