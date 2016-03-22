@@ -31,17 +31,6 @@ allprojects {
     }
 
     repositories {
-        maven {
-            url "http://repo.springsource.org/libs-release"
-        }
-        mavenCentral();
-//        maven {
-//            url "http://10.1.8.159:8081/nexus/content/repositories/thirdparty/"
-//        }
-//        maven {
-//            url "http://10.1.8.159:8081/nexus/content/repositories/snapshots/"
-//        }
-
 
         maven {
             url "http://repository.codehaus.org"
@@ -81,10 +70,6 @@ allprojects {
         classpath += configurations.testCompile
     }
 
-//    findbugs {
-//        ignoreFailures = true
-//        excludeFilter = file("$rootProject.projectDir/config/findbugs/exclusions.xml")
-//    }
 
     configurations {
         all*.exclude group: "javax.servlet", module: "servlet-api"
