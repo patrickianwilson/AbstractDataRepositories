@@ -12,8 +12,8 @@ allprojects {
     version = '1.0'
 
     dependencies {
-        compile "org.mortbay.jetty:jetty:6.1.22"
-        compile 'org.springframework:spring-webmvc:3.2.0.RELEASE'
+//        compile "org.mortbay.jetty:jetty:6.1.22"
+//        compile 'org.springframework:spring-webmvc:3.2.0.RELEASE'
         compile 'cglib:cglib:2.2.2'
         compile 'org.slf4j:slf4j-api:1.6.6'
         compile 'com.google.guava:guava:14.0.1'
@@ -32,9 +32,10 @@ allprojects {
 
     repositories {
 
-        maven {
-            url "http://repository.codehaus.org"
-        }
+//        maven {
+//            url "http://repository.codehaus.org"
+//        }
+        mavenCentral()
         mavenLocal()
     }
 
