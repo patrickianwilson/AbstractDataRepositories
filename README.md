@@ -8,6 +8,5 @@ Project DangerZone
   
 
 ##Build Status
-[![Build Status](http://build.patrickwilsonconsulting.com:8080/buildStatus/icon?job=AbstractDataRepositories)](http://build.patrickwilsonconsulting.com:8080/job/AbstractDataRepositories/)
-
+![http://build.patrickwilsonconsulting.com:8080/buildStatus/icon?job=AbstractDataRepositories]
 
