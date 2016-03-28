@@ -1,3 +1,4 @@
+apply from: "$rootProject.projectDir/config/gradle/includes/java-conventions.gradle"
 dependencies {
     compile 'org.apache.derby:derby:10.10.1.1';
     compile project (":ARDM-Datasource-API")
