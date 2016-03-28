@@ -14,15 +14,13 @@ import com.patrickwilson.ardm.datasource.api.query.QueryResult;
  */
 public class InMemoryDatsourceAdaptor implements QueriableDatasourceAdaptor, CRUDDatasourceAdaptor, ScanableDatasourceAdaptor {
 
-
-
     @Override
     public <ENTITY> ENTITY save(ENTITY entity, Class<ENTITY> clazz) {
         return null;
     }
 
     @Override
-    public <ENTITY> void delete(ENTITY entity, Class<ENTITY> clazz) {
+    public <ENTITY> void delete(EntityKey id, Class<ENTITY> clazz) {
 
     }
 

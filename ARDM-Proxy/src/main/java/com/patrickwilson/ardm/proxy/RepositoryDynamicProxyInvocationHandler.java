@@ -116,8 +116,8 @@ public class RepositoryDynamicProxyInvocationHandler implements InvocationHandle
             //this method can be directed straight at the
             Method passthroughMethod = passthroughMethods.get(method.getName());
 
+            //we always tag on the class object as a final param to help the datasource adaptor avoid generics complexity.
             Object[] passThroughArgs = Arrays.copyOf(args, args.length + 1);
-
             passThroughArgs[args.length] = entityType;
 
             return  invokeDataSource(passthroughMethod, passThroughArgs);

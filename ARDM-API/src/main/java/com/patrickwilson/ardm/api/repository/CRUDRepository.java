@@ -7,11 +7,13 @@ import com.patrickwilson.ardm.api.key.EntityKey;
  * User: pwilson
  * @param <ENTITY> for method type safety, this repository can only deal with a single entity at a time.
  */
-public interface CRUDRepository<ENTITY> {
+public interface CRUDRepository<ENTITY, KEY> {
 
     ENTITY save(ENTITY entity);
 
-    void delete(ENTITY entity);
+    void update(ENTITY entity);
 
-    ENTITY findOne(EntityKey id);
+    void delete(EntityKey<KEY> id);
+
+    ENTITY findOne(EntityKey<KEY> id);
 }

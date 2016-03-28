@@ -15,29 +15,28 @@ import com.patrickwilson.ardm.datasource.api.query.QueryResult;
  * User: pwilson
  */
 public class NotImplementedDataSourceAdaptor implements DataSourceAdaptor, QueriableDatasourceAdaptor, CRUDDatasourceAdaptor, ScanableDatasourceAdaptor {
-
     @Override
     public <ENTITY> ENTITY save(ENTITY entity, Class<ENTITY> clazz) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     @Override
-    public <ENTITY> void delete(ENTITY entity, Class<ENTITY> clazz) {
-        //To change body of implemented methods use File | Settings | File Templates.
+    public <ENTITY> void delete(EntityKey id, Class<ENTITY> clazz) {
+
     }
 
     @Override
     public <ENTITY> ENTITY findOne(EntityKey id, Class<ENTITY> clazz) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public <ENTITY> QueryResult<ENTITY> findAll(Class<ENTITY> clazz) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     @Override
     public <ENTITY> QueryResult<ENTITY> findByCriteria(QueryData query) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
+    }
+
+    @Override
+    public <ENTITY> QueryResult<ENTITY> findAll(Class<ENTITY> clazz) {
+        return null;
     }
 }
