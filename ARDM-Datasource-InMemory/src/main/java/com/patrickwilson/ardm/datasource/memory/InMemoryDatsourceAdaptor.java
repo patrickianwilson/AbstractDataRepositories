@@ -13,6 +13,9 @@ import com.patrickwilson.ardm.datasource.api.query.QueryResult;
  *
  */
 public class InMemoryDatsourceAdaptor implements QueriableDatasourceAdaptor, CRUDDatasourceAdaptor, ScanableDatasourceAdaptor {
+
+
+
     @Override
     public <ENTITY> ENTITY save(ENTITY entity, Class<ENTITY> clazz) {
         return null;

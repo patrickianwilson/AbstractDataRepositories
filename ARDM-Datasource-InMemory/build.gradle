@@ -1,0 +1,4 @@
+apply from: "$rootProject.projectDir/config/gradle/includes/java-conventions.gradle"
+dependencies {
+    compile project (":ARDM-Datasource-API")
+}

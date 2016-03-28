@@ -1,0 +1,75 @@
+apply plugin: 'java'
+apply plugin: 'checkstyle'
+apply plugin: 'maven'
+
+sourceCompatibility = JavaVersion.VERSION_1_7
+version = '1.0.1-SNAPSHOT'
+group = "com.patrickwilson"
+
+dependencies {
+    compile "org.mortbay.jetty:jetty:6.1.22"
+    compile 'cglib:cglib:2.2.2'
+    compile 'org.slf4j:slf4j-api:1.6.6'
+    compile 'com.google.guava:guava:14.0.1'
+    compile 'junit:junit:4.11'
+    testCompile 'org.jmock:jmock-junit4:2.6.0'
+    testCompile 'org.jmock:jmock-legacy:2.6.0'
+
+    runtime 'org.slf4j:slf4j-log4j12:1.6.6'
+
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+        mavenLocal()
+    }
+
+}
+
+repositories {
+    mavenCentral();
+    mavenLocal()
+}
+
+compileJava {
+    options.encoding = 'UTF-8'
+    options.compilerArgs = ['-Xlint:all', '-Xlint:-deprecation']
+}
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'Gradle Quickstart', 'Implementation-Version': version
+    }
+}
+
+test {
+    ignoreFailures = true
+    include "**/*Test.class"
+    exclude "**/Abstract*.class"
+    exclude "**/Base*.class"
+}
+
+checkstyle {
+    ignoreFailures = true
+    configProperties = [samedir: "$rootProject.projectDir/checkstyle"]
+    configFile = file("$rootProject.projectDir/checkstyle/checkstyle.xml")
+}
+
+
+checkstyleMain {
+    classpath += configurations.compile
+}
+checkstyleTest {
+    classpath += configurations.testCompile
+}
+
+configurations {
+    all*.exclude group: "javax.servlet", module: "servlet-api"
+    all*.exclude group: "junit", module: "junit-dep"
+}
+
+
+dependencies{
+
+}
