@@ -9,5 +9,5 @@ import com.patrickwilson.ardm.datasource.api.query.QueryResult;
  */
 public interface QueriableDatasourceAdaptor extends DataSourceAdaptor {
 
-    <ENTITY> QueryResult<ENTITY> findByCriteria(QueryData query);
+    <ENTITY> QueryResult<ENTITY> findByCriteria(QueryData query, Class<ENTITY> clazz);
 }

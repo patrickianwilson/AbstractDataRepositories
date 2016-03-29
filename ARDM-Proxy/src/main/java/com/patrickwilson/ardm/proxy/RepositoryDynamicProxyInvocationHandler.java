@@ -84,7 +84,7 @@ public class RepositoryDynamicProxyInvocationHandler implements InvocationHandle
                 queryData.setPage(page);
                 queryData.setCriteria(queryTree);
 
-                QueryResult result = ((QueriableDatasourceAdaptor) this.adaptor).findByCriteria(queryData);
+                QueryResult result = ((QueriableDatasourceAdaptor) this.adaptor).findByCriteria(queryData, entityType);
 
                 if (Collection.class.isAssignableFrom(method.getReturnType())) {
                     //repository method is a List return type.

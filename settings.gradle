@@ -4,6 +4,7 @@ include ":ARDM-Proxy"
 //include ":ARDM-Processors"
 //include ':ARDM-Processors-Tests'
 
+include ":ARDM-Datasource-Common"
 include ":ARDM-Datasource-InMemory"
 include ":ARDM-Datasource-Derby"
 

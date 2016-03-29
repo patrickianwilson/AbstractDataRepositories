@@ -30,7 +30,7 @@ public class InMemoryDatsourceAdaptor implements QueriableDatasourceAdaptor, CRU
     }
 
     @Override
-    public <ENTITY> QueryResult<ENTITY> findByCriteria(QueryData query) {
+    public <ENTITY> QueryResult<ENTITY> findByCriteria(QueryData query, Class<ENTITY> clazz) {
         return null;
     }
 

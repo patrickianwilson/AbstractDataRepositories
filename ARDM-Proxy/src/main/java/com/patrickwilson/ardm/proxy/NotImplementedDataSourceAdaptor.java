@@ -31,7 +31,7 @@ public class NotImplementedDataSourceAdaptor implements DataSourceAdaptor, Queri
     }
 
     @Override
-    public <ENTITY> QueryResult<ENTITY> findByCriteria(QueryData query) {
+    public <ENTITY> QueryResult<ENTITY> findByCriteria(QueryData query, Class<ENTITY> clazz) {
         return null;
     }
 

@@ -18,30 +18,28 @@ public class EmbeddedDerbyDatasourceAdaptor implements QueriableDatasourceAdapto
 
     }
 
-
-
     @Override
     public <ENTITY> ENTITY save(ENTITY entity, Class<ENTITY> clazz) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     @Override
-    public <ENTITY> void delete(ENTITY entity, Class<ENTITY> clazz) {
-        //To change body of implemented methods use File | Settings | File Templates.
+    public <ENTITY> void delete(EntityKey id, Class<ENTITY> clazz) {
+
     }
 
     @Override
     public <ENTITY> ENTITY findOne(EntityKey id, Class<ENTITY> clazz) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     @Override
-    public <ENTITY> QueryResult<ENTITY> findByCriteria(QueryData query) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    public <ENTITY> QueryResult<ENTITY> findByCriteria(QueryData query, Class<ENTITY> clazz) {
+        return null;
     }
 
     @Override
     public <ENTITY> QueryResult<ENTITY> findAll(Class<ENTITY> clazz) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 }
