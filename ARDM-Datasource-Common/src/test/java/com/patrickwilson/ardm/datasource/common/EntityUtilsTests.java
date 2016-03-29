@@ -40,6 +40,8 @@ public class EntityUtilsTests {
             NO_KEY_ENTITY
     };
 
+    public static AnnotatedExplicitKeyEntity ANNOTATED_BUT_NULL_KEY_ENTITY = new AnnotatedExplicitKeyEntity();
+
     @Test
     public void fetchKeyInAllDecalarationMethods() {
         for (Object entity: entities) {
@@ -63,6 +65,26 @@ public class EntityUtilsTests {
         for (Object entity: invalidEntities) {
             EntityUtils.findEntityKey(entity);
         }
+    }
+
+    @Test
+    public void shouldFetchNullKeyValue() throws NoEntityKeyException {
+        EntityKey key = EntityUtils.findEntityKey(ANNOTATED_BUT_NULL_KEY_ENTITY);
+
+        Assert.assertNotNull(key);
+        Assert.assertEquals(String.class, key.getKeyClass());
+        Assert.assertNull(key.getKey());
+    }
+
+    @Test
+    public void shouldUpdateTheKeyToValue() throws NoEntityKeyException {
+        EntityUtils.updateEntityKey(ANNOTATED_BUT_NULL_KEY_ENTITY, new SimpleEnitityKey("test", String.class));
+
+        EntityKey key = EntityUtils.findEntityKey(ANNOTATED_BUT_NULL_KEY_ENTITY);
+
+        Assert.assertNotNull(key);
+        Assert.assertEquals(String.class, key.getKeyClass());
+        Assert.assertEquals("test", key.getKey());
     }
 
     public static class ExplicitKeyEntity {
