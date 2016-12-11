@@ -6,7 +6,7 @@ import java.util.List;
  * A logic tree node representing a concrete selector.
  * User: pwilson
  */
-public class ValueLogicTreeNode extends LogicTreeNode {
+public class ValueEqualsLogicTreeNode extends LogicTreeNode {
 
     private String columnName;
     private int valueArgIndex;
@@ -42,9 +42,9 @@ public class ValueLogicTreeNode extends LogicTreeNode {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof ValueLogicTreeNode)) return false;
+        if (!(o instanceof ValueEqualsLogicTreeNode)) return false;
 
-        ValueLogicTreeNode that = (ValueLogicTreeNode) o;
+        ValueEqualsLogicTreeNode that = (ValueEqualsLogicTreeNode) o;
 
         if (valueArgIndex != that.valueArgIndex) return false;
         if (columnName != null ? !columnName.equals(that.columnName) : that.columnName != null) return false;

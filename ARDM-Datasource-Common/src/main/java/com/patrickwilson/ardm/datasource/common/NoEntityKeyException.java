@@ -11,4 +11,8 @@ public class NoEntityKeyException extends Exception {
     public NoEntityKeyException(Object entity, Throwable t) {
         super(String.format("entity %s does not specify a key", entity), t);
     }
+
+    public NoEntityKeyException(Class<?> entityClazz) {
+        super(String.format("entity type %s does not specify a key", entityClazz));
+    }
 }

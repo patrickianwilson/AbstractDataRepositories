@@ -4,7 +4,7 @@ import com.patrickwilson.ardm.datasource.api.query.LogicTreeCompositeNode;
 import com.patrickwilson.ardm.datasource.api.query.QueryLogicTree;
 import com.patrickwilson.ardm.datasource.api.query.QueryPage;
 import com.patrickwilson.ardm.datasource.api.query.SimpleQueryParser;
-import com.patrickwilson.ardm.datasource.api.query.ValueLogicTreeNode;
+import com.patrickwilson.ardm.datasource.api.query.ValueEqualsLogicTreeNode;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -49,7 +49,7 @@ public class SimpleQueryParserTests {
     private QueryLogicTree findByFirstName() {
         QueryLogicTree result = new QueryLogicTree();
 
-        ValueLogicTreeNode rootNode = new ValueLogicTreeNode();
+        ValueEqualsLogicTreeNode rootNode = new ValueEqualsLogicTreeNode();
         rootNode.setColumnName("firstname");
         rootNode.setValueArgIndex(0);
 
@@ -64,12 +64,12 @@ public class SimpleQueryParserTests {
         LogicTreeCompositeNode rootNode = new LogicTreeCompositeNode();
         rootNode.setConjection(LogicTreeCompositeNode.Conjection.AND);
 
-        ValueLogicTreeNode fnameNode = new ValueLogicTreeNode();
+        ValueEqualsLogicTreeNode fnameNode = new ValueEqualsLogicTreeNode();
         fnameNode.setColumnName("firstname");
         fnameNode.setValueArgIndex(0);
         rootNode.addSubNode(fnameNode);
 
-        ValueLogicTreeNode lnameNode = new ValueLogicTreeNode();
+        ValueEqualsLogicTreeNode lnameNode = new ValueEqualsLogicTreeNode();
         lnameNode.setColumnName("lastname");
         lnameNode.setValueArgIndex(1);
         rootNode.addSubNode(lnameNode);
@@ -85,7 +85,7 @@ public class SimpleQueryParserTests {
         LogicTreeCompositeNode rootNode = new LogicTreeCompositeNode();
         rootNode.setConjection(LogicTreeCompositeNode.Conjection.OR);
 
-        ValueLogicTreeNode idNode = new ValueLogicTreeNode();
+        ValueEqualsLogicTreeNode idNode = new ValueEqualsLogicTreeNode();
         idNode.setColumnName("id");
         idNode.setValueArgIndex(0);
         rootNode.addSubNode(idNode);
@@ -93,12 +93,12 @@ public class SimpleQueryParserTests {
         LogicTreeCompositeNode innerComp = new LogicTreeCompositeNode();
         innerComp.setConjection(LogicTreeCompositeNode.Conjection.AND);
 
-        ValueLogicTreeNode fnameNode = new ValueLogicTreeNode();
+        ValueEqualsLogicTreeNode fnameNode = new ValueEqualsLogicTreeNode();
         fnameNode.setColumnName("firstname");
         fnameNode.setValueArgIndex(1);
         innerComp.addSubNode(fnameNode);
 
-        ValueLogicTreeNode lnameNode = new ValueLogicTreeNode();
+        ValueEqualsLogicTreeNode lnameNode = new ValueEqualsLogicTreeNode();
         lnameNode.setColumnName("lastname");
         lnameNode.setValueArgIndex(2);
         innerComp.addSubNode(lnameNode);

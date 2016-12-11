@@ -6,6 +6,10 @@ import com.google.common.base.Strings;
 /**
  * Simple implementation of a query parser.  Only handles
  * User: pwilson
+ *
+ * TODO - Is this algo as horrible as I think?  Need to do lots of tests to prove yes or no.
+ *
+ * TODO - Also no support for query clauses that are order aware (for instance findByCountGT) which should be doing a "where count > ${arg}"
  */
 public class SimpleQueryParser implements QueryParser {
     private int argCounter = -1;
@@ -64,7 +68,7 @@ public class SimpleQueryParser implements QueryParser {
 
     private LogicTreeNode doAnd(String andPart) {
 
-        ValueLogicTreeNode leafNode = new ValueLogicTreeNode();
+        ValueEqualsLogicTreeNode leafNode = new ValueEqualsLogicTreeNode();
         leafNode.setColumnName(andPart);
         leafNode.setValueArgIndex(++argCounter);
 
