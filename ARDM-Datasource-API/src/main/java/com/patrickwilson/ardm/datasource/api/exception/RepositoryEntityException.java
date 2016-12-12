@@ -19,11 +19,11 @@ public class RepositoryEntityException extends RepositoryException {
     }
 
     public RepositoryEntityException(Class<?> entityType, Throwable cause) {
-        super ("Unable to inspect entity of type [" + entityType + "].", cause);
+        super("Unable to inspect entity of type [" + entityType + "].", cause);
     }
 
     public RepositoryEntityException(Method methodName, Class<?> entityType, Throwable cause) {
-        super ("Unable to access the method " + methodName.getName() + " on entity of type [" + entityType + "]", cause);
+        super("Unable to access the method " + methodName.getName() + " on entity of type [" + entityType + "]", cause);
     }
 
     public RepositoryEntityException(Throwable cause) {

@@ -50,7 +50,7 @@ public class SimpleQueryParserTests {
         QueryLogicTree result = new QueryLogicTree();
 
         ValueEqualsLogicTreeNode rootNode = new ValueEqualsLogicTreeNode();
-        rootNode.setColumnName("firstname");
+        rootNode.setColumnName("firstName");
         rootNode.setValueArgIndex(0);
 
         result.setRootCriteria(rootNode);
@@ -65,12 +65,12 @@ public class SimpleQueryParserTests {
         rootNode.setConjection(LogicTreeCompositeNode.Conjection.AND);
 
         ValueEqualsLogicTreeNode fnameNode = new ValueEqualsLogicTreeNode();
-        fnameNode.setColumnName("firstname");
+        fnameNode.setColumnName("firstName");
         fnameNode.setValueArgIndex(0);
         rootNode.addSubNode(fnameNode);
 
         ValueEqualsLogicTreeNode lnameNode = new ValueEqualsLogicTreeNode();
-        lnameNode.setColumnName("lastname");
+        lnameNode.setColumnName("lastName");
         lnameNode.setValueArgIndex(1);
         rootNode.addSubNode(lnameNode);
 
@@ -94,12 +94,12 @@ public class SimpleQueryParserTests {
         innerComp.setConjection(LogicTreeCompositeNode.Conjection.AND);
 
         ValueEqualsLogicTreeNode fnameNode = new ValueEqualsLogicTreeNode();
-        fnameNode.setColumnName("firstname");
+        fnameNode.setColumnName("firstName");
         fnameNode.setValueArgIndex(1);
         innerComp.addSubNode(fnameNode);
 
         ValueEqualsLogicTreeNode lnameNode = new ValueEqualsLogicTreeNode();
-        lnameNode.setColumnName("lastname");
+        lnameNode.setColumnName("lastName");
         lnameNode.setValueArgIndex(2);
         innerComp.addSubNode(lnameNode);
 

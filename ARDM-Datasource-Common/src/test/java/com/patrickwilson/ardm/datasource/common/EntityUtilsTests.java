@@ -1,6 +1,7 @@
 package com.patrickwilson.ardm.datasource.common;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import com.patrickwilson.ardm.api.key.EntityKey;
 import com.patrickwilson.ardm.api.key.Key;
@@ -24,7 +25,7 @@ public class EntityUtilsTests {
     public static final Object[] entities = new Object[] {
             EXPLICIT_KEY_ENTITY,
             ANNOTATED_KEY_ENTITY,
-            ANNOTATED_IMPLICIT_KEY_ENTITY
+
     };
 
 
@@ -37,10 +38,16 @@ public class EntityUtilsTests {
 
     public static Object[] invalidEntities = new Object[] {
             PRIVATE_KEY_ENTITY,
-            NO_KEY_ENTITY
+            NO_KEY_ENTITY,
+            ANNOTATED_IMPLICIT_KEY_ENTITY
     };
 
     public static AnnotatedExplicitKeyEntity ANNOTATED_BUT_NULL_KEY_ENTITY = new AnnotatedExplicitKeyEntity();
+
+    @Before
+    public void setup() {
+        ANNOTATED_BUT_NULL_KEY_ENTITY = new AnnotatedExplicitKeyEntity();
+    }
 
     @Test
     public void fetchKeyInAllDecalarationMethods() {
@@ -54,7 +61,7 @@ public class EntityUtilsTests {
 
             } catch (NoEntityKeyException e) {
                 e.printStackTrace();
-                Assert.fail(String.format("Key was not found or accessible: %s", e.getMessage()));
+                Assert.fail(String.format("Key was not found or accessible: %s, for entity type %s", e.getMessage(), entity.getClass().getName()));
             }
 
         }

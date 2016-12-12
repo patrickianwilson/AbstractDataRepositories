@@ -7,7 +7,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,7 +79,7 @@ public class InMemoryDatsourceAdaptor implements QueriableDatasourceAdaptor, CRU
      */
     private void updateIndexes(Object entity, Class entityType) throws NoEntityKeyException {
         HashMap<String, TreeMap<Object, List<EntityKey<Comparable>>>> indexes = selectTableIndexes(entityType);
-        Map<String, Object> indexedProps = EntityUtils.FetchIndexableProperties(entity);
+        Map<String, Object> indexedProps = EntityUtils.fetchIndexableProperties(entity);
 
         for (String index: indexedProps.keySet()) {
             if (!indexes.containsKey(index)) {
@@ -169,9 +168,9 @@ public class InMemoryDatsourceAdaptor implements QueriableDatasourceAdaptor, CRU
                 break; //no point in continuing.
             }
 
-            ENTITY entity = (ENTITY)o;
+            ENTITY entity = (ENTITY) o;
             if (query.getCriteria() != null && query.getCriteria().getRootCriteria() != null) {
-                if(matches(EntityUtils.FetchIndexableProperties(entity), query.getCriteria().getRootCriteria(), query, verboseLogging)) {
+                if (matches(EntityUtils.fetchIndexableProperties(entity), query.getCriteria().getRootCriteria(), query, verboseLogging)) {
                     if (capacityRemaining > 0 && discardsRemaining <= 0) {
                         potentials.add(entity);
                         capacityRemaining--;
@@ -185,7 +184,7 @@ public class InMemoryDatsourceAdaptor implements QueriableDatasourceAdaptor, CRU
                     capacityRemaining--;
                 }
             }
-            verboseLogging = verboseLogging && false; //only the first entity needs logs otherwise it just turns to spamming.
+            verboseLogging = false; //only the first entity needs logs otherwise it just turns to spamming.
         }
 
         return potentials;
@@ -209,14 +208,14 @@ public class InMemoryDatsourceAdaptor implements QueriableDatasourceAdaptor, CRU
             }
 
             //this is not really very efficient -> a scatter/gather type operation.
-            ENTITY entity = (ENTITY)mockDb.get(key);
+            ENTITY entity = (ENTITY) mockDb.get(key);
 
             if (capacityRemaining > 0 && discardsRemaining <= 0) {
                     potentials.add(entity);
                     capacityRemaining--;
             }
 
-            verboseLogging = verboseLogging && false; //only the first entity needs logs otherwise it just turns to spamming.
+            verboseLogging = false; //only the first entity needs logs otherwise it just turns to spamming.
         }
 
         return potentials;

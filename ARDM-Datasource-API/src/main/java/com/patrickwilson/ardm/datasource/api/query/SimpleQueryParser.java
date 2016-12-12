@@ -17,9 +17,9 @@ public class SimpleQueryParser implements QueryParser {
     @Override
     public QueryLogicTree parse(final String query) throws InvalidMethodNameException {
 
-        String lowerCaseQuery = query.toLowerCase();
+        String lowerCaseQuery = query; //.toLowerCase();
         //
-        String[] orParts = lowerCaseQuery.split("or");
+        String[] orParts = lowerCaseQuery.split("Or");
 
         LogicTreeNode rootNode = null;
 
@@ -46,7 +46,7 @@ public class SimpleQueryParser implements QueryParser {
     private LogicTreeNode doOr(String orPart, String fullQuery) {
 
         //see if there is a seperate break down.
-        String[] andParts = orPart.split("and");
+        String[] andParts = orPart.split("And");
         LogicTreeNode orPartNode = null;
 
         if (andParts.length > 1) {
@@ -69,7 +69,8 @@ public class SimpleQueryParser implements QueryParser {
     private LogicTreeNode doAnd(String andPart) {
 
         ValueEqualsLogicTreeNode leafNode = new ValueEqualsLogicTreeNode();
-        leafNode.setColumnName(andPart);
+        String columnName = andPart.substring(0, 1).toLowerCase() + andPart.substring(1);
+        leafNode.setColumnName(columnName);
         leafNode.setValueArgIndex(++argCounter);
 
         return leafNode;

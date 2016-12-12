@@ -2,7 +2,6 @@ package com.patrickwilson.ardm.datasource.common;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.beanutils.PropertyUtils;
@@ -39,6 +38,12 @@ public final class EntityUtils {
                     EntityKey key = (EntityKey) prop.getReadMethod().invoke(entity, new Object[]{});
 
                     Class keyValueClass = null;
+
+                    if (key != null) {
+                         key.getKeyClass();
+                    }
+
+                    //explicit annotations will override a provided value (for consistency)
                     if (prop.getReadMethod() != null && prop.getReadMethod().isAnnotationPresent(Key.class)) {
                         Key annotation = prop.getReadMethod().getAnnotation(Key.class);
                         if (annotation.keyClass() != null) {
@@ -164,7 +169,7 @@ public final class EntityUtils {
      *
      * Can't index multiple children of the same type.
      */
-    public static Map<String, Object> FetchIndexableProperties(Object entity) {
+    public static Map<String, Object> fetchIndexableProperties(Object entity) {
         Preconditions.checkNotNull(entity);
 
         HashMap<String, Object> result = new HashMap<>();

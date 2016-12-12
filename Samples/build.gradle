@@ -1,4 +1,8 @@
+apply from: "$rootProject.projectDir/config/gradle/includes/java-conventions.gradle"
+apply from: "$rootProject.projectDir/config/gradle/includes/versions.gradle"
+apply plugin: "jacoco"
+
 dependencies {
-    compile project (":ARDM-Datasource-SimpleDB")
+    compile project (":ARDM-Datasource-InMemory")
     compile project (":ARDM-Proxy")
 }
