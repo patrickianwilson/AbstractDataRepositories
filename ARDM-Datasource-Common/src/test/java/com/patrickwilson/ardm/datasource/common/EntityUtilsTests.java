@@ -95,8 +95,10 @@ public class EntityUtilsTests {
     }
 
     public static class ExplicitKeyEntity {
+
         private EntityKey<String> key;
 
+        @Key(keyClass = String.class)
         public EntityKey<String> getKey() {
             return key;
         }
