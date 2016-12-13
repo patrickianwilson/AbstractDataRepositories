@@ -47,6 +47,7 @@ jar {
 test {
     ignoreFailures = true
     include "**/*Test.class"
+    include "**/*Tests.class"
     exclude "**/Abstract*.class"
     exclude "**/Base*.class"
 }
