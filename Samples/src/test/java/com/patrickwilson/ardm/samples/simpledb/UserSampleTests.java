@@ -2,7 +2,6 @@ package com.patrickwilson.ardm.samples.simpledb;
 
 import java.util.List;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import com.patrickwilson.ardm.datasource.memory.InMemoryDatsourceAdaptor;
 import com.patrickwilson.ardm.proxy.RepositoryProvider;
@@ -12,13 +11,15 @@ import com.patrickwilson.ardm.proxy.RepositoryProvider;
  */
 public class UserSampleTests {
 
+    public static final int SAMPLE_AGE = 32;
+
     @Test
     public void setup() {
 
         RepositoryProvider provider = new RepositoryProvider();
         UserRepository repo = provider.bind(UserRepository.class).to(new InMemoryDatsourceAdaptor());
 
-        User me = repo.save(new User().setAge(32).setFirstName("Patrick"));
+        User me = repo.save(new User().setAge(SAMPLE_AGE).setFirstName("Patrick"));
 
 
         Assert.assertNotNull(me);

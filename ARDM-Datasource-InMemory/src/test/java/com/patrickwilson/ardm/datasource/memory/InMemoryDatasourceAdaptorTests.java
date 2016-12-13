@@ -10,7 +10,6 @@ import com.patrickwilson.ardm.api.key.Key;
 import com.patrickwilson.ardm.api.key.SimpleEnitityKey;
 import com.patrickwilson.ardm.datasource.api.query.QueryData;
 import com.patrickwilson.ardm.datasource.api.query.QueryLogicTree;
-import com.patrickwilson.ardm.datasource.api.query.QueryPage;
 import com.patrickwilson.ardm.datasource.api.query.QueryResult;
 import com.patrickwilson.ardm.datasource.api.query.ValueEqualsLogicTreeNode;
 
@@ -21,6 +20,7 @@ import com.patrickwilson.ardm.datasource.api.query.ValueEqualsLogicTreeNode;
 public class InMemoryDatasourceAdaptorTests {
 
     private InMemoryDatsourceAdaptor underTest = new InMemoryDatsourceAdaptor();
+    private static final int SAMPLE_AGE = 35;
 
     @Before
     public void setup() {
@@ -35,7 +35,8 @@ public class InMemoryDatasourceAdaptorTests {
         underTest.save(entity2, SampleEntity.class);
 
         UserEntity patrick = new UserEntity();
-        patrick.age = 35;
+
+        patrick.age = SAMPLE_AGE;
         patrick.fname = "Patrick";
         patrick.lname = "Wilson";
 
@@ -80,7 +81,7 @@ public class InMemoryDatasourceAdaptorTests {
         Assert.assertNotNull(allEntities.getResults());
         Assert.assertEquals(2, allEntities.getResults().size());
 
-        for( SampleEntity ent: allEntities.getResults()) {
+        for (SampleEntity ent: allEntities.getResults()) {
             Assert.assertNotNull(ent.getKey());
             Assert.assertNotNull(ent.getValue());
         }
@@ -108,7 +109,7 @@ public class InMemoryDatasourceAdaptorTests {
 
         Assert.assertNotNull("Find By Criteria Returned a Null Result.", result);
         Assert.assertEquals("Wrong Number of Results", 1, result.getResults().size());
-        Assert.assertEquals("Mismatch between number of actual results and number reported on QueryResult object.",1, result.getNumResults());
+        Assert.assertEquals("Mismatch between number of actual results and number reported on QueryResult object.", 1, result.getNumResults());
 
 
     }
@@ -123,7 +124,9 @@ public class InMemoryDatasourceAdaptorTests {
     }
 
 
-
+    /**
+     * For testing.
+     */
     @Entity
     public static class SampleEntity {
         private String key;
@@ -149,6 +152,9 @@ public class InMemoryDatasourceAdaptorTests {
         }
     }
 
+    /**
+     * for testing.
+     */
     @Entity
     public static class UserEntity {
         private String fname;
@@ -156,7 +162,7 @@ public class InMemoryDatasourceAdaptorTests {
         private long age;
 
 
-        public EntityKey<String> key;
+        private EntityKey<String> key;
 
         public String getFname() {
             return fname;

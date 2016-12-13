@@ -2,7 +2,6 @@ package com.patrickwilson.ardm.samples.simpledb;
 
 import com.patrickwilson.ardm.api.annotation.Entity;
 import com.patrickwilson.ardm.api.annotation.Indexed;
-import com.patrickwilson.ardm.api.key.EntityKey;
 import com.patrickwilson.ardm.api.key.Key;
 
 /**

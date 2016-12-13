@@ -16,6 +16,9 @@ public class APICompilationTest {
 
     }
 
+    /**
+     * for testing.
+     */
     @Entity
     public static class UserEntity {
 
@@ -64,7 +67,7 @@ public class APICompilationTest {
         }
     }
 
-    private static interface UserRepository extends CRUDRepository {
+    private interface UserRepository extends CRUDRepository {
 
     }
 
