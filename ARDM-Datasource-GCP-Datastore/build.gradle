@@ -1,0 +1,12 @@
+apply from: "$rootProject.projectDir/config/gradle/includes/java-conventions.gradle"
+apply from: "$rootProject.projectDir/config/gradle/includes/versions.gradle"
+
+ext {
+    DATASTORE_VERSION = '0.7.0'
+}
+
+dependencies {
+    compile project (":ARDM-Datasource-API")
+    compile project (":ARDM-Datasource-Common")
+    compile group: 'com.google.cloud', name: 'google-cloud-datastore', version: DATASTORE_VERSION
+}

@@ -3,11 +3,14 @@ package com.patrickwilson.ardm.datasource.common;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
+import com.patrickwilson.ardm.api.annotation.Entity;
 import com.patrickwilson.ardm.api.annotation.Indexed;
 import com.patrickwilson.ardm.api.key.EntityKey;
 import com.patrickwilson.ardm.api.key.Key;
@@ -187,6 +190,45 @@ public final class EntityUtils {
         return result;
     }
 
+    public static Map<String, Object> fetchAllProperties(Object entity) {
+        Preconditions.checkNotNull(entity);
+
+        HashMap<String, Object> result = new HashMap<>();
+
+        PropertyDescriptor[] props = PropertyUtils.getPropertyDescriptors(entity);
+        for (PropertyDescriptor prop : props) {
+            if ("class".equals(prop.getName())) {
+                continue;
+            }
+            try {
+                //extract the prop into the index map.
+                result.put(prop.getName(), prop.getReadMethod().invoke(entity));
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                throw new UnreadablePropertyException(String.format("Unable to read property '%s' from entity type %s", prop.getName(), entity.getClass().getName()));
+            }
+        }
+
+        return result;
+    }
+
+    public static Set<String> getchIndexablePropertyNames(Object entity) {
+        Preconditions.checkNotNull(entity);
+
+        HashSet<String> result = new HashSet<>();
+
+        PropertyDescriptor[] props = PropertyUtils.getPropertyDescriptors(entity);
+        for (PropertyDescriptor prop : props) {
+            if (
+                    (prop.getReadMethod() != null && prop.getReadMethod().isAnnotationPresent(Indexed.class))
+                            || (prop.getWriteMethod() != null && prop.getWriteMethod().isAnnotationPresent(Indexed.class))) {
+
+                result.add(prop.getName());
+            }
+        }
+
+        return result;
+    }
+
     private static void indexValue(PropertyDescriptor prop, Object entity, HashMap<String, Object> result) {
         Class<?> propType = prop.getPropertyType();
         if (!propType.isPrimitive() && propType != String.class) {
@@ -198,5 +240,22 @@ public final class EntityUtils {
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new UnreadablePropertyException(String.format("Unable to read indexed property '%s' from entity type %s", prop.getName(), entity.getClass().getName()));
         }
+    }
+
+    public static String getTableName(Class entityClazz) {
+        Preconditions.checkNotNull(entityClazz);
+
+        if (!entityClazz.isAnnotationPresent(Entity.class)) {
+            throw new NotAnEntityException(entityClazz, "no @Entity Exception on the class");
+        }
+
+        Entity annotation = (Entity) entityClazz.getAnnotation(Entity.class);
+
+        if (Entity.NO_DOMAIN_OR_TABLE.equals(annotation.domainOrTable())) {
+            return entityClazz.getSimpleName();
+        } else {
+            return annotation.domainOrTable();
+        }
+
     }
 }

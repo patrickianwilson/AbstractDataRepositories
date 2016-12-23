@@ -12,6 +12,8 @@ build
 .idea
 
 ##Credential Files
-*.credentials
+*.creds
+
+
 
 

@@ -14,7 +14,7 @@ public class UserSampleTests {
     public static final int SAMPLE_AGE = 32;
 
     @Test
-    public void setup() {
+    public void doWithInMemoryAdaptor() {
 
         RepositoryProvider provider = new RepositoryProvider();
         UserRepository repo = provider.bind(UserRepository.class).to(new InMemoryDatsourceAdaptor());
