@@ -4,6 +4,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
+
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.BeforeClass;
@@ -29,6 +31,13 @@ public class GCPDatastoreDatasourceAdaptorTests {
 
     @BeforeClass
     public static void startupSuite() throws IOException {
+
+        datastore = setupFromEnvironment();
+
+        if (datastore != null) {
+            //success - likely running emulator or GCP.
+            return;
+        }
         InputStream credStream = ClassLoader.getSystemResourceAsStream("datastore-service-account.json.creds");
         String projectId = "inlaid-citron-94802";
         if (credStream == null) {
@@ -51,6 +60,14 @@ public class GCPDatastoreDatasourceAdaptorTests {
                 .getService();
 
 
+    }
+
+    private static Datastore setupFromEnvironment() {
+        Map<String, String> envmap = System.getenv();
+        if (envmap.containsKey("DATASTORE_PROJECT_ID") && envmap.containsKey("DATASTORE_HOST")) {
+            return DatastoreOptions.newBuilder().build().getService();
+        }
+        return null;
     }
 
     @Test
