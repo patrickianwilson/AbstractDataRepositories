@@ -1,27 +1,11 @@
 package com.patrickwilson.ardm.datasource.gcp.datastore;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+
+import com.google.cloud.datastore.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.api.client.repackaged.com.google.common.base.Preconditions;
-import com.google.cloud.datastore.BooleanValue;
-import com.google.cloud.datastore.Datastore;
-import com.google.cloud.datastore.DoubleValue;
-import com.google.cloud.datastore.Entity;
-import com.google.cloud.datastore.FullEntity;
-import com.google.cloud.datastore.IncompleteKey;
-import com.google.cloud.datastore.Key;
-import com.google.cloud.datastore.KeyFactory;
-import com.google.cloud.datastore.ListValue;
-import com.google.cloud.datastore.LongValue;
-import com.google.cloud.datastore.StringValue;
-import com.google.cloud.datastore.Value;
-import com.google.cloud.datastore.ValueBuilder;
-import com.google.cloud.datastore.ValueType;
 import com.patrickwilson.ardm.api.key.EntityKey;
 import com.patrickwilson.ardm.api.key.SimpleEnitityKey;
 import com.patrickwilson.ardm.datasource.api.CRUDDatasourceAdaptor;
@@ -209,6 +193,12 @@ public class GCPDatastoreDatasourceAdaptor implements QueriableDatasourceAdaptor
 
         Entity entity = datastoreClient.get(entKey);
 
+        Object result = toFromDBEntity(clazz, entity);
+
+        return (ENTITY) result;
+    }
+
+    private <ENTITY> ENTITY toFromDBEntity(Class<ENTITY> clazz, Entity entity) {
         Set<String> propNamesInDB = entity.getNames();
         Map<String, Class> entityProperties = EntityUtils.getPropertyTypeMap(clazz);
 
@@ -221,11 +211,8 @@ public class GCPDatastoreDatasourceAdaptor implements QueriableDatasourceAdaptor
             }
         }
 
-        Object result = EntityUtils.rehydrateObject(attributes, clazz);
-
-        return (ENTITY) result;
+        return (ENTITY) EntityUtils.rehydrateObject(attributes, clazz);
     }
-
 
 
     @Override
@@ -276,78 +263,18 @@ public class GCPDatastoreDatasourceAdaptor implements QueriableDatasourceAdaptor
 
     }
 
-    private <ENTITY> HashSet<ENTITY> fullTableScan(QueryData query, Class<ENTITY> clazz, int offset, int limit) {
-//        TreeMap<EntityKey<Comparable>, Object> mockDb = selectTable(clazz);
-//        boolean verboseLogging = true;
-//        LOG.debug("No indexes can satisfy this query, resulting in Full Table Scan.  Query={}", query.getCriteria().toString());
-//        int capacityRemaining = limit;
-//        int discardsRemaining = offset;
-//
-//        HashSet<ENTITY> potentials = new HashSet<>();
-//        for (Object o: mockDb.values()) {
-//            //shortcut.
-//            if (capacityRemaining <= 0) {
-//                break; //no point in continuing.
-//            }
-//
-//            ENTITY entity = (ENTITY) o;
-//            if (query.getCriteria() != null && query.getCriteria().getRootCriteria() != null) {
-//                if (matches(EntityUtils.fetchIndexableProperties(entity), query.getCriteria().getRootCriteria(), query, verboseLogging)) {
-//                    if (capacityRemaining > 0 && discardsRemaining <= 0) {
-//                        potentials.add(entity);
-//                        capacityRemaining--;
-//                        discardsRemaining--;
-//                    }
-//                }
-//            } else {
-//                //no filter - just add all.
-//                if (capacityRemaining > 0 && discardsRemaining <= 0) {
-//                    potentials.add(entity);
-//                    capacityRemaining--;
-//                }
-//            }
-//            verboseLogging = false; //only the first entity needs logs otherwise it just turns to spamming.
-//        }
-//
-//        return potentials;
-
-        return null;
-    }
-
-    private <ENTITY> HashSet<ENTITY> indexScan(String index, Object queryValue, Class<ENTITY> clazz, int offset, int limit) {
-//        HashMap<String, TreeMap<Object, List<EntityKey<Comparable>>>> indexes = selectTableIndexes(clazz);
-//        TreeMap<EntityKey<Comparable>, Object> mockDb = selectTable(clazz);
-//
-//        boolean verboseLogging = true;
-//        LOG.debug("Query Plan:  using index {} and searching for value '{}'", index, queryValue);
-//        int capacityRemaining = limit;
-//        int discardsRemaining = offset;
-//
-//        HashSet<ENTITY> potentials = new HashSet<>();
-//
-//        for (Object key: indexes.get(index).get(queryValue)) {
-//            //shortcut.
-//            if (capacityRemaining <= 0) {
-//                break; //no point in continuing.
-//            }
-//
-//            //this is not really very efficient -> a scatter/gather type operation.
-//            ENTITY entity = (ENTITY) mockDb.get(key);
-//
-//            if (capacityRemaining > 0 && discardsRemaining <= 0) {
-//                potentials.add(entity);
-//                capacityRemaining--;
-//            }
-//
-//            verboseLogging = false; //only the first entity needs logs otherwise it just turns to spamming.
-//        }
-//
-//        return potentials;
-        return null;
-    }
-
     @Override
     public <ENTITY> QueryResult<ENTITY> findAll(Class<ENTITY> clazz) {
+        EntityQuery q = Query.newEntityQueryBuilder().setKind(EntityUtils.getTableName(clazz)).build();
+
+        List<ENTITY> results = new ArrayList<>();
+        QueryResults dbQueryResult = datastoreClient.run(q);
+
+        while (dbQueryResult.hasNext()) {
+            results.add(toFromDBEntity(clazz, (Entity) dbQueryResult.next()));
+            LOG.info("Found Entity {} ", dbQueryResult.next());
+        }
+
 //        TreeMap<EntityKey<Comparable>, Object> mockDb = selectTable(clazz);
 //
 //        QueryResult<ENTITY> result = new QueryResult<>();
@@ -360,40 +287,11 @@ public class GCPDatastoreDatasourceAdaptor implements QueriableDatasourceAdaptor
 //        result.setStartIndex(0);
 //        return result;
 
-        return null;
+        QueryResult<ENTITY> queryResult = new QueryResult<>();
+        queryResult.setNumResults(results.size());
+        queryResult.setStartIndex(0);
+        queryResult.setResults(results);
+        return queryResult;
     }
 
-    /**
-     * clear the sample database.
-     */
-//    public void clearDatabase() {
-//        this.tables.clear();
-//    }
-//
-//    private <ENTITY> void createTable(Class<ENTITY> entityType) throws RepositoryEntityException {
-//        try {
-//            this.tables.put(entityType, new TreeMap<>(new GenericKeyComparator(entityType)));
-//            this.tableIndexSelector.put(entityType, new HashMap<String, TreeMap<Object, List<EntityKey<Comparable>>>>());
-//        } catch (NoEntityKeyException e) {
-//            throw new RepositoryEntityException(entityType, e);
-//        }
-//    }
-//
-//    private TreeMap<EntityKey<Comparable>, Object> selectTable(Class entityType) {
-//        if (!tables.containsKey(entityType)) {
-//            throw new NoSuchEntityRepositoryException(entityType);
-//        }
-//
-//        return this.tables.get(entityType);
-//    }
-//
-//    private HashMap<String, TreeMap<Object, List<EntityKey<Comparable>>>> selectTableIndexes(Class entityType) {
-//        if (!tables.containsKey(entityType)) {
-//            throw new NoSuchEntityRepositoryException(entityType);
-//        }
-//
-//        return this.tableIndexSelector.get(entityType);
-//
-//    }
-//}
 }

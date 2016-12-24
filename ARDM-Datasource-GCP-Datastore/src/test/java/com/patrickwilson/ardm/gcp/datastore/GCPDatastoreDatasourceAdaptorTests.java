@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
+import com.patrickwilson.ardm.datasource.api.query.QueryResult;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.BeforeClass;
@@ -60,6 +61,8 @@ public class GCPDatastoreDatasourceAdaptorTests {
                 .getService();
 
 
+
+
     }
 
     private static Datastore setupFromEnvironment() {
@@ -92,6 +95,13 @@ public class GCPDatastoreDatasourceAdaptorTests {
         Assert.assertEquals(result.firstName, fromDB.firstName);
         Assert.assertEquals(result.age, fromDB.age);
 
+
+        QueryResult<SimpleEntity> allEntities = underTest.findAll(SimpleEntity.class);
+
+        Assert.assertNotNull(allEntities);
+        Assert.assertEquals(1, allEntities.getNumResults());
+        Assert.assertNotNull(allEntities.getResults());
+        Assert.assertEquals(1, allEntities.getResults().size());
 
         underTest.delete(new SimpleEnitityKey(key, com.google.cloud.datastore.Key.class), SimpleEntity.class);
 
