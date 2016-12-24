@@ -16,6 +16,7 @@ import com.google.cloud.datastore.KeyFactory;
 import com.patrickwilson.ardm.api.annotation.Entity;
 import com.patrickwilson.ardm.api.annotation.Indexed;
 import com.patrickwilson.ardm.api.key.Key;
+import com.patrickwilson.ardm.api.key.SimpleEnitityKey;
 import com.patrickwilson.ardm.datasource.gcp.datastore.GCPDatastoreDatasourceAdaptor;
 
 /**
@@ -23,6 +24,7 @@ import com.patrickwilson.ardm.datasource.gcp.datastore.GCPDatastoreDatasourceAda
  */
 public class GCPDatastoreDatasourceAdaptorTests {
 
+    public static final short SAMPLE_AGE = 35;
     private static Datastore datastore;
 
     @BeforeClass
@@ -58,6 +60,7 @@ public class GCPDatastoreDatasourceAdaptorTests {
         SimpleEntity entity = new SimpleEntity();
         entity.setEmail("patrick.ian.wilson@gmail.com");
         entity.setFirstName("Patrick");
+        entity.setAge(SAMPLE_AGE);
 
 
         SimpleEntity result = underTest.save(entity, SimpleEntity.class);
@@ -65,6 +68,15 @@ public class GCPDatastoreDatasourceAdaptorTests {
         com.google.cloud.datastore.Key key = ((com.google.cloud.datastore.Key) result.getEntityKey());
         Assert.assertNotNull(key.getId());
 
+        SimpleEntity fromDB = underTest.findOne(new SimpleEnitityKey(key, com.google.cloud.datastore.Key.class), SimpleEntity.class);
+
+        Assert.assertNotNull(fromDB);
+        Assert.assertEquals(result.email, fromDB.email);
+        Assert.assertEquals(result.firstName, fromDB.firstName);
+        Assert.assertEquals(result.age, fromDB.age);
+
+
+        underTest.delete(new SimpleEnitityKey(key, com.google.cloud.datastore.Key.class), SimpleEntity.class);
 
 
     }
@@ -81,6 +93,8 @@ public class GCPDatastoreDatasourceAdaptorTests {
 
 
         private String email;
+
+        private short age;
 
 
         public com.google.cloud.datastore.IncompleteKey getEntityKey() {
@@ -107,6 +121,14 @@ public class GCPDatastoreDatasourceAdaptorTests {
         @Indexed
         public void setEmail(String email) {
             this.email = email;
+        }
+
+        public Short getAge() {
+            return age;
+        }
+
+        public void setAge(Short age) {
+            this.age = age;
         }
     }
 

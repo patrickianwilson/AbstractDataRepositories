@@ -1,5 +1,6 @@
 package com.patrickwilson.ardm.datasource.gcp.datastore;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -10,6 +11,7 @@ import com.google.api.client.repackaged.com.google.common.base.Preconditions;
 import com.google.cloud.datastore.BooleanValue;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DoubleValue;
+import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.FullEntity;
 import com.google.cloud.datastore.IncompleteKey;
 import com.google.cloud.datastore.Key;
@@ -19,12 +21,14 @@ import com.google.cloud.datastore.LongValue;
 import com.google.cloud.datastore.StringValue;
 import com.google.cloud.datastore.Value;
 import com.google.cloud.datastore.ValueBuilder;
+import com.google.cloud.datastore.ValueType;
 import com.patrickwilson.ardm.api.key.EntityKey;
 import com.patrickwilson.ardm.api.key.SimpleEnitityKey;
 import com.patrickwilson.ardm.datasource.api.CRUDDatasourceAdaptor;
 import com.patrickwilson.ardm.datasource.api.QueriableDatasourceAdaptor;
 import com.patrickwilson.ardm.datasource.api.ScanableDatasourceAdaptor;
 import com.patrickwilson.ardm.datasource.api.exception.RepositoryEntityException;
+import com.patrickwilson.ardm.datasource.api.exception.RepositoryInteractionException;
 import com.patrickwilson.ardm.datasource.api.query.QueryData;
 import com.patrickwilson.ardm.datasource.api.query.QueryResult;
 import com.patrickwilson.ardm.datasource.common.EntityUtils;
@@ -122,8 +126,12 @@ public class GCPDatastoreDatasourceAdaptor implements QueriableDatasourceAdaptor
 
         } else if (raw instanceof Double) {
             builder = DoubleValue.newBuilder((Double) raw);
-        } else if (raw instanceof Long || raw instanceof Short || raw instanceof Integer) {
+        } else if (raw instanceof Long) {
             builder = LongValue.newBuilder((Long) raw);
+        } else if (raw instanceof Short) {
+            builder = LongValue.newBuilder(new Long((Short) raw));
+        } else if (raw instanceof Integer) {
+            builder = LongValue.newBuilder(new Long((Integer) raw));
         } else if (raw instanceof Boolean) {
             builder = BooleanValue.newBuilder((Boolean) raw);
         } else if (raw instanceof Set) {
@@ -150,41 +158,75 @@ public class GCPDatastoreDatasourceAdaptor implements QueriableDatasourceAdaptor
         return builder.build();
 
     }
-    /**
-     * automatically add indexes for each property.
-     * @param entity
-     */
-    private void updateIndexes(Object entity, Class entityType) throws NoEntityKeyException {
-//        HashMap<String, TreeMap<Object, List<EntityKey<Comparable>>>> indexes = selectTableIndexes(entityType);
-//        Map<String, Object> indexedProps = EntityUtils.fetchIndexableProperties(entity);
-//
-//        for (String index: indexedProps.keySet()) {
-//            if (!indexes.containsKey(index)) {
-//                indexes.put(index, new TreeMap<Object, List<EntityKey<Comparable>>>()); //create a new index
-//            }
-//
-//            if (!indexes.get(index).containsKey(indexedProps.get(index))) {
-//                indexes.get(index).put(indexedProps.get(index), new LinkedList<EntityKey<Comparable>>());
-//            }
-//
-//            indexes.get(index).get(indexedProps.get(index)).add(EntityUtils.findEntityKey(entity)); //reverse index (value -> object.key)
-//        }
 
+    private static Object fromValue(Value value) {
+        if (value instanceof StringValue) {
+            return ((StringValue) value).get();
+        } else if (value instanceof DoubleValue) {
+            return ((DoubleValue) value).get();
+        } else if (value instanceof LongValue) {
+            return ((LongValue) value).get();
+        } else if (value instanceof BooleanValue) {
+            return ((BooleanValue) value).get();
+        } else if (value instanceof ListValue) {
+            ListValue.Builder listValueBuilder = ListValue.newBuilder();
+            ArrayList<Object> values = new ArrayList<>(listValueBuilder.get().size());
+            for (Value inner: listValueBuilder.get()) {
+                Object innerVal = fromValue(inner);
+                if (innerVal != null) {
+                    values.add(innerVal);
+                }
+            }
+            return values;
+        } else {
+            return null; //no support.
+        }
     }
+
 
     @Override
     public <ENTITY> void delete(EntityKey id, Class<ENTITY> clazz) {
-//        TreeMap<EntityKey<Comparable>, Object> mockDb = selectTable(clazz);
-//        mockDb.remove(id);
+        if (id.getKey() == null || !(id.getKey() instanceof Key)) {
+            throw new RepositoryEntityException(String.format("Invalid Key class for Datastore.  Only %s is valid.", Key.class.getName()));
+        }
+        Key entKey = (Key) id.getKey();
+
+        try {
+            datastoreClient.delete(entKey);
+        } catch (Exception e) {
+            throw new RepositoryInteractionException(e);
+        }
 
     }
 
     @Override
     public <ENTITY> ENTITY findOne(EntityKey id, Class<ENTITY> clazz) {
-//        TreeMap<EntityKey<Comparable>, Object> mockDb = selectTable(clazz);
-//        return (ENTITY) mockDb.get(id);
-        return null;
+        if (id.getKey() == null || !(id.getKey() instanceof Key)) {
+            throw new RepositoryEntityException(String.format("Invalid Key class for Datastore.  Only %s is valid.", Key.class.getName()));
+        }
+
+        Key entKey = (Key) id.getKey();
+
+        Entity entity = datastoreClient.get(entKey);
+
+        Set<String> propNamesInDB = entity.getNames();
+        Map<String, Class> entityProperties = EntityUtils.getPropertyTypeMap(clazz);
+
+        HashMap<String, Object> attributes = new HashMap<>();
+        for (Map.Entry<String, Class> prop: entityProperties.entrySet()) {
+            if (propNamesInDB.contains(prop.getKey())) {
+                Value value = entity.getValue(prop.getKey());
+
+                attributes.put(prop.getKey(), fromValue(value));
+            }
+        }
+
+        Object result = EntityUtils.rehydrateObject(attributes, clazz);
+
+        return (ENTITY) result;
     }
+
+
 
     @Override
     public <ENTITY> QueryResult<ENTITY> findByCriteria(QueryData query, Class<ENTITY> clazz) {

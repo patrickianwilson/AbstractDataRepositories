@@ -211,6 +211,63 @@ public final class EntityUtils {
         return result;
     }
 
+    public static Map<String, Class> getPropertyTypeMap(Class entityClazz) {
+        Preconditions.checkNotNull(entityClazz);
+
+        HashMap<String, Class> result = new HashMap<>();
+
+        PropertyDescriptor[] props = PropertyUtils.getPropertyDescriptors(entityClazz);
+        for (PropertyDescriptor prop : props) {
+            if ("class".equals(prop.getName())) {
+                //ignore getClass() method
+                continue;
+            }
+            result.put(prop.getName(), prop.getPropertyType());
+        }
+
+        return result;
+    }
+
+    public static <ENTITY> Object rehydrateObject(Map<String, Object> props, Class<ENTITY> entityClazz) {
+        Preconditions.checkNotNull(entityClazz);
+        Preconditions.checkNotNull(props);
+
+
+        PropertyDescriptor[] beanProps = PropertyUtils.getPropertyDescriptors(entityClazz);
+        Object entity = null;
+        try {
+           entity = entityClazz.newInstance();
+        } catch (InstantiationException | IllegalAccessException e) {
+            throw new NoDefaultConstructorException(entityClazz, e);
+        }
+
+        for (PropertyDescriptor prop: beanProps) {
+            if (props.containsKey(prop.getName())) {
+                //first make sure the incoming prop map actually contains this property.
+                Object incomingVal = props.get(prop.getName());
+
+                try {
+                    if (Long.class.equals(incomingVal.getClass()) && Short.class.equals(prop.getPropertyType())) {
+                        //sometimes databases only store Long values but entities could be narrower.
+                        //handle Long -> short conversion.
+                        prop.getWriteMethod().invoke(entity, ((Long) incomingVal).shortValue());
+                    } else if (Long.class.equals(incomingVal.getClass()) && Integer.class.equals(prop.getPropertyType())) {
+                        prop.getWriteMethod().invoke(entity, ((Long) incomingVal).intValue());
+                    } else {
+                        prop.getWriteMethod().invoke(entity, incomingVal);
+                    }
+
+                } catch (IllegalArgumentException e) {
+
+                }
+                catch (IllegalAccessException | InvocationTargetException e) {
+                    LOG.info(String.format("unable to set property %s on entity type %s: %s", prop.getName(), entityClazz.getName(), e.getMessage()));
+                }
+            }
+        }
+        return entity;
+    }
+
     public static Set<String> getchIndexablePropertyNames(Object entity) {
         Preconditions.checkNotNull(entity);
 
