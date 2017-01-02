@@ -3,7 +3,6 @@ include ":ARDM-Proxy"
 
 include ":ARDM-Datasource-Common"
 include ":ARDM-Datasource-InMemory"
-include ":ARDM-Datasource-Derby"
 include ":ARDM-Datasource-GCP-Datastore"
 
 include ":ARDM-Datasource-API"
