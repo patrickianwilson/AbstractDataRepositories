@@ -1,14 +1,11 @@
 package com.patrickwilson.ardm.samples.simpledb;
 
-import java.util.List;
-
-import com.google.cloud.datastore.Datastore;
-import com.google.cloud.datastore.DatastoreOptions;
-import com.patrickwilson.ardm.datasource.gcp.datastore.GCPDatastoreDatasourceAdaptor;
-import org.junit.Assert;
-import org.junit.Test;
 import com.patrickwilson.ardm.datasource.memory.InMemoryDatsourceAdaptor;
 import com.patrickwilson.ardm.proxy.RepositoryProvider;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.List;
 
 /**
  * Created by pwilson on 12/10/16.
