@@ -3,17 +3,24 @@ apply plugin: 'checkstyle'
 apply plugin: 'maven'
 
 sourceCompatibility = JavaVersion.VERSION_1_7
-version = '1.0.1-SNAPSHOT'
+version = getVersion()
 group = "com.patrickwilson"
+
+def getVersion() {
+    if (project.hasProperty("BUILD_NUMBER")) {
+        return "0.0.${project.getProperty("BUILD_NUMBER")}" //currently very pre-release
+    } else {
+        return "0.1-local-SNAPSHOT"
+    }
+}
 
 dependencies {
     compile "org.mortbay.jetty:jetty:6.1.22"
     compile 'cglib:cglib:2.2.2'
     compile 'org.slf4j:slf4j-api:1.6.6'
     runtime 'org.slf4j:slf4j-simple:1.6.6'
-
     compile 'com.google.guava:guava:14.0.1'
-    compile 'junit:junit:4.11'
+    testCompile 'junit:junit:4.11'
     testCompile 'org.jmock:jmock-junit4:2.6.0'
     testCompile 'org.jmock:jmock-legacy:2.6.0'
 
@@ -45,6 +52,7 @@ jar {
 }
 
 test {
+
     ignoreFailures = true
     include "**/*Test.class"
     include "**/*Tests.class"
@@ -74,4 +82,17 @@ configurations {
 
 dependencies{
 
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: "http://repo.wilsonsinquest.com/nexus/content/repositories/ardm-dev-track/") {
+                authentication(userName: project.getProperties().get("nexus.user"), password: project.getProperties().get("nexus.password"))
+            }
+            pom.version = project.version
+            pom.artifactId = project.name
+            pom.groupId = "com.wilsonsinquest"
+        }
+    }
 }
