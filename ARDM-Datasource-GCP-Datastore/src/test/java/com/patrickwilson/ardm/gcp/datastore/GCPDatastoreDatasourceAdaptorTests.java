@@ -6,11 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
-import com.patrickwilson.ardm.datasource.api.query.QueryResult;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import com.patrickwilson.ardm.datasource.api.query.*;
+import org.junit.*;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
@@ -40,7 +37,7 @@ public class GCPDatastoreDatasourceAdaptorTests {
             return;
         }
         InputStream credStream = ClassLoader.getSystemResourceAsStream("datastore-service-account.json.creds");
-        String projectId = "inlaid-citron-94802";
+        String projectId = null;
         if (credStream == null) {
             //try to locate a file based on a env variable
             String credFile = System.getProperty("GoogleServiceAccountCredentialFile");
@@ -60,32 +57,51 @@ public class GCPDatastoreDatasourceAdaptorTests {
                 .build()
                 .getService();
 
-
-
-
     }
 
     private static Datastore setupFromEnvironment() {
-        Map<String, String> envmap = System.getenv();
-        if (envmap.containsKey("DATASTORE_PROJECT_ID") && envmap.containsKey("DATASTORE_HOST")) {
-            return DatastoreOptions.newBuilder().build().getService();
-        }
-        return null;
+
+        return DatastoreOptions.newBuilder().build().getService();
+
     }
 
-    @Test
-    public void doIt() {
-        GCPDatastoreDatasourceAdaptor underTest = new GCPDatastoreDatasourceAdaptor(datastore);
+    private GCPDatastoreDatasourceAdaptor underTest = null;
+    private SimpleEntity result = null;
+    private SimpleEntity secondResult = null;
 
+    @Before
+    public void setup () throws InterruptedException {
+
+        underTest = new GCPDatastoreDatasourceAdaptor(datastore);
         SimpleEntity entity = new SimpleEntity();
         entity.setEmail("patrick.ian.wilson@gmail.com");
         entity.setFirstName("Patrick");
         entity.setAge(SAMPLE_AGE);
 
+        SimpleEntity second = new SimpleEntity();
+        second.setEmail("patrick.andrew.wilson@gmail.com");
+        second.setFirstName("Patrick");
+        second.setAge(SAMPLE_AGE);
 
-        SimpleEntity result = underTest.save(entity, SimpleEntity.class);
+        result = underTest.save(entity, SimpleEntity.class);
+        secondResult = underTest.save(second, SimpleEntity.class);
+        Thread.sleep(500); //ensure datastore consistency.
+    }
+
+    @After
+    public void tearDown() {
+
+        underTest.delete(new SimpleEnitityKey(result.getEntityKey(), com.google.cloud.datastore.Key.class), SimpleEntity.class);
+        underTest.delete(new SimpleEnitityKey(secondResult.getEntityKey(), com.google.cloud.datastore.Key.class), SimpleEntity.class);
+    }
+
+    @Test
+    public void doIt() throws InterruptedException {
+
 
         com.google.cloud.datastore.Key key = ((com.google.cloud.datastore.Key) result.getEntityKey());
+        com.google.cloud.datastore.Key secondKey = ((com.google.cloud.datastore.Key) secondResult.getEntityKey());
+
         Assert.assertNotNull(key.getId());
 
         SimpleEntity fromDB = underTest.findOne(new SimpleEnitityKey(key, com.google.cloud.datastore.Key.class), SimpleEntity.class);
@@ -95,17 +111,59 @@ public class GCPDatastoreDatasourceAdaptorTests {
         Assert.assertEquals(result.firstName, fromDB.firstName);
         Assert.assertEquals(result.age, fromDB.age);
 
+        SimpleEntity secondFromDB = underTest.findOne(new SimpleEnitityKey(secondKey, com.google.cloud.datastore.Key.class), SimpleEntity.class);
+
+        Assert.assertNotNull(secondFromDB);
+        Assert.assertEquals(secondResult.email, secondFromDB.email);
+        Assert.assertEquals(secondResult.firstName, secondFromDB.firstName);
+        Assert.assertEquals(secondResult.age, secondFromDB.age);
+
 
         QueryResult<SimpleEntity> allEntities = underTest.findAll(SimpleEntity.class);
 
         Assert.assertNotNull(allEntities);
-        Assert.assertEquals(1, allEntities.getNumResults());
+        Assert.assertEquals(2, allEntities.getNumResults());
         Assert.assertNotNull(allEntities.getResults());
-        Assert.assertEquals(1, allEntities.getResults().size());
-
-        underTest.delete(new SimpleEnitityKey(key, com.google.cloud.datastore.Key.class), SimpleEntity.class);
+        Assert.assertEquals(2, allEntities.getResults().size());
 
 
+    }
+
+    @Test
+    public void shouldFindEntitiesViaQuery() {
+
+        QueryLogicTree firstNameCriteria = new QueryLogicTree(new ValueEqualsLogicTreeNode("firstName", 0));
+
+        QueryData query = new QueryData(new QueryPage(0, 10), firstNameCriteria);
+        query.setParameters(new Object[] { "Patrick" });
+
+        QueryResult<SimpleEntity> qResult = underTest.findByCriteria(query, SimpleEntity.class);
+
+        Assert.assertNotNull(qResult);
+        Assert.assertEquals(2, qResult.getNumResults());
+        Assert.assertNotNull(qResult.getResults());
+        Assert.assertEquals(2, qResult.getResults().size());
+    }
+
+
+    @Test
+    public void shouldFindEntitiesViaConjunctionQuery() {
+        LogicTreeCompositeNode root  = new LogicTreeCompositeNode();
+        root.addSubNode(new ValueEqualsLogicTreeNode("firstName", 0));
+        root.addSubNode(new ValueEqualsLogicTreeNode("email", 1));
+        root.setConjection(LogicTreeCompositeNode.Conjection.AND);
+
+        QueryLogicTree firstNameCriteria = new QueryLogicTree(root);
+
+        QueryData query = new QueryData(new QueryPage(0, 10), firstNameCriteria);
+        query.setParameters(new Object[] {"Patrick", "patrick.ian.wilson@gmail.com"});
+
+        QueryResult<SimpleEntity> qResult = underTest.findByCriteria(query, SimpleEntity.class);
+
+        Assert.assertNotNull(qResult);
+        Assert.assertEquals(1, qResult.getNumResults());
+        Assert.assertNotNull(qResult.getResults());
+        Assert.assertEquals(1, qResult.getResults().size());
     }
 
 
@@ -114,13 +172,8 @@ public class GCPDatastoreDatasourceAdaptorTests {
     public static class SimpleEntity {
 
         private com.google.cloud.datastore.IncompleteKey entityKey;
-
-
         private String firstName;
-
-
         private String email;
-
         private short age;
 
 
@@ -137,6 +190,7 @@ public class GCPDatastoreDatasourceAdaptorTests {
             return firstName;
         }
 
+        @Indexed
         public void setFirstName(String firstName) {
             this.firstName = firstName;
         }

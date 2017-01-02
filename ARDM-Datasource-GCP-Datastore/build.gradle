@@ -8,5 +8,6 @@ ext {
 dependencies {
     compile project (":ARDM-Datasource-API")
     compile project (":ARDM-Datasource-Common")
+    compile project (":Utils")
     compile group: 'com.google.cloud', name: 'google-cloud-datastore', version: DATASTORE_VERSION
 }

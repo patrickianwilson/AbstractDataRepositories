@@ -11,6 +11,14 @@ public class ValueEqualsLogicTreeNode extends LogicTreeNode {
     private String columnName;
     private int valueArgIndex;
 
+    public ValueEqualsLogicTreeNode() {
+    }
+
+    public ValueEqualsLogicTreeNode(String columnName, int valueArgIndex) {
+        this.columnName = columnName;
+        this.valueArgIndex = valueArgIndex;
+    }
+
     public String getColumnName() {
         return columnName;
     }

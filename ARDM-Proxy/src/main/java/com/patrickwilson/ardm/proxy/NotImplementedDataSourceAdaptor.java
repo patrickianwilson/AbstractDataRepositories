@@ -26,6 +26,11 @@ public class NotImplementedDataSourceAdaptor implements DataSourceAdaptor, Queri
     }
 
     @Override
+    public <ENTITY> void delete(ENTITY entity, Class<ENTITY> clazz) {
+
+    }
+
+    @Override
     public <ENTITY> ENTITY findOne(EntityKey id, Class<ENTITY> clazz) {
         return null;
     }

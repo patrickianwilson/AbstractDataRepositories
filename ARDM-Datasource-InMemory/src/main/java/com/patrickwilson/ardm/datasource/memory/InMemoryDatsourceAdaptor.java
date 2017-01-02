@@ -103,6 +103,17 @@ public class InMemoryDatsourceAdaptor implements QueriableDatasourceAdaptor, CRU
     }
 
     @Override
+    public <ENTITY> void delete(ENTITY entity, Class<ENTITY> clazz) {
+        EntityKey<?> entityKey = null;
+        try {
+            entityKey = EntityUtils.findEntityKey(entity);
+        } catch (NoEntityKeyException e) {
+            throw new RepositoryEntityException(e);
+        }
+        this.delete(entityKey, clazz);
+    }
+
+    @Override
     public <ENTITY> ENTITY findOne(EntityKey id, Class<ENTITY> clazz) {
         TreeMap<EntityKey<Comparable>, Object> mockDb = selectTable(clazz);
         return (ENTITY) mockDb.get(id);

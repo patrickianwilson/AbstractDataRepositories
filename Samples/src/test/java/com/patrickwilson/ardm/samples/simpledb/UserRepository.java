@@ -15,5 +15,8 @@ public interface UserRepository extends CRUDRepository<User, String> {
     @Query
     List<User> findByFirstName(String fname);
 
+    @Query
+    List<User> findByFirstNameAndAge(String fname, int age);
+
 
 }

@@ -1,12 +1,15 @@
 package com.patrickwilson.ardm.proxy;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 import com.patrickwilson.ardm.api.annotation.Query;
 import com.patrickwilson.ardm.api.annotation.Repository;
 import com.patrickwilson.ardm.datasource.api.CRUDDatasourceAdaptor;
 import com.patrickwilson.ardm.datasource.api.DataSourceAdaptor;
 import com.patrickwilson.ardm.datasource.api.QueriableDatasourceAdaptor;
+import com.patrickwilson.ardm.datasource.api.RepositoryQueryExectionException;
 import com.patrickwilson.ardm.datasource.api.ScanableDatasourceAdaptor;
 import com.patrickwilson.ardm.datasource.api.exception.RepositoryInteractionException;
 import com.patrickwilson.ardm.datasource.api.query.InvalidMethodNameException;
@@ -33,10 +36,9 @@ import java.util.regex.Pattern;
  */
 public class RepositoryDynamicProxyInvocationHandler implements InvocationHandler {
 
-    private Map<String, Method> passthroughMethods = null;
+    private Multimap<String, Method> passthroughMethods = null;
     private Map<String, Method> queryMethods = null;
     private DataSourceAdaptor adaptor;
-    private QueryParser queryParser = new SimpleQueryParser();
 
     public static final List<String> BASE_METHODS = Lists.newArrayList("toString", "hashCode", "clone", "finalize", "equals", "wait", "notify", "notifyAll");
 
@@ -69,7 +71,9 @@ public class RepositoryDynamicProxyInvocationHandler implements InvocationHandle
 
             String query = queryMethodMatcher.group(1);
 
-            QueryLogicTree queryTree = this.queryParser.parse(query);
+            //query parser is neither threadsafe nor reusable...
+            QueryParser queryParser = new SimpleQueryParser();
+            QueryLogicTree queryTree = queryParser.parse(query);
 
             if (this.adaptor instanceof QueriableDatasourceAdaptor) {
                 QueryData queryData = new QueryData();
@@ -83,9 +87,13 @@ public class RepositoryDynamicProxyInvocationHandler implements InvocationHandle
 
                 queryData.setPage(page);
                 queryData.setCriteria(queryTree);
-
-                QueryResult result = ((QueriableDatasourceAdaptor) this.adaptor).findByCriteria(queryData, entityType);
-
+                QueryResult result;
+                try {
+                     result = ((QueriableDatasourceAdaptor) this.adaptor).findByCriteria(queryData, entityType);
+                } catch (RepositoryQueryExectionException e) {
+                    //invalid query.  re-throw this with the query method name to help with troubleshooting.
+                    throw new RepositoryQueryExectionException(String.format("Error executing Query method: %s", method.getName()), e);
+                }
                 if (Collection.class.isAssignableFrom(method.getReturnType())) {
                     //repository method is a List return type.
                     return result.getResults();
@@ -114,7 +122,26 @@ public class RepositoryDynamicProxyInvocationHandler implements InvocationHandle
             throw new RepositoryAdaptorNotSpecifiedException();
         } else if (this.passthroughMethods.get(method.getName()) != null) {
             //this method can be directed straight at the
-            Method passthroughMethod = passthroughMethods.get(method.getName());
+            Collection<Method> passthroughMethods = this.passthroughMethods.get(method.getName());
+
+            Method passthroughMethod = null;
+            boolean foundMatch = true;
+            for (Method m: passthroughMethods) {
+                for (int paramNum = 0; paramNum < method.getParameterTypes().length; paramNum++) {
+                    if (!method.getParameterTypes()[paramNum].equals(m.getParameterTypes()[paramNum])) {
+                        foundMatch = false;
+                        break; //param mismatch.  not the passthough.  //try the next method instead.
+                    }
+                }
+                if (foundMatch) {
+                    passthroughMethod = m;
+                    break;
+                }
+            }
+
+            if (passthroughMethod == null) {
+                throw new RepositoryDeclarationException("Method " + method.getName() +  " cannot be bound to Abstract Repository.  It appears there is no method with matching parameters on the repository adaptor.");
+            }
 
             //we always tag on the class object as a final param to help the datasource adaptor avoid generics complexity.
             Object[] passThroughArgs = Arrays.copyOf(args, args.length + 1);
@@ -172,7 +199,7 @@ public class RepositoryDynamicProxyInvocationHandler implements InvocationHandle
     private void bindDatastoreAdaptor(DataSourceAdaptor adaptor) {
         this.adaptor = adaptor;
 
-        ImmutableMap.Builder<String, Method> methodMapBuilder = ImmutableMap.<String, Method>builder();
+        ImmutableMultimap.Builder<String, Method> methodMapBuilder = ImmutableMultimap.<String, Method>builder();
         ImmutableMap.Builder<String, Method> queryMapBuilder = ImmutableMap.<String, Method>builder();
 
         Method[] adaptorReflectionMethods = CRUDDatasourceAdaptor.class.getMethods();

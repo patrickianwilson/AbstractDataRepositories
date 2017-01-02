@@ -1,6 +1,10 @@
 package com.patrickwilson.ardm.samples.simpledb;
 
 import java.util.List;
+
+import com.google.cloud.datastore.Datastore;
+import com.google.cloud.datastore.DatastoreOptions;
+import com.patrickwilson.ardm.datasource.gcp.datastore.GCPDatastoreDatasourceAdaptor;
 import org.junit.Assert;
 import org.junit.Test;
 import com.patrickwilson.ardm.datasource.memory.InMemoryDatsourceAdaptor;
@@ -29,5 +33,6 @@ public class UserSampleTests {
         Assert.assertNotNull(results);
         Assert.assertEquals(1, results.size());
     }
+
 
 }

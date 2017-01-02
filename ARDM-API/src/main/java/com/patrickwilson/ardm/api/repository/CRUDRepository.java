@@ -16,5 +16,7 @@ public interface CRUDRepository<ENTITY, KEY> {
 
     void delete(EntityKey<KEY> id);
 
+    void delete(ENTITY entity);
+
     ENTITY findOne(EntityKey<KEY> id);
 }

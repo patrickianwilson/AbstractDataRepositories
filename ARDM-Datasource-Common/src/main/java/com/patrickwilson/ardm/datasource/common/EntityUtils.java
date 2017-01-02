@@ -1,20 +1,21 @@
 package com.patrickwilson.ardm.datasource.common;
 
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import org.apache.commons.beanutils.PropertyUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 import com.patrickwilson.ardm.api.annotation.Entity;
 import com.patrickwilson.ardm.api.annotation.Indexed;
 import com.patrickwilson.ardm.api.key.EntityKey;
 import com.patrickwilson.ardm.api.key.Key;
 import com.patrickwilson.ardm.api.key.SimpleEnitityKey;
+import org.apache.commons.beanutils.PropertyUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * This is a utility class for accessing common info from generic entities.
@@ -247,6 +248,10 @@ public final class EntityUtils {
                 Object incomingVal = props.get(prop.getName());
 
                 try {
+                    if (prop.getWriteMethod() == null) {
+                        throw new UnwritablePropertyException(String.format("The property %s does not have a Java Bean \"void set%s%s(%s)\" method", prop.getName(), prop.getName().substring(0, 1).toUpperCase(), prop.getName().substring(1), prop.getPropertyType().getName()));
+                    }
+
                     if (Long.class.equals(incomingVal.getClass()) && Short.class.equals(prop.getPropertyType())) {
                         //sometimes databases only store Long values but entities could be narrower.
                         //handle Long -> short conversion.
@@ -259,8 +264,7 @@ public final class EntityUtils {
 
                 } catch (IllegalArgumentException e) {
 
-                }
-                catch (IllegalAccessException | InvocationTargetException e) {
+                } catch (IllegalAccessException | InvocationTargetException e) {
                     LOG.info(String.format("unable to set property %s on entity type %s: %s", prop.getName(), entityClazz.getName(), e.getMessage()));
                 }
             }

@@ -13,5 +13,7 @@ public interface CRUDDatasourceAdaptor extends DataSourceAdaptor {
 
     <ENTITY> void delete(EntityKey id, Class<ENTITY> clazz);
 
+    <ENTITY> void delete(ENTITY entity, Class<ENTITY> clazz);
+
     <ENTITY> ENTITY findOne(EntityKey id, Class<ENTITY> clazz);
 }

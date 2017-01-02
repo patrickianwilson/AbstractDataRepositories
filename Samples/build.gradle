@@ -4,5 +4,6 @@ apply plugin: "jacoco"
 
 dependencies {
     compile project (":ARDM-Datasource-InMemory")
+    compile project (":ARDM-Datasource-GCP-Datastore")
     compile project (":ARDM-Proxy")
 }
