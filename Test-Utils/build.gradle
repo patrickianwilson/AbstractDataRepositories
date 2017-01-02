@@ -3,13 +3,8 @@ task wrapper(type: Wrapper) {
     gradleVersion = '1.6'
 }
 
-apply plugin: 'java'
-apply plugin: 'checkstyle'
-apply plugin: 'maven'
 
-sourceCompatibility = JavaVersion.VERSION_1_7
-version = '1.0.1-SNAPSHOT'
-group = "com.patrickwilson"
+apply from: "$rootProject.projectDir/config/gradle/includes/java-conventions.gradle"
 
 dependencies {
     compile "org.mortbay.jetty:jetty:6.1.22"
@@ -33,10 +28,7 @@ repositories {
     maven {
         url "http://repo.springsource.org/libs-release"
     }
-    mavenCentral();
-//    maven {
-//        url "http://10.1.7.162:8081/nexus/content/repositories/thirdparty/"
-//    }
+    mavenCentral()
     mavenLocal()
 }
 
@@ -84,17 +76,5 @@ dependencies{
     compile 'org.jmock:jmock-legacy:2.6.0'
     compile 'commons-beanutils:commons-beanutils:1.8.3'
 
-}
-
-uploadArchives {
-  repositories {
-    mavenDeployer {
-
-      pom.artifactId = 'test-utils'
-      repository(url: "http://10.1.8.159:8081/nexus/content/repositories/snapshots") {
-        authentication(userName:"admin", password:"admin123")
-      }
-    }
-  }
 }
 
