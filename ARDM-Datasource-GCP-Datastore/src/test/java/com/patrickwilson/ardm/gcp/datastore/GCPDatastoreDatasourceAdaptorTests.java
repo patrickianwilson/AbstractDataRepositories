@@ -1,23 +1,30 @@
 package com.patrickwilson.ardm.gcp.datastore;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Map;
-
-import com.patrickwilson.ardm.datasource.api.query.*;
-import org.junit.*;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.IncompleteKey;
-import com.google.cloud.datastore.KeyFactory;
 import com.patrickwilson.ardm.api.annotation.Entity;
 import com.patrickwilson.ardm.api.annotation.Indexed;
 import com.patrickwilson.ardm.api.key.Key;
 import com.patrickwilson.ardm.api.key.SimpleEnitityKey;
+import com.patrickwilson.ardm.datasource.api.query.LogicTreeCompositeNode;
+import com.patrickwilson.ardm.datasource.api.query.QueryData;
+import com.patrickwilson.ardm.datasource.api.query.QueryLogicTree;
+import com.patrickwilson.ardm.datasource.api.query.QueryPage;
+import com.patrickwilson.ardm.datasource.api.query.QueryResult;
+import com.patrickwilson.ardm.datasource.api.query.ValueEqualsLogicTreeNode;
 import com.patrickwilson.ardm.datasource.gcp.datastore.GCPDatastoreDatasourceAdaptor;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Assume;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Created by pwilson on 12/22/16.
@@ -25,6 +32,7 @@ import com.patrickwilson.ardm.datasource.gcp.datastore.GCPDatastoreDatasourceAda
 public class GCPDatastoreDatasourceAdaptorTests {
 
     public static final short SAMPLE_AGE = 35;
+    public static final int EVENTUAL_CONSISTENCY_PAUSE = 500;
     private static Datastore datastore;
 
     @BeforeClass
@@ -70,7 +78,7 @@ public class GCPDatastoreDatasourceAdaptorTests {
     private SimpleEntity secondResult = null;
 
     @Before
-    public void setup () throws InterruptedException {
+    public void setup() throws InterruptedException {
 
         underTest = new GCPDatastoreDatasourceAdaptor(datastore);
         SimpleEntity entity = new SimpleEntity();
@@ -85,7 +93,7 @@ public class GCPDatastoreDatasourceAdaptorTests {
 
         result = underTest.save(entity, SimpleEntity.class);
         secondResult = underTest.save(second, SimpleEntity.class);
-        Thread.sleep(500); //ensure datastore consistency.
+        Thread.sleep(EVENTUAL_CONSISTENCY_PAUSE); //ensure datastore consistency.
     }
 
     @After
@@ -134,8 +142,8 @@ public class GCPDatastoreDatasourceAdaptorTests {
 
         QueryLogicTree firstNameCriteria = new QueryLogicTree(new ValueEqualsLogicTreeNode("firstName", 0));
 
-        QueryData query = new QueryData(new QueryPage(0, 10), firstNameCriteria);
-        query.setParameters(new Object[] { "Patrick" });
+        QueryData query = new QueryData(new QueryPage(0, -1), firstNameCriteria);
+        query.setParameters(new Object[] {"Patrick"});
 
         QueryResult<SimpleEntity> qResult = underTest.findByCriteria(query, SimpleEntity.class);
 
@@ -155,7 +163,7 @@ public class GCPDatastoreDatasourceAdaptorTests {
 
         QueryLogicTree firstNameCriteria = new QueryLogicTree(root);
 
-        QueryData query = new QueryData(new QueryPage(0, 10), firstNameCriteria);
+        QueryData query = new QueryData(new QueryPage(0, -1), firstNameCriteria);
         query.setParameters(new Object[] {"Patrick", "patrick.ian.wilson@gmail.com"});
 
         QueryResult<SimpleEntity> qResult = underTest.findByCriteria(query, SimpleEntity.class);
@@ -167,7 +175,9 @@ public class GCPDatastoreDatasourceAdaptorTests {
     }
 
 
-
+    /**
+     * For testing.
+     */
     @Entity(domainOrTable = "SimpleEntityForTesting")
     public static class SimpleEntity {
 

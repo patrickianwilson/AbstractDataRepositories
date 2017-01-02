@@ -55,6 +55,9 @@ public class DatastoreSampleTests {
     }
 
 
+    /**
+     * for testing.
+     */
     @Entity
     public static class User {
 
@@ -92,6 +95,9 @@ public class DatastoreSampleTests {
             this.primaryKey = primaryKey;
         }
 
+        /**
+         * A Builder.
+         */
         public static class Builder {
             private User instance = new User();
 
@@ -117,6 +123,9 @@ public class DatastoreSampleTests {
     }
 
 
+    /**
+     * For testing.
+     */
     @Repository(User.class)
     public interface UserRepository extends CRUDRepository<User, Key> {
 
