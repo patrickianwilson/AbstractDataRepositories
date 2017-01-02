@@ -8,19 +8,9 @@ import com.patrickwilson.ardm.api.annotation.Entity;
 import com.patrickwilson.ardm.api.annotation.Indexed;
 import com.patrickwilson.ardm.api.key.Key;
 import com.patrickwilson.ardm.api.key.SimpleEnitityKey;
-import com.patrickwilson.ardm.datasource.api.query.LogicTreeCompositeNode;
-import com.patrickwilson.ardm.datasource.api.query.QueryData;
-import com.patrickwilson.ardm.datasource.api.query.QueryLogicTree;
-import com.patrickwilson.ardm.datasource.api.query.QueryPage;
-import com.patrickwilson.ardm.datasource.api.query.QueryResult;
-import com.patrickwilson.ardm.datasource.api.query.ValueEqualsLogicTreeNode;
+import com.patrickwilson.ardm.datasource.api.query.*;
 import com.patrickwilson.ardm.datasource.gcp.datastore.GCPDatastoreDatasourceAdaptor;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -31,6 +21,7 @@ import java.io.InputStream;
  */
 public class GCPDatastoreDatasourceAdaptorTests {
 
+
     public static final short SAMPLE_AGE = 35;
     public static final int EVENTUAL_CONSISTENCY_PAUSE = 500;
     private static Datastore datastore;
@@ -38,38 +29,24 @@ public class GCPDatastoreDatasourceAdaptorTests {
     @BeforeClass
     public static void startupSuite() throws IOException {
 
-        datastore = setupFromEnvironment();
+        InputStream credStream = null;
 
-        if (datastore != null) {
-            //success - likely running emulator or GCP.
-            return;
-        }
-        InputStream credStream = ClassLoader.getSystemResourceAsStream("datastore-service-account.json.creds");
-        String projectId = null;
-        if (credStream == null) {
-            //try to locate a file based on a env variable
-            String credFile = System.getProperty("GoogleServiceAccountCredentialFile");
-            if (credFile != null) {
-                credStream = new FileInputStream(credFile);
-
-            }
-
-            projectId = System.getProperty("GoogleProjectId");
+        //try to locate a file based on a env variable
+        String credFile = System.getProperty("GoogleServiceAccountCredentialFile");
+        if (credFile != null) {
+            credStream = new FileInputStream(credFile);
+            System.out.println(String.format("Loading GCloud Credentials From: %s, Successful = %s", credFile, credStream != null));
         }
 
-        Assume.assumeNotNull(credStream); //will skip this test suite if there are no credentials.
-        Assume.assumeNotNull(projectId);
-
-        datastore = DatastoreOptions.newBuilder().setCredentials(ServiceAccountCredentials.fromStream(credStream))
-                .setProjectId(projectId)
-                .build()
-                .getService();
-
-    }
-
-    private static Datastore setupFromEnvironment() {
-
-        return DatastoreOptions.newBuilder().build().getService();
+        if (credStream != null) {
+            datastore = DatastoreOptions.newBuilder()
+                    .setCredentials(ServiceAccountCredentials.fromStream(credStream))
+                    .build()
+                    .getService();
+        } else {
+            System.out.println("Using Application Default Credentials for Datastore.");
+            datastore = DatastoreOptions.newBuilder().build().getService();
+        }
 
     }
 
