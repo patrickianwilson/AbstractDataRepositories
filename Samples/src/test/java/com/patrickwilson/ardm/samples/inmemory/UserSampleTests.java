@@ -1,4 +1,4 @@
-package com.patrickwilson.ardm.samples.simpledb;
+package com.patrickwilson.ardm.samples.inmemory;
 
 import com.patrickwilson.ardm.datasource.memory.InMemoryDatsourceAdaptor;
 import com.patrickwilson.ardm.proxy.RepositoryProvider;

@@ -1,4 +1,4 @@
-package com.patrickwilson.ardm.samples.simpledb;
+package com.patrickwilson.ardm.samples.inmemory;
 
 import java.util.List;
 import com.patrickwilson.ardm.api.annotation.Query;
