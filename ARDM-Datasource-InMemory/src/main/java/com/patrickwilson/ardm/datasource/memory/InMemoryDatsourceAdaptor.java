@@ -23,7 +23,7 @@ import com.patrickwilson.ardm.datasource.api.query.LogicTreeCompositeNode;
 import com.patrickwilson.ardm.datasource.api.query.LogicTreeNode;
 import com.patrickwilson.ardm.datasource.api.query.QueryData;
 import com.patrickwilson.ardm.datasource.api.query.QueryPage;
-import com.patrickwilson.ardm.datasource.api.query.QueryResult;
+import com.patrickwilson.ardm.api.repository.QueryResult;
 import com.patrickwilson.ardm.datasource.api.query.ValueEqualsLogicTreeNode;
 import com.patrickwilson.ardm.datasource.common.EntityUtils;
 import com.patrickwilson.ardm.datasource.common.NoEntityKeyException;

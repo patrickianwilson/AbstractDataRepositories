@@ -12,7 +12,7 @@ import com.patrickwilson.ardm.datasource.api.query.LogicTreeCompositeNode;
 import com.patrickwilson.ardm.datasource.api.query.QueryData;
 import com.patrickwilson.ardm.datasource.api.query.QueryLogicTree;
 import com.patrickwilson.ardm.datasource.api.query.QueryPage;
-import com.patrickwilson.ardm.datasource.api.query.QueryResult;
+import com.patrickwilson.ardm.api.repository.QueryResult;
 import com.patrickwilson.ardm.datasource.api.query.ValueEqualsLogicTreeNode;
 import com.patrickwilson.ardm.datasource.gcp.datastore.GCPDatastoreDatasourceAdaptor;
 import org.junit.After;

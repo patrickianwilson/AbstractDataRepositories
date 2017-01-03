@@ -17,7 +17,7 @@ import com.patrickwilson.ardm.datasource.api.query.QueryData;
 import com.patrickwilson.ardm.datasource.api.query.QueryLogicTree;
 import com.patrickwilson.ardm.datasource.api.query.QueryPage;
 import com.patrickwilson.ardm.datasource.api.query.QueryParser;
-import com.patrickwilson.ardm.datasource.api.query.QueryResult;
+import com.patrickwilson.ardm.api.repository.QueryResult;
 import com.patrickwilson.ardm.datasource.api.query.SimpleQueryParser;
 
 import java.lang.reflect.InvocationHandler;
@@ -120,7 +120,7 @@ public class RepositoryDynamicProxyInvocationHandler implements InvocationHandle
 
         } else if (this.passthroughMethods == null) {
             throw new RepositoryAdaptorNotSpecifiedException();
-        } else if (this.passthroughMethods.get(method.getName()) != null) {
+        } else if (this.passthroughMethods.get(method.getName()) != null && this.passthroughMethods.get(method.getName()).size() > 0) {
             //this method can be directed straight at the
             Collection<Method> passthroughMethods = this.passthroughMethods.get(method.getName());
 

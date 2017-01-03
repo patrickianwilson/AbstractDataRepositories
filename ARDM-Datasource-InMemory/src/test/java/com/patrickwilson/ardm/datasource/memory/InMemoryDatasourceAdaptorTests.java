@@ -10,7 +10,7 @@ import com.patrickwilson.ardm.api.key.Key;
 import com.patrickwilson.ardm.api.key.SimpleEnitityKey;
 import com.patrickwilson.ardm.datasource.api.query.QueryData;
 import com.patrickwilson.ardm.datasource.api.query.QueryLogicTree;
-import com.patrickwilson.ardm.datasource.api.query.QueryResult;
+import com.patrickwilson.ardm.api.repository.QueryResult;
 import com.patrickwilson.ardm.datasource.api.query.ValueEqualsLogicTreeNode;
 
 

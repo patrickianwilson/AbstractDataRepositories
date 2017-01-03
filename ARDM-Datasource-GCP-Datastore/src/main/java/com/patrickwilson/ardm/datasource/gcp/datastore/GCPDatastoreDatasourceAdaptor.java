@@ -26,7 +26,7 @@ import com.patrickwilson.ardm.datasource.api.ScanableDatasourceAdaptor;
 import com.patrickwilson.ardm.datasource.api.exception.RepositoryEntityException;
 import com.patrickwilson.ardm.datasource.api.exception.RepositoryInteractionException;
 import com.patrickwilson.ardm.datasource.api.query.QueryData;
-import com.patrickwilson.ardm.datasource.api.query.QueryResult;
+import com.patrickwilson.ardm.api.repository.QueryResult;
 import com.patrickwilson.ardm.datasource.common.EntityUtils;
 import com.patrickwilson.ardm.datasource.common.NoEntityKeyException;
 import org.slf4j.Logger;

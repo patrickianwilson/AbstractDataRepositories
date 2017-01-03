@@ -263,7 +263,7 @@ public final class EntityUtils {
                     }
 
                 } catch (IllegalArgumentException e) {
-
+                    LOG.debug("Encountered illegal arguement exception while setting ", e);
                 } catch (IllegalAccessException | InvocationTargetException e) {
                     LOG.info(String.format("unable to set property %s on entity type %s: %s", prop.getName(), entityClazz.getName(), e.getMessage()));
                 }

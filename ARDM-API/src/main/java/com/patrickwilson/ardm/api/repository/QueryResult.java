@@ -1,4 +1,4 @@
-package com.patrickwilson.ardm.datasource.api.query;
+package com.patrickwilson.ardm.api.repository;
 
 
 import java.util.List;

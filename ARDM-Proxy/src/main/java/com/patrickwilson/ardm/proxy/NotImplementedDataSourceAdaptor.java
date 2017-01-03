@@ -6,7 +6,7 @@ import com.patrickwilson.ardm.datasource.api.DataSourceAdaptor;
 import com.patrickwilson.ardm.datasource.api.QueriableDatasourceAdaptor;
 import com.patrickwilson.ardm.datasource.api.ScanableDatasourceAdaptor;
 import com.patrickwilson.ardm.datasource.api.query.QueryData;
-import com.patrickwilson.ardm.datasource.api.query.QueryResult;
+import com.patrickwilson.ardm.api.repository.QueryResult;
 
 /**
  * This adaptor is deliberately created to make the API more readible. It does nothing except prevent configuration
