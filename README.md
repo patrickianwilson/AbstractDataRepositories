@@ -87,3 +87,11 @@ Three steps are required:
 That is all!
 
 Take a peak at the Samples for a working example.
+
+
+# Project Road Map
+
+Currently this is very much a side project.  It is functional but definitely not projection ready.  The plans fall into two main categories:
+
+1. Improved Documentation and Bug Fixing
+2. More Datasources (Specifically Mongo DB and Redis.)
