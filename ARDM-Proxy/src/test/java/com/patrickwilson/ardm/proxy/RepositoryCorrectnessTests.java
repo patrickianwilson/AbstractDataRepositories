@@ -11,8 +11,6 @@ import org.jmock.Expectations;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.List;
-
 /**
  * test scenarios for reposoitory validation logic.
  * User: pwilson

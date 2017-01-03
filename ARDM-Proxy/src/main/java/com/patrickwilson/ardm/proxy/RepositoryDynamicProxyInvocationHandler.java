@@ -125,11 +125,11 @@ public class RepositoryDynamicProxyInvocationHandler implements InvocationHandle
             Collection<Method> passthroughMethods = this.passthroughMethods.get(method.getName());
 
             Method passthroughMethod = null;
-            boolean foundMatch = true;
             for (Method m: passthroughMethods) {
+                boolean foundMatch = false;
                 for (int paramNum = 0; paramNum < method.getParameterTypes().length; paramNum++) {
-                    if (!method.getParameterTypes()[paramNum].equals(m.getParameterTypes()[paramNum])) {
-                        foundMatch = false;
+                    if (method.getParameterTypes()[paramNum].equals(m.getParameterTypes()[paramNum])) {
+                        foundMatch = true;
                         break; //param mismatch.  not the passthough.  //try the next method instead.
                     }
                 }
