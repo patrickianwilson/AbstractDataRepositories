@@ -1,7 +1,7 @@
 package com.patrickwilson.ardm.datasource.api;
 
 
-import com.patrickwilson.ardm.datasource.api.query.QueryResult;
+import com.patrickwilson.ardm.api.repository.QueryResult;
 
 /**
  * A definition of functionality that a scannable data source can provide.

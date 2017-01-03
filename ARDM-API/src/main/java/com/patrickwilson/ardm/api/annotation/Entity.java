@@ -9,6 +9,6 @@ import java.lang.annotation.RetentionPolicy;
  */
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Entity {
-    public static final String NO_DOMAIN_OR_TABLE = "_NULL_";
+    String NO_DOMAIN_OR_TABLE = "_NULL_";
     String domainOrTable() default NO_DOMAIN_OR_TABLE;
 }

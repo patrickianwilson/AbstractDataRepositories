@@ -3,14 +3,13 @@ package com.patrickwilson.ardm.proxy;
 import com.google.common.collect.Lists;
 import com.patrickwilson.ardm.api.annotation.Repository;
 import com.patrickwilson.ardm.api.repository.CRUDRepository;
+import com.patrickwilson.ardm.api.repository.ScannableRepository;
 import com.patrickwilson.ardm.datasource.api.ScanableDatasourceAdaptor;
-import com.patrickwilson.ardm.datasource.api.query.QueryResult;
+import com.patrickwilson.ardm.api.repository.QueryResult;
 import com.patrickwilson.shared.util.test.BaseJMockTest;
 import org.jmock.Expectations;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.List;
 
 /**
  * test scenarios for reposoitory validation logic.
@@ -53,10 +52,10 @@ public class RepositoryCorrectnessTests extends BaseJMockTest {
         } });
 
 
-        final List<MyEntity> saved = underTest.findAll();
+        final QueryResult<MyEntity> saved = underTest.findAll();
 
-        Assert.assertEquals(saved.size(), 1);
-        Assert.assertEquals(saved.get(0), entity);
+        Assert.assertEquals(saved.getResults().size(), 1);
+        Assert.assertEquals(saved.getResults().get(0), entity);
 
     }
 
@@ -75,7 +74,7 @@ public class RepositoryCorrectnessTests extends BaseJMockTest {
      * used for testing.
      */
     @Repository(MyEntity.class)
-    public interface MyDataRepository extends CRUDRepository<MyEntity> {
+    public interface MyDataRepository extends CRUDRepository<MyEntity, String> {
 
          String findAll();
         
@@ -86,9 +85,9 @@ public class RepositoryCorrectnessTests extends BaseJMockTest {
      * used for testing.
      */
     @Repository(MyEntity.class)
-    public interface MyValidRepository extends CRUDRepository<MyEntity> {
+    public interface MyValidRepository extends CRUDRepository<MyEntity, String>, ScannableRepository<MyEntity> {
 
-        List<MyEntity> findAll();
+
 
     }
 

@@ -1,7 +1,7 @@
 package com.patrickwilson.ardm.datasource.api;
 
 import com.patrickwilson.ardm.datasource.api.query.QueryData;
-import com.patrickwilson.ardm.datasource.api.query.QueryResult;
+import com.patrickwilson.ardm.api.repository.QueryResult;
 
 /**
  * A definition of functionality provided by a datasource that can be queried.
@@ -9,5 +9,5 @@ import com.patrickwilson.ardm.datasource.api.query.QueryResult;
  */
 public interface QueriableDatasourceAdaptor extends DataSourceAdaptor {
 
-    <ENTITY> QueryResult<ENTITY> findByCriteria(QueryData query);
+    <ENTITY> QueryResult<ENTITY> findByCriteria(QueryData query, Class<ENTITY> clazz);
 }

@@ -6,6 +6,13 @@ package com.patrickwilson.ardm.datasource.api.query;
  */
 public class QueryLogicTree {
 
+    public QueryLogicTree(LogicTreeNode rootCriteria) {
+        this.rootCriteria = rootCriteria;
+    }
+
+    public QueryLogicTree() {
+    }
+
     private LogicTreeNode rootCriteria;
 
     public LogicTreeNode getRootCriteria() {

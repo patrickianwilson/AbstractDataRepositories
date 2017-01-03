@@ -1,4 +1,5 @@
 apply from: "$rootProject.projectDir/config/gradle/includes/java-conventions.gradle"
+apply from: "$rootProject.projectDir/config/gradle/includes/versions.gradle"
 dependencies {
     compile project(":ARDM-API")
     compile 'com.google.code.gson:gson:2.2.4'

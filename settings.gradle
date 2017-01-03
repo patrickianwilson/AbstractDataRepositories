@@ -1,19 +1,16 @@
-//include ":ARDM-Model"
 include ":ARDM-API"
 include ":ARDM-Proxy"
-//include ":ARDM-Processors"
-//include ':ARDM-Processors-Tests'
 
+include ":ARDM-Datasource-Common"
 include ":ARDM-Datasource-InMemory"
-include ":ARDM-Datasource-Derby"
+include ":ARDM-Datasource-GCP-Datastore"
 
 include ":ARDM-Datasource-API"
 
 //sub repository locations.
 include ":Test-Utils"
-
-
+include ":Utils"
 
 //samples
-//include ":Samples"
+include ":Samples"
 

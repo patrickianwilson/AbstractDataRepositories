@@ -6,6 +6,10 @@ import com.google.common.base.Strings;
 /**
  * Simple implementation of a query parser.  Only handles
  * User: pwilson
+ *
+ * TODO - Is this algo as horrible as I think?  Need to do lots of tests to prove yes or no.
+ *
+ * TODO - Also no support for query clauses that are order aware (for instance findByCountGT) which should be doing a "where count > ${arg}"
  */
 public class SimpleQueryParser implements QueryParser {
     private int argCounter = -1;
@@ -13,9 +17,9 @@ public class SimpleQueryParser implements QueryParser {
     @Override
     public QueryLogicTree parse(final String query) throws InvalidMethodNameException {
 
-        String lowerCaseQuery = query.toLowerCase();
+        String lowerCaseQuery = query; //.toLowerCase();
         //
-        String[] orParts = lowerCaseQuery.split("or");
+        String[] orParts = lowerCaseQuery.split("Or");
 
         LogicTreeNode rootNode = null;
 
@@ -42,7 +46,7 @@ public class SimpleQueryParser implements QueryParser {
     private LogicTreeNode doOr(String orPart, String fullQuery) {
 
         //see if there is a seperate break down.
-        String[] andParts = orPart.split("and");
+        String[] andParts = orPart.split("And");
         LogicTreeNode orPartNode = null;
 
         if (andParts.length > 1) {
@@ -64,8 +68,9 @@ public class SimpleQueryParser implements QueryParser {
 
     private LogicTreeNode doAnd(String andPart) {
 
-        ValueLogicTreeNode leafNode = new ValueLogicTreeNode();
-        leafNode.setColumnName(andPart);
+        ValueEqualsLogicTreeNode leafNode = new ValueEqualsLogicTreeNode();
+        String columnName = andPart.substring(0, 1).toLowerCase() + andPart.substring(1);
+        leafNode.setColumnName(columnName);
         leafNode.setValueArgIndex(++argCounter);
 
         return leafNode;

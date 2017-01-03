@@ -1,24 +1,27 @@
 package com.patrickwilson.ardm.samples.simpledb;
 
 import com.patrickwilson.ardm.api.annotation.Entity;
-import com.patrickwilson.ardm.api.key.EntityKey;
+import com.patrickwilson.ardm.api.annotation.Indexed;
+import com.patrickwilson.ardm.api.key.Key;
 
 /**
  * Created by pwilson on 5/5/15.
  */
-@Entity(domainOrTable = SimpleDBExample.DOMAIN_NAME)
+@Entity
 //@Expire()  TODO
 public class User {
 
     private String firstName;
     private int age;
-    private EntityKey<String> primaryKey;
 
+    private String primaryKey;
 
+    @Indexed
     public String getFirstName() {
         return firstName;
     }
 
+    @Indexed
     public User setFirstName(String firstName) {
         this.firstName = firstName;
         return this;
@@ -33,12 +36,12 @@ public class User {
         return this;
     }
 
-    public EntityKey<String> getPrimaryKey() {
+    @Key(keyClass = String.class)
+    public String getPrimaryKey() {
         return primaryKey;
     }
 
-    public User setPrimaryKey(EntityKey<String> primaryKey) {
+    public void setPrimaryKey(String primaryKey) {
         this.primaryKey = primaryKey;
-        return this;
     }
 }

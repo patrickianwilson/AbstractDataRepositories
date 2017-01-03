@@ -1,0 +1,6 @@
+apply from: "$rootProject.projectDir/config/gradle/includes/java-conventions.gradle"
+apply from: "$rootProject.projectDir/config/gradle/includes/versions.gradle"
+dependencies {
+    compile project(":ARDM-API")
+    compile "commons-beanutils:commons-beanutils:$BEAN_UTILS_VERSION"
+}
