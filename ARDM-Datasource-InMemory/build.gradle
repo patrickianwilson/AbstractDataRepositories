@@ -3,4 +3,5 @@ apply from: "$rootProject.projectDir/config/gradle/includes/versions.gradle"
 dependencies {
     compile project (":ARDM-Datasource-API")
     compile project (":ARDM-Datasource-Common")
+    compile project (":ARDM-Proxy")
 }

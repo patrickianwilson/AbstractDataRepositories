@@ -18,7 +18,7 @@ public class RepositoryProvider {
     public <T> BindableRepsitoryDatasource<T> bind(Class<T> repositoryClazz) {
 
         try {
-            BindableRepsitoryDatasource result = (BindableRepsitoryDatasource) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{BindableRepsitoryDatasource.class, repositoryClazz}, new RepositoryDynamicProxyInvocationHandler());
+            BindableRepsitoryDatasource result = (BindableRepsitoryDatasource) Proxy.newProxyInstance(repositoryClazz.getClassLoader(), new Class[]{BindableRepsitoryDatasource.class, repositoryClazz}, new RepositoryDynamicProxyInvocationHandler());
             return result;
         } catch (Exception e) {
             throw new RepositoryInstantiationExcepiton(e);
