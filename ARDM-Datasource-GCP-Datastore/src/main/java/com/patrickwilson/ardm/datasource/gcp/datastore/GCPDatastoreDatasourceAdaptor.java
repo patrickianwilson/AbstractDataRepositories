@@ -223,12 +223,18 @@ public class GCPDatastoreDatasourceAdaptor implements QueriableDatasourceAdaptor
 
         Entity entity = datastoreClient.get(entKey);
 
-        Object result = toFromDBEntity(clazz, entity);
+
+        Object result = null;
+        try {
+            result = toFromDBEntity(clazz, entity);
+        } catch (NoEntityKeyException e) {
+            throw new RepositoryEntityException("Unable to set entity key: Maybe the entity is missing the setter method for its key field?", e);
+        }
 
         return (ENTITY) result;
     }
 
-    private <ENTITY> ENTITY toFromDBEntity(Class<ENTITY> clazz, Entity entity) {
+    private <ENTITY> ENTITY toFromDBEntity(Class<ENTITY> clazz, Entity entity) throws NoEntityKeyException {
         Set<String> propNamesInDB = entity.getNames();
         Map<String, Class> entityProperties = EntityUtils.getPropertyTypeMap(clazz);
 
@@ -241,7 +247,12 @@ public class GCPDatastoreDatasourceAdaptor implements QueriableDatasourceAdaptor
             }
         }
 
-        return (ENTITY) EntityUtils.rehydrateObject(attributes, clazz);
+
+        ENTITY ent = (ENTITY) EntityUtils.rehydrateObject(attributes, clazz);
+
+        EntityUtils.updateEntityKey(ent, new SimpleEnitityKey(entity.getKey(), Key.class));
+
+        return ent;
     }
 
 
@@ -254,7 +265,11 @@ public class GCPDatastoreDatasourceAdaptor implements QueriableDatasourceAdaptor
         QueryResults dbQueryResult = datastoreClient.run(dbQuery);
 
         while (dbQueryResult.hasNext()) {
-            results.add(toFromDBEntity(clazz, (Entity) dbQueryResult.next()));
+            try {
+                results.add(toFromDBEntity(clazz, (Entity) dbQueryResult.next()));
+            } catch (NoEntityKeyException e) {
+                throw new RepositoryEntityException("Unable to set entity key: Maybe the entity is missing the setter method for its key field?", e);
+            }
         }
 
         QueryResult<ENTITY> queryResult = new QueryResult<>();
@@ -274,7 +289,11 @@ public class GCPDatastoreDatasourceAdaptor implements QueriableDatasourceAdaptor
         QueryResults dbQueryResult = datastoreClient.run(q);
 
         while (dbQueryResult.hasNext()) {
-            results.add(toFromDBEntity(clazz, (Entity) dbQueryResult.next()));
+            try {
+                results.add(toFromDBEntity(clazz, (Entity) dbQueryResult.next()));
+            } catch (NoEntityKeyException e) {
+                throw new RepositoryEntityException("Unable to set entity key: Maybe the entity is missing the setter method for its key field?", e);
+            }
         }
 
         QueryResult<ENTITY> queryResult = new QueryResult<>();

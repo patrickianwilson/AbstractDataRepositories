@@ -53,7 +53,7 @@ public class GCPDatastoreDatasourceAdaptorTests {
                     .build()
                     .getService();
         } else {
-            System.out.println("Using Application Default Credentials for Datastore.");
+            System.out.println("Using Default gcloud Credentials for Datastore.");
             datastore = DatastoreOptions.newBuilder().build().getService();
         }
 
@@ -111,6 +111,9 @@ public class GCPDatastoreDatasourceAdaptorTests {
         Assert.assertEquals(secondResult.email, secondFromDB.email);
         Assert.assertEquals(secondResult.firstName, secondFromDB.firstName);
         Assert.assertEquals(secondResult.age, secondFromDB.age);
+
+        //https://github.com/patrickianwilson/AbstractDataRepositories/issues/9
+        Assert.assertNotNull(secondFromDB.entityKey);
 
 
         QueryResult<SimpleEntity> allEntities = underTest.findAll(SimpleEntity.class);
