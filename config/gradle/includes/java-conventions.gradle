@@ -4,7 +4,7 @@ apply plugin: 'maven'
 
 sourceCompatibility = JavaVersion.VERSION_1_7
 version = getVersion()
-group = "com.patrickwilson"
+group = "com.wilsonsinquest"
 
 def getVersion() {
     if (project.hasProperty("BUILD_NUMBER")) {
@@ -92,7 +92,6 @@ uploadArchives {
             }
             pom.version = project.version
             pom.artifactId = project.name
-            pom.groupId = "com.wilsonsinquest"
         }
     }
 }
