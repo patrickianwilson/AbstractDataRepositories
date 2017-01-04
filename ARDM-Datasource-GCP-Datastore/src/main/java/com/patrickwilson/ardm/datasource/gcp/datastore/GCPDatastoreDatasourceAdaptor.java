@@ -99,7 +99,8 @@ public class GCPDatastoreDatasourceAdaptor implements QueriableDatasourceAdaptor
 
                 Value val = toValue(value, indexedProperties.contains(propName));
 
-                datastoreEntityBuilder.set(propName, val);
+                if (val != null) //null pointer issues can happen if we persist null.
+                    datastoreEntityBuilder.set(propName, val);
             }
 
             FullEntity<IncompleteKey> partialEntity = datastoreEntityBuilder.build();
