@@ -9,6 +9,8 @@ group = "com.wilsonsinquest"
 def getVersion() {
     if (project.hasProperty("BUILD_NUMBER")) {
         return "0.0.${project.getProperty("BUILD_NUMBER")}" //currently very pre-release
+    } else if(System.getenv().containsKey("BUILD_NUMBER")) {
+        return "0.0.${System.getenv().get("BUILD_NUMBER")}" //currently very pre-release
     } else {
         return "0.1-local-SNAPSHOT"
     }
