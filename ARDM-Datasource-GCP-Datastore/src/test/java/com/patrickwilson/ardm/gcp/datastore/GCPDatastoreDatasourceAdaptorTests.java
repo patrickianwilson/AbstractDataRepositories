@@ -251,6 +251,9 @@ public class GCPDatastoreDatasourceAdaptorTests {
         }
     }
 
+    /**
+     * for testing.
+     */
     public static class InnerInnerObject {
         private int num;
 
