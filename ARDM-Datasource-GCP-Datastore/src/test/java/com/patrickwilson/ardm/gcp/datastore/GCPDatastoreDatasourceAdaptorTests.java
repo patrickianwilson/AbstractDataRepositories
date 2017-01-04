@@ -15,9 +15,8 @@ import com.patrickwilson.ardm.datasource.api.query.QueryPage;
 import com.patrickwilson.ardm.api.repository.QueryResult;
 import com.patrickwilson.ardm.datasource.api.query.ValueEqualsLogicTreeNode;
 import com.patrickwilson.ardm.datasource.gcp.datastore.GCPDatastoreDatasourceAdaptor;
-import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -32,11 +31,15 @@ public class GCPDatastoreDatasourceAdaptorTests {
 
 
     public static final short SAMPLE_AGE = 35;
-    public static final int EVENTUAL_CONSISTENCY_PAUSE = 500;
+    public static final int EVENTUAL_CONSISTENCY_PAUSE = 2000;
     private static Datastore datastore;
 
+    private static GCPDatastoreDatasourceAdaptor underTest = null;
+    private static SimpleEntity result = null;
+    private static SimpleEntity secondResult = null;
+
     @BeforeClass
-    public static void startupSuite() throws IOException {
+    public static void startupSuite() throws IOException, InterruptedException {
 
         InputStream credStream = null;
 
@@ -57,15 +60,6 @@ public class GCPDatastoreDatasourceAdaptorTests {
             datastore = DatastoreOptions.newBuilder().build().getService();
         }
 
-    }
-
-    private GCPDatastoreDatasourceAdaptor underTest = null;
-    private SimpleEntity result = null;
-    private SimpleEntity secondResult = null;
-
-    @Before
-    public void setup() throws InterruptedException {
-
         underTest = new GCPDatastoreDatasourceAdaptor(datastore);
         SimpleEntity entity = new SimpleEntity();
         entity.setEmail("patrick.ian.wilson@gmail.com");
@@ -76,17 +70,24 @@ public class GCPDatastoreDatasourceAdaptorTests {
         second.setEmail("patrick.andrew.wilson@gmail.com");
         second.setFirstName("Patrick");
         second.setAge(SAMPLE_AGE);
+        second.setInner(new InnerObject());
+        second.getInner().setInnerField("some string test");
+        second.getInner().setInner(new InnerInnerObject());
+        second.getInner().getInner().setNum(-1);
+
+
 
         result = underTest.save(entity, SimpleEntity.class);
         secondResult = underTest.save(second, SimpleEntity.class);
         Thread.sleep(EVENTUAL_CONSISTENCY_PAUSE); //ensure datastore consistency.
     }
 
-    @After
-    public void tearDown() {
+    @AfterClass
+    public static void tearDown() throws InterruptedException {
 
         underTest.delete(new SimpleEnitityKey(result.getEntityKey(), com.google.cloud.datastore.Key.class), SimpleEntity.class);
         underTest.delete(new SimpleEnitityKey(secondResult.getEntityKey(), com.google.cloud.datastore.Key.class), SimpleEntity.class);
+        Thread.sleep(EVENTUAL_CONSISTENCY_PAUSE); //ensure datastore consistency.
     }
 
     @Test
@@ -115,6 +116,11 @@ public class GCPDatastoreDatasourceAdaptorTests {
         //https://github.com/patrickianwilson/AbstractDataRepositories/issues/9
         Assert.assertNotNull(secondFromDB.entityKey);
 
+        //https://github.com/patrickianwilson/AbstractDataRepositories/issues/10
+        Assert.assertNotNull(secondFromDB.inner);
+        Assert.assertEquals("some string test", secondFromDB.inner.innerField);
+        Assert.assertNotNull(secondFromDB.inner.inner);
+        Assert.assertEquals(-1, secondFromDB.inner.inner.num);
 
         QueryResult<SimpleEntity> allEntities = underTest.findAll(SimpleEntity.class);
 
@@ -174,7 +180,7 @@ public class GCPDatastoreDatasourceAdaptorTests {
         private String firstName;
         private String email;
         private short age;
-
+        private InnerObject inner;
 
         public com.google.cloud.datastore.IncompleteKey getEntityKey() {
             return entityKey;
@@ -209,6 +215,51 @@ public class GCPDatastoreDatasourceAdaptorTests {
 
         public void setAge(Short age) {
             this.age = age;
+        }
+
+        public InnerObject getInner() {
+            return inner;
+        }
+
+        public void setInner(InnerObject inner) {
+            this.inner = inner;
+        }
+    }
+
+
+    /**
+     * Test nested objects.
+     */
+    public static class InnerObject {
+        private String innerField;
+        private InnerInnerObject inner;
+
+        public String getInnerField() {
+            return innerField;
+        }
+
+        public void setInnerField(String innerField) {
+            this.innerField = innerField;
+        }
+
+        public InnerInnerObject getInner() {
+            return inner;
+        }
+
+        public void setInner(InnerInnerObject inner) {
+            this.inner = inner;
+        }
+    }
+
+    public static class InnerInnerObject {
+        private int num;
+
+        public int getNum() {
+            return num;
+        }
+
+        public void setNum(int num) {
+            this.num = num;
         }
     }
 

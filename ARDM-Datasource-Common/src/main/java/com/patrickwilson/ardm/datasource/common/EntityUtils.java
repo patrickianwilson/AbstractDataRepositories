@@ -252,13 +252,14 @@ public final class EntityUtils {
                         throw new UnwritablePropertyException(String.format("The property %s does not have a Java Bean \"void set%s%s(%s)\" method", prop.getName(), prop.getName().substring(0, 1).toUpperCase(), prop.getName().substring(1), prop.getPropertyType().getName()));
                     }
 
-                    if (Long.class.equals(incomingVal.getClass()) && Short.class.equals(prop.getPropertyType())) {
+                    if (Long.class.equals(incomingVal.getClass()) && (Short.class.equals(prop.getPropertyType()) || prop.getPropertyType().getName().equals("short"))) {
                         //sometimes databases only store Long values but entities could be narrower.
                         //handle Long -> short conversion.
                         prop.getWriteMethod().invoke(entity, ((Long) incomingVal).shortValue());
-                    } else if (Long.class.equals(incomingVal.getClass()) && Integer.class.equals(prop.getPropertyType())) {
+                    } else if (Long.class.equals(incomingVal.getClass()) && (Integer.class.equals(prop.getPropertyType()) || prop.getPropertyType().getName().equals("int"))) {
                         prop.getWriteMethod().invoke(entity, ((Long) incomingVal).intValue());
                     } else {
+
                         prop.getWriteMethod().invoke(entity, incomingVal);
                     }
 

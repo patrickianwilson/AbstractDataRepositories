@@ -7,6 +7,7 @@ import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DoubleValue;
 import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.EntityQuery;
+import com.google.cloud.datastore.EntityValue;
 import com.google.cloud.datastore.FullEntity;
 import com.google.cloud.datastore.IncompleteKey;
 import com.google.cloud.datastore.Key;
@@ -43,6 +44,7 @@ import java.util.Set;
  */
 public class GCPDatastoreDatasourceAdaptor implements QueriableDatasourceAdaptor, CRUDDatasourceAdaptor, ScanableDatasourceAdaptor {
 
+    public static final String TYPE_ATTRIBUTE_NAME = "_clazz";
     private Datastore datastoreClient;
     public static final Logger LOG = LoggerFactory.getLogger(GCPDatastoreDatasourceAdaptor.class);
 
@@ -151,7 +153,15 @@ public class GCPDatastoreDatasourceAdaptor implements QueriableDatasourceAdaptor
             }
             builder = listValueBuilder;
         } else {
-            return null; //no support.
+            //attempt to pull apart the object.
+            Map<String, Object> subEntity = EntityUtils.fetchAllProperties(raw);
+            FullEntity.Builder innerBuilder = FullEntity.newBuilder();
+            for (Map.Entry<String, Object> subEntProp: subEntity.entrySet()) {
+                innerBuilder.set(subEntProp.getKey(), toValue(subEntProp.getValue(), false));
+            }
+            innerBuilder.set(TYPE_ATTRIBUTE_NAME, raw.getClass().getName());
+            return EntityValue.newBuilder(innerBuilder.build()).setExcludeFromIndexes(true).build();
+
         }
 
 
@@ -181,6 +191,31 @@ public class GCPDatastoreDatasourceAdaptor implements QueriableDatasourceAdaptor
                 }
             }
             return values;
+        } else if (value instanceof EntityValue) {
+            FullEntity inner = ((EntityValue) value).get();
+            Map<String, Object> innerProps = new HashMap<>();
+
+            String innerType = inner.getString(TYPE_ATTRIBUTE_NAME);
+            if (innerType == null || innerType.isEmpty()) {
+                throw new RepositoryEntityException(String.format("Encountered A SubType that doesn't declare a type.  Cannot rehyrade!!  Inner Entity: %s", ((EntityValue) value).get().toString()));
+            }
+            try {
+                Class innerTypeClass = GCPDatastoreDatasourceAdaptor.class.forName(innerType);
+
+                for (Object dbPropName: inner.getNames()) {
+                    String prop = ((String) dbPropName);
+                    if (!prop.equals(TYPE_ATTRIBUTE_NAME)) {
+                        Value innerVal = inner.getValue(prop);
+                        innerProps.put(prop, fromValue(innerVal));
+                    }
+                }
+
+                return EntityUtils.rehydrateObject(innerProps, innerTypeClass);
+
+            } catch (ClassNotFoundException e) {
+                throw new RepositoryEntityException(String.format("Encountered an invalid subtype.  Cannot rehyrade!!  Inner Entity : %s", ((EntityValue) value).get().toString()), e);
+            }
+
         } else {
             return null; //no support.
         }
