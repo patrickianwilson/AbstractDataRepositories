@@ -65,6 +65,7 @@ public class GCPDatastoreDatasourceAdaptorTests {
         entity.setEmail("patrick.ian.wilson@gmail.com");
         entity.setFirstName("Patrick");
         entity.setAge(SAMPLE_AGE);
+        entity.setInner(new InnerObject()); //this should not be persisted at all.
 
         SimpleEntity second = new SimpleEntity();
         second.setEmail("patrick.andrew.wilson@gmail.com");

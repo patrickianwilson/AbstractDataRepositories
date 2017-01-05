@@ -203,7 +203,11 @@ public final class EntityUtils {
             }
             try {
                 //extract the prop into the index map.
-                result.put(prop.getName(), prop.getReadMethod().invoke(entity));
+                Object val = prop.getReadMethod().invoke(entity);
+                if (val != null) {
+                    result.put(prop.getName(), val);
+                }
+
             } catch (IllegalAccessException | InvocationTargetException e) {
                 throw new UnreadablePropertyException(String.format("Unable to read property '%s' from entity type %s", prop.getName(), entity.getClass().getName()));
             }
