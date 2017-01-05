@@ -178,19 +178,21 @@ public class GCPDatastoreDatasourceAdaptor implements QueriableDatasourceAdaptor
             builder = DateTimeValue.newBuilder(DateTime.copyFrom((Date) raw));
         } else if (raw instanceof Calendar) {
             builder = DateTimeValue.newBuilder(DateTime.copyFrom((Calendar) raw));
-        } else if (raw instanceof Set) {
+        } else if (raw instanceof List) {
             ListValue.Builder listValueBuilder = ListValue.newBuilder();
 
-            for (Object inner: (Set) raw) {
+            for (Object inner: (List) raw) {
                 Value innerVal = toValue(inner, shouldIndex);
-                if (innerVal != null && !(innerVal instanceof EntityValue)) {
+                if (innerVal != null && !(innerVal instanceof ListValue)) {
                     listValueBuilder.addValue(innerVal);
                 } else {
                     //no support for a list of objects.  These should be different entities.
                     LOG.warn("No support for storing a set of Objects.  Please make these objects into first class entities: child type: {}", inner.getClass().getName());
                 }
             }
-            builder = listValueBuilder;
+
+            return listValueBuilder.build(); //return right away.  List value types cannot be excluded from index.
+
         } else {
             //attempt to pull apart the object.
             Map<String, Object> subEntity = EntityUtils.fetchAllProperties(raw);
@@ -223,9 +225,9 @@ public class GCPDatastoreDatasourceAdaptor implements QueriableDatasourceAdaptor
         } else if (value instanceof DateTimeValue) {
             return ((DateTimeValue) value).get().toCalendar();
         } else if (value instanceof ListValue) {
-            ListValue.Builder listValueBuilder = ListValue.newBuilder();
-            ArrayList<Object> values = new ArrayList<>(listValueBuilder.get().size());
-            for (Value inner: listValueBuilder.get()) {
+            List<? extends Value> dbValues = ((ListValue) value).get();
+            ArrayList<Object> values = new ArrayList<>(dbValues.size());
+            for (Value inner: dbValues) {
                 Object innerVal = fromValue(inner);
                 if (innerVal != null) {
                     values.add(innerVal);

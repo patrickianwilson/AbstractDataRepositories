@@ -25,7 +25,9 @@ package com.patrickwilson.ardm.gcp.datastore;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -34,6 +36,7 @@ import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.IncompleteKey;
+import com.google.common.collect.Lists;
 import com.patrickwilson.ardm.api.annotation.Entity;
 import com.patrickwilson.ardm.api.annotation.Indexed;
 import com.patrickwilson.ardm.api.key.Key;
@@ -99,6 +102,8 @@ public class GCPDatastoreDatasourceAdaptorTests {
         second.getInner().setInner(new InnerInnerObject());
         second.getInner().getInner().setNum(-1);
 
+        second.setEmbeddedObjects(Lists.newArrayList(new InnerObject("inner1"), new InnerObject("inner2")));
+
 
 
         result = underTest.save(entity, SimpleEntity.class);
@@ -152,6 +157,10 @@ public class GCPDatastoreDatasourceAdaptorTests {
         Assert.assertEquals("some string test", secondFromDB.inner.innerField);
         Assert.assertNotNull(secondFromDB.inner.inner);
         Assert.assertEquals(-1, secondFromDB.inner.inner.num);
+
+        Assert.assertNotNull(secondFromDB.getEmbeddedObjects());
+        Assert.assertEquals(2, secondFromDB.getEmbeddedObjects().size());
+        Assert.assertEquals("inner1", secondFromDB.getEmbeddedObjects().get(0).getInnerField());
 
         QueryResult<SimpleEntity> allEntities = underTest.findAll(SimpleEntity.class);
 
@@ -223,6 +232,7 @@ public class GCPDatastoreDatasourceAdaptorTests {
         private String email;
         private short age;
         private InnerObject inner;
+        private List<InnerObject> embeddedObjects = new ArrayList<>();
 
         public com.google.cloud.datastore.IncompleteKey getEntityKey() {
             return entityKey;
@@ -266,6 +276,14 @@ public class GCPDatastoreDatasourceAdaptorTests {
         public void setInner(InnerObject inner) {
             this.inner = inner;
         }
+
+        public List<InnerObject> getEmbeddedObjects() {
+            return embeddedObjects;
+        }
+
+        public void setEmbeddedObjects(List<InnerObject> embeddedObjects) {
+            this.embeddedObjects = embeddedObjects;
+        }
     }
 
 
@@ -275,6 +293,13 @@ public class GCPDatastoreDatasourceAdaptorTests {
     public static class InnerObject {
         private String innerField;
         private InnerInnerObject inner;
+
+        public InnerObject(String innerField) {
+            this.innerField = innerField;
+        }
+
+        public InnerObject() {
+        }
 
         public String getInnerField() {
             return innerField;

@@ -34,10 +34,14 @@ import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -288,6 +292,17 @@ public final class EntityUtils {
                         prop.getWriteMethod().invoke(entity, ((Long) incomingVal).intValue());
                     } else if (Calendar.class.equals(incomingVal.getClass()) && Date.class.equals(prop.getPropertyType())) {
                         prop.getWriteMethod().invoke(entity, new Date(((Calendar) incomingVal).getTimeInMillis()));
+                    } else if (ArrayList.class.equals(incomingVal.getClass())) {
+                        if (List.class.equals(prop.getPropertyType())) {
+                            prop.getWriteMethod().invoke(entity, new ArrayList((Collection) incomingVal));
+                        } else if (LinkedList.class.isAssignableFrom(prop.getPropertyType())) {
+                            prop.getWriteMethod().invoke(entity, new LinkedList((Collection) incomingVal));
+                        } else if (ArrayList.class.isAssignableFrom(prop.getPropertyType())) {
+                            prop.getWriteMethod().invoke(entity, new ArrayList((Collection) incomingVal));
+                        } else {
+                            //only ArrayList and LinkedList collection types are supported.
+                            throw new UnwritablePropertyException(String.format("The property %s is using an unsupported class of collection.  Only java.util.ArrayList, java.util.List or java.util.LinkedList are supported", prop.getName()));
+                        }
                     } else {
                         prop.getWriteMethod().invoke(entity, incomingVal);
                     }
