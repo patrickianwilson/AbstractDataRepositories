@@ -1,11 +1,11 @@
-include ":ARDM-API"
-include ":ARDM-Proxy"
+include ":API"
+include ":Proxy"
 
-include ":ARDM-Datasource-Common"
-include ":ARDM-Datasource-InMemory"
-include ":ARDM-Datasource-GCP-Datastore"
+include ":Datasource-Common"
+include ":Datasource-InMemory"
+include ":Datasource-GCP-Datastore"
 
-include ":ARDM-Datasource-API"
+include ":Datasource-API"
 
 //sub repository locations.
 include ":Test-Utils"

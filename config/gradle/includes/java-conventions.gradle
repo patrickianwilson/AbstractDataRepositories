@@ -4,7 +4,7 @@ apply plugin: 'maven'
 
 sourceCompatibility = JavaVersion.VERSION_1_7
 version = getVersion()
-group = "com.wilsonsinquest"
+group = "com.wilsonsinquest.data"
 
 def getVersion() {
     if (project.hasProperty("BUILD_NUMBER")) {

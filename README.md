@@ -14,8 +14,8 @@ then choose the Datasource you wish to include in your project.  The options are
 
 |Datasource Name| Description | maven group name| maven artifact id|
 |---            | ----        |---              | ----- |
-|In Memory      |A full implementation that is contained in memory, useful for testing| com.wilsonsinquest | ARDM-Datasource-InMemory |
-|Google Cloud Datastore | An implementation for Documents in Google Cloud Datastore | com.wilsonsinquest | ARDM-Datasource-GCP-Datastore |
+|In Memory      |A full implementation that is contained in memory, useful for testing| com.wilsonsinquest.data | Datasource-InMemory |
+|Google Cloud Datastore | An implementation for Documents in Google Cloud Datastore | com.wilsonsinquest.data | Datasource-GCP-Datastore |
 
 Include the desired dependency into your project.  Multiple implementations can be included at once with no ill effects.
 
