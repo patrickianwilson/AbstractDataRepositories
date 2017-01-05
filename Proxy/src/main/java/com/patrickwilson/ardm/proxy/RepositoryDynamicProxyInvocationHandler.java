@@ -64,7 +64,9 @@ public class RepositoryDynamicProxyInvocationHandler implements InvocationHandle
 
     public static final List<String> BASE_METHODS = Lists.newArrayList("toString", "hashCode", "clone", "finalize", "equals", "wait", "notify", "notifyAll");
 
+
     public static final List<String> QUERY_METHODS = Lists.newArrayList("findAll");
+
 
     public static final Pattern BASIC_QUERY_METHOD_PATTERN = Pattern.compile("findBy(.*)");
 
@@ -236,6 +238,8 @@ public class RepositoryDynamicProxyInvocationHandler implements InvocationHandle
         for (Method method: adaptorReflectionMethods) {
             if (QUERY_METHODS.contains(method.getName())) {
                 queryMapBuilder.put(method.getName(), method);
+            } else if (!BASE_METHODS.contains(method.getName())) {
+                methodMapBuilder.put(method.getName(), method);
             }
         }
 
