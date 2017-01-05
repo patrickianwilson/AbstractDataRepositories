@@ -285,6 +285,45 @@ public class InMemoryDatsourceAdaptor implements QueriableDatasourceAdaptor, CRU
         return result;
     }
 
+    @Override
+    public <ENTITY, KEY> QueryResult<ENTITY> findAllWithKeyPrefix(KEY prefix, Class<ENTITY> clazz) {
+        if (!(prefix instanceof String)) {
+            throw new RepositoryEntityException("Only String key types are supported.");
+        }
+
+        TreeMap<EntityKey<Comparable>, Object> mockDb = selectTable(clazz);
+        QueryResult<ENTITY> result = new QueryResult<>();
+
+        List<ENTITY> holder = new ArrayList<>();
+        for (Map.Entry<EntityKey<Comparable>, Object> ent: mockDb.entrySet()) {
+            if (((String) ent.getKey().getKey()).startsWith((String) prefix)) {
+                holder.add((ENTITY) ent);
+            }
+        }
+        result.setNumResults(holder.size());
+        result.setResults(holder);
+        result.setStartIndex(0);
+        return result;
+    }
+
+    /**
+     * this doesn't really make much sense for strings...
+     * @param prefix A parent key with which to make a new key from.
+     * @param clazz the class of the entity
+     * @param <ENTITY> ENTITY type/
+     * @param <KEY> the resulting key type.
+     * @return a minted key that can be extended. In the case of a string this is really just returning the string of the parent key
+     */
+    @Override
+    public <ENTITY, KEY> KEY buildPrefixKey(Object prefix, Class<ENTITY> clazz) {
+        if (!(prefix instanceof String)) {
+            throw new RepositoryEntityException("Only String key types are supported in the InMemory Datasource Adaptor.");
+        }
+
+
+        return (KEY) prefix.toString();
+    }
+
     /**
      * clear the sample database.
      */

@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -262,8 +264,9 @@ public final class EntityUtils {
                         prop.getWriteMethod().invoke(entity, ((Long) incomingVal).shortValue());
                     } else if (Long.class.equals(incomingVal.getClass()) && (Integer.class.equals(prop.getPropertyType()) || prop.getPropertyType().getName().equals("int"))) {
                         prop.getWriteMethod().invoke(entity, ((Long) incomingVal).intValue());
+                    } else if (Calendar.class.equals(incomingVal.getClass()) && Date.class.equals(prop.getPropertyType())) {
+                        prop.getWriteMethod().invoke(entity, new Date(((Calendar) incomingVal).getTimeInMillis()));
                     } else {
-
                         prop.getWriteMethod().invoke(entity, incomingVal);
                     }
 

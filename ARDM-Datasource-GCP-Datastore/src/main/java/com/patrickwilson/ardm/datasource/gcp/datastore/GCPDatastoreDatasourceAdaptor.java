@@ -4,6 +4,8 @@ package com.patrickwilson.ardm.datasource.gcp.datastore;
 import com.google.api.client.repackaged.com.google.common.base.Preconditions;
 import com.google.cloud.datastore.BooleanValue;
 import com.google.cloud.datastore.Datastore;
+import com.google.cloud.datastore.DateTime;
+import com.google.cloud.datastore.DateTimeValue;
 import com.google.cloud.datastore.DoubleValue;
 import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.EntityQuery;
@@ -14,9 +16,11 @@ import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.KeyFactory;
 import com.google.cloud.datastore.ListValue;
 import com.google.cloud.datastore.LongValue;
+import com.google.cloud.datastore.PathElement;
 import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
 import com.google.cloud.datastore.StringValue;
+import com.google.cloud.datastore.StructuredQuery;
 import com.google.cloud.datastore.Value;
 import com.google.cloud.datastore.ValueBuilder;
 import com.patrickwilson.ardm.api.key.EntityKey;
@@ -34,6 +38,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +49,7 @@ import java.util.Set;
  * Created by pwilson on 12/22/16.
  */
 public class GCPDatastoreDatasourceAdaptor implements QueriableDatasourceAdaptor, CRUDDatasourceAdaptor, ScanableDatasourceAdaptor {
+
 
     public static final String TYPE_ATTRIBUTE_NAME = "_clazz";
     private Datastore datastoreClient;
@@ -66,7 +73,7 @@ public class GCPDatastoreDatasourceAdaptor implements QueriableDatasourceAdaptor
 
             if (key == null) {
                 //means the key was of the type "EntityKey" but we don't know how to auto generate keys..\
-                throw new RepositoryEntityException("Only String key types are supported.");
+                throw new RepositoryEntityException("Only Datastore Key types are supported.");
             }
             if (key.getKeyClass() == null || !key.getKeyClass().isAssignableFrom(Key.class)) {
                 throw new RepositoryEntityException("Only com.google.cloud.datastore.Key entity keys are supported.");
@@ -120,10 +127,12 @@ public class GCPDatastoreDatasourceAdaptor implements QueriableDatasourceAdaptor
     }
 
     private KeyFactory getKeyFactory(Class entityClazz) {
+        String tableName = EntityUtils.getTableName(entityClazz);
         if (this.keyFactories.get(entityClazz) == null) {
-            String tableName = EntityUtils.getTableName(entityClazz);
             this.keyFactories.put(entityClazz, this.datastoreClient.newKeyFactory().setKind(tableName));
         }
+        //make sure we wipe out any previous ancestor...
+        this.keyFactories.get(entityClazz).reset().setKind(tableName);
         return this.keyFactories.get(entityClazz);
     }
 
@@ -143,12 +152,16 @@ public class GCPDatastoreDatasourceAdaptor implements QueriableDatasourceAdaptor
             builder = LongValue.newBuilder(new Long((Integer) raw));
         } else if (raw instanceof Boolean) {
             builder = BooleanValue.newBuilder((Boolean) raw);
+        } else if (raw instanceof Date) {
+            builder = DateTimeValue.newBuilder(DateTime.copyFrom((Date) raw));
+        } else if (raw instanceof Calendar) {
+            builder = DateTimeValue.newBuilder(DateTime.copyFrom((Calendar) raw));
         } else if (raw instanceof Set) {
             ListValue.Builder listValueBuilder = ListValue.newBuilder();
 
             for (Object inner: (Set) raw) {
                 Value innerVal = toValue(inner, shouldIndex);
-                if (innerVal != null) {
+                if (innerVal != null && !(innerVal instanceof EntityValue)) {
                     listValueBuilder.addValue(innerVal);
                 } else {
                     //no support for a list of objects.  These should be different entities.
@@ -185,6 +198,8 @@ public class GCPDatastoreDatasourceAdaptor implements QueriableDatasourceAdaptor
             return ((LongValue) value).get();
         } else if (value instanceof BooleanValue) {
             return ((BooleanValue) value).get();
+        } else if (value instanceof DateTimeValue) {
+            return ((DateTimeValue) value).get().toCalendar();
         } else if (value instanceof ListValue) {
             ListValue.Builder listValueBuilder = ListValue.newBuilder();
             ArrayList<Object> values = new ArrayList<>(listValueBuilder.get().size());
@@ -342,4 +357,48 @@ public class GCPDatastoreDatasourceAdaptor implements QueriableDatasourceAdaptor
         return queryResult;
     }
 
+
+    @Override
+    public <ENTITY, KEY> QueryResult<ENTITY> findAllWithKeyPrefix(KEY prefix, Class<ENTITY> clazz) {
+        if (!(prefix instanceof Key)) {
+            //in datastore a prefix query is called an ancestor query.  it must be a Key class.
+            throw new RepositoryEntityException(String.format("Invalid Key class for Datastore.  Only %s is valid.", Key.class.getName()));
+        }
+        EntityQuery q = Query.newEntityQueryBuilder()
+                .setKind(EntityUtils.getTableName(clazz))
+                .setFilter(StructuredQuery.PropertyFilter.hasAncestor((Key) prefix))
+                .build();
+
+        List<ENTITY> results = new ArrayList<>();
+        QueryResults dbQueryResult = datastoreClient.run(q);
+
+        while (dbQueryResult.hasNext()) {
+            try {
+                results.add(toFromDBEntity(clazz, (Entity) dbQueryResult.next()));
+            } catch (NoEntityKeyException e) {
+                throw new RepositoryEntityException("Unable to set entity key: Maybe the entity is missing the setter method for its key field?", e);
+            }
+        }
+
+        QueryResult<ENTITY> queryResult = new QueryResult<>();
+        queryResult.setNumResults(results.size());
+        queryResult.setStartIndex(0);
+        queryResult.setResults(results);
+        return queryResult;
+    }
+
+    @Override
+    public <ENTITY, KEY> KEY buildPrefixKey(Object prefix, Class<ENTITY> clazz) {
+        if (!(prefix instanceof Key)) {
+            //in datastore a prefix query is called an ancestor query.  it must be a Key class.
+            throw new RepositoryEntityException(String.format("Invalid Key class for Datastore.  Only %s is valid.", Key.class.getName()));
+        }
+
+        Key parent = (Key) prefix;
+
+        KeyFactory prefixFactory = getKeyFactory(clazz);
+
+        prefixFactory.addAncestor(PathElement.of(parent.getKind(), parent.getId()));
+        return (KEY) prefixFactory.newKey();
+    }
 }

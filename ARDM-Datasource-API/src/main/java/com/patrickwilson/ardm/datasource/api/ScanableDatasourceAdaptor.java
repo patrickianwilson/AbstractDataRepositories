@@ -11,4 +11,7 @@ public interface ScanableDatasourceAdaptor extends DataSourceAdaptor {
 
     <ENTITY> QueryResult<ENTITY> findAll(Class<ENTITY> clazz);
 
+    <ENTITY, KEY> QueryResult<ENTITY> findAllWithKeyPrefix(KEY prefix, Class<ENTITY> clazz);
+
+    <ENTITY, KEY> KEY buildPrefixKey(Object prefix, Class<ENTITY> clazz);
 }

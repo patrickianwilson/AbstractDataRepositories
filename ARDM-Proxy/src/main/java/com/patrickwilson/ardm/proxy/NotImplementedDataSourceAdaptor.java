@@ -44,4 +44,14 @@ public class NotImplementedDataSourceAdaptor implements DataSourceAdaptor, Queri
     public <ENTITY> QueryResult<ENTITY> findAll(Class<ENTITY> clazz) {
         return null;
     }
+
+    @Override
+    public <ENTITY, KEY> QueryResult<ENTITY> findAllWithKeyPrefix(KEY prefix, Class<ENTITY> clazz) {
+        return null;
+    }
+
+    @Override
+    public <ENTITY, KEY> KEY buildPrefixKey(Object prefix, Class<ENTITY> clazz) {
+        return null;
+    }
 }

@@ -1,5 +1,13 @@
 package com.patrickwilson.ardm.gcp.datastore;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Date;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
@@ -8,21 +16,13 @@ import com.patrickwilson.ardm.api.annotation.Entity;
 import com.patrickwilson.ardm.api.annotation.Indexed;
 import com.patrickwilson.ardm.api.key.Key;
 import com.patrickwilson.ardm.api.key.SimpleEnitityKey;
+import com.patrickwilson.ardm.api.repository.QueryResult;
 import com.patrickwilson.ardm.datasource.api.query.LogicTreeCompositeNode;
 import com.patrickwilson.ardm.datasource.api.query.QueryData;
 import com.patrickwilson.ardm.datasource.api.query.QueryLogicTree;
 import com.patrickwilson.ardm.datasource.api.query.QueryPage;
-import com.patrickwilson.ardm.api.repository.QueryResult;
 import com.patrickwilson.ardm.datasource.api.query.ValueEqualsLogicTreeNode;
 import com.patrickwilson.ardm.datasource.gcp.datastore.GCPDatastoreDatasourceAdaptor;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * Created by pwilson on 12/22/16.
@@ -37,6 +37,7 @@ public class GCPDatastoreDatasourceAdaptorTests {
     private static GCPDatastoreDatasourceAdaptor underTest = null;
     private static SimpleEntity result = null;
     private static SimpleEntity secondResult = null;
+    private static ChildEntity child1Persisted  = null;
 
     @BeforeClass
     public static void startupSuite() throws IOException, InterruptedException {
@@ -80,20 +81,27 @@ public class GCPDatastoreDatasourceAdaptorTests {
 
         result = underTest.save(entity, SimpleEntity.class);
         secondResult = underTest.save(second, SimpleEntity.class);
+
+        ChildEntity child1 = new ChildEntity();
+        com.google.cloud.datastore.Key parent = (com.google.cloud.datastore.Key) result.entityKey;
+        child1.setKey(underTest.<ChildEntity, IncompleteKey>buildPrefixKey(parent, ChildEntity.class));
+        child1.setNow(new Date());
+
+         child1Persisted = underTest.save(child1, ChildEntity.class);
+
         Thread.sleep(EVENTUAL_CONSISTENCY_PAUSE); //ensure datastore consistency.
     }
 
     @AfterClass
     public static void tearDown() throws InterruptedException {
-
         underTest.delete(new SimpleEnitityKey(result.getEntityKey(), com.google.cloud.datastore.Key.class), SimpleEntity.class);
         underTest.delete(new SimpleEnitityKey(secondResult.getEntityKey(), com.google.cloud.datastore.Key.class), SimpleEntity.class);
+        underTest.delete(new SimpleEnitityKey(child1Persisted.getKey(), com.google.cloud.datastore.Key.class), SimpleEntity.class);
         Thread.sleep(EVENTUAL_CONSISTENCY_PAUSE); //ensure datastore consistency.
     }
 
     @Test
     public void doIt() throws InterruptedException {
-
 
         com.google.cloud.datastore.Key key = ((com.google.cloud.datastore.Key) result.getEntityKey());
         com.google.cloud.datastore.Key secondKey = ((com.google.cloud.datastore.Key) secondResult.getEntityKey());
@@ -147,6 +155,17 @@ public class GCPDatastoreDatasourceAdaptorTests {
         Assert.assertEquals(2, qResult.getNumResults());
         Assert.assertNotNull(qResult.getResults());
         Assert.assertEquals(2, qResult.getResults().size());
+    }
+
+    @Test
+    public void shouldFindEntitiesViaPrefixScan() {
+        QueryResult<ChildEntity> qResult = underTest.findAllWithKeyPrefix(result.entityKey, ChildEntity.class);
+        Assert.assertNotNull(qResult);
+        Assert.assertEquals(1, qResult.getNumResults());
+        Assert.assertNotNull(qResult.getResults().get(0));
+        Assert.assertTrue(qResult.getResults().get(0).getKey() instanceof com.google.cloud.datastore.Key);
+        Assert.assertNotNull(((com.google.cloud.datastore.Key) qResult.getResults().get(0).getKey()).getId());
+
     }
 
 
@@ -264,6 +283,33 @@ public class GCPDatastoreDatasourceAdaptorTests {
 
         public void setNum(int num) {
             this.num = num;
+        }
+    }
+
+
+    /**
+     * For testing.
+     */
+    @Entity
+    public static class ChildEntity {
+        private IncompleteKey key;
+        private Date now;
+
+        public IncompleteKey getKey() {
+            return key;
+        }
+
+        @Key(keyClass = com.google.cloud.datastore.IncompleteKey.class)
+        public void setKey(IncompleteKey key) {
+            this.key = key;
+        }
+
+        public Date getNow() {
+            return now;
+        }
+
+        public void setNow(Date now) {
+            this.now = now;
         }
     }
 
