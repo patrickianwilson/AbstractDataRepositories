@@ -3,7 +3,6 @@ apply from: "$rootProject.projectDir/config/gradle/includes/versions.gradle"
 apply plugin: "jacoco"
 
 dependencies {
-    compile project (":ARDM-Datasource-InMemory")
-    compile project (":ARDM-Datasource-GCP-Datastore")
-    compile project (":ARDM-Proxy")
+    compile project (":Datasource-InMemory")
+    compile project (":Datasource-GCP-Datastore")
 }
