@@ -9,9 +9,7 @@ import com.patrickwilson.ardm.api.annotation.Attribute;
 import com.patrickwilson.ardm.api.annotation.Repository;
 import com.patrickwilson.ardm.api.key.EntityKey;
 import com.patrickwilson.ardm.api.key.SimpleEnitityKey;
-import com.patrickwilson.ardm.api.repository.CRUDRepository;
 import com.patrickwilson.ardm.api.repository.ScannableRepository;
-import com.patrickwilson.ardm.datasource.api.CRUDDatasourceAdaptor;
 import com.patrickwilson.ardm.datasource.api.ScanableDatasourceAdaptor;
 import com.patrickwilson.shared.util.test.BaseJMockTest;
 
