@@ -40,6 +40,11 @@ public interface CRUDRepository<ENTITY, KEY> {
 
     void delete(ENTITY entity);
 
+    /**
+     * Find an entity given its name.
+     * @param id an id
+     * @return the entity object, or null if not found.
+     */
     ENTITY findOne(EntityKey<KEY> id);
 
     KEY buildKey(String id);

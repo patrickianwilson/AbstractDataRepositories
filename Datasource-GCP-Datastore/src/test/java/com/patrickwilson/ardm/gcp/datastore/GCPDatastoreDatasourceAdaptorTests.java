@@ -58,6 +58,7 @@ public class GCPDatastoreDatasourceAdaptorTests {
     public static final short SAMPLE_AGE = 35;
     public static final int EVENTUAL_CONSISTENCY_PAUSE = 2000;
     public static final long SAMPLE_ID = 100l;
+    public static final long DOES_NOT_EXIST = 102391237309821L;
     private static Datastore datastore;
 
     private static GCPDatastoreDatasourceAdaptor underTest = null;
@@ -170,6 +171,8 @@ public class GCPDatastoreDatasourceAdaptorTests {
         Assert.assertNotNull(allEntities.getResults());
         Assert.assertEquals(2, allEntities.getResults().size());
 
+        SimpleEntity shouldBeNull = underTest.findOne(new SimpleEnitityKey(underTest.buildKey(DOES_NOT_EXIST, SimpleEntity.class), com.google.cloud.datastore.Key.class), SimpleEntity.class);
+        Assert.assertNull(shouldBeNull);
 
     }
 

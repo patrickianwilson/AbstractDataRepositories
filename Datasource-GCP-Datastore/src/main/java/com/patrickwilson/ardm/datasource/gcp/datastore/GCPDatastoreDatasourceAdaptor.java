@@ -301,6 +301,9 @@ public class GCPDatastoreDatasourceAdaptor implements QueriableDatasourceAdaptor
 
         Entity entity = datastoreClient.get(entKey);
 
+        if (entity == null) {
+            return null;
+        }
 
         Object result = null;
         try {
