@@ -57,6 +57,7 @@ public class GCPDatastoreDatasourceAdaptorTests {
 
     public static final short SAMPLE_AGE = 35;
     public static final int EVENTUAL_CONSISTENCY_PAUSE = 2000;
+    public static final long SAMPLE_ID = 100l;
     private static Datastore datastore;
 
     private static GCPDatastoreDatasourceAdaptor underTest = null;
@@ -218,6 +219,20 @@ public class GCPDatastoreDatasourceAdaptorTests {
         Assert.assertEquals(1, qResult.getNumResults());
         Assert.assertNotNull(qResult.getResults());
         Assert.assertEquals(1, qResult.getResults().size());
+    }
+
+    @Test
+    public void shouldGenerateValidKey() {
+        com.google.cloud.datastore.Key k = underTest.buildKey(SAMPLE_ID, SimpleEntity.class);
+        Assert.assertNotNull(k);
+        Assert.assertEquals(SAMPLE_ID, (long) k.getId());
+        Assert.assertEquals("SimpleEntityForTesting", k.getKind());
+
+        k = underTest.buildKey("abc123", SimpleEntity.class);
+        Assert.assertNotNull(k);
+        Assert.assertEquals("abc123", k.getName());
+        Assert.assertEquals("SimpleEntityForTesting", k.getKind());
+
     }
 
 

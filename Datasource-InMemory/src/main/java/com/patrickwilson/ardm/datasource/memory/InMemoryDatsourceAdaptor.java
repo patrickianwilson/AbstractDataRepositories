@@ -378,4 +378,14 @@ public class InMemoryDatsourceAdaptor implements QueriableDatasourceAdaptor, CRU
         return this.tableIndexSelector.get(entityType);
 
     }
+
+    @Override
+    public <ENTITY, KEY> KEY buildKey(String id, Class<ENTITY> clazz) {
+        return (KEY) id;
+    }
+
+    @Override
+    public <ENTITY, KEY> KEY buildKey(long id, Class<ENTITY> clazz) {
+        return (KEY) String.format("%d", id);
+    }
 }

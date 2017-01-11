@@ -79,6 +79,21 @@ public class RepsitoryProviderProxyPassthroughTests extends BaseJMockTest {
 
     }
 
+    @Test
+    public void shouldGenerateKey() {
+        RepositoryProvider provider = new RepositoryProvider();
+
+        MyDataRepository underTest = provider.bind(MyDataRepository.class).to(mockDataSource);
+
+        addExpectations(new Expectations() { {
+            oneOf(mockDataSource).buildKey(with("abc123"), with(MyEntity.class));
+                will(returnValue("abc123"));
+        } });
+
+        String key = underTest.buildKey("abc123");
+        Assert.assertEquals("abc123", key);
+    }
+
 
     /**
      * used for testing.

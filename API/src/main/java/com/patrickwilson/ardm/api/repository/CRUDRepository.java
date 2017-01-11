@@ -41,4 +41,9 @@ public interface CRUDRepository<ENTITY, KEY> {
     void delete(ENTITY entity);
 
     ENTITY findOne(EntityKey<KEY> id);
+
+    KEY buildKey(String id);
+
+    KEY buildKey(long id);
+
 }

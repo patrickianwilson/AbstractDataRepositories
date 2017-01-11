@@ -76,4 +76,14 @@ public class NotImplementedDataSourceAdaptor implements DataSourceAdaptor, Queri
     public <ENTITY, KEY> KEY buildPrefixKey(Object prefix, Class<ENTITY> clazz) {
         return null;
     }
+
+    @Override
+    public <ENTITY, KEY> KEY buildKey(String id, Class<ENTITY> clazz) {
+        return null;
+    }
+
+    @Override
+    public <ENTITY, KEY> KEY buildKey(long id, Class<ENTITY> clazz) {
+        return null;
+    }
 }

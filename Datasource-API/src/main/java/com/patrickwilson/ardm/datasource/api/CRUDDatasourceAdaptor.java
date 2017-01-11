@@ -38,4 +38,8 @@ public interface CRUDDatasourceAdaptor extends DataSourceAdaptor {
     <ENTITY> void delete(ENTITY entity, Class<ENTITY> clazz);
 
     <ENTITY> ENTITY findOne(EntityKey id, Class<ENTITY> clazz);
+
+    <ENTITY, KEY> KEY buildKey(String id, Class<ENTITY> clazz);
+
+    <ENTITY, KEY> KEY buildKey(long id, Class<ENTITY> clazz);
 }

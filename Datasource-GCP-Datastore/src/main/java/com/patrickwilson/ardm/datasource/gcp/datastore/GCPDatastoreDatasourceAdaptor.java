@@ -425,4 +425,16 @@ public class GCPDatastoreDatasourceAdaptor implements QueriableDatasourceAdaptor
         prefixFactory.addAncestor(PathElement.of(parent.getKind(), parent.getId()));
         return (KEY) prefixFactory.newKey();
     }
+
+    @Override
+    public <ENTITY, KEY> KEY buildKey(String id, Class<ENTITY> clazz) {
+        KeyFactory keys = getKeyFactory(clazz);
+        return (KEY) keys.newKey(id);
+    }
+
+    @Override
+    public <ENTITY, KEY> KEY buildKey(long id, Class<ENTITY> clazz) {
+        KeyFactory keys = getKeyFactory(clazz);
+        return (KEY) keys.newKey(id);
+    }
 }
