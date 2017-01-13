@@ -25,42 +25,42 @@ package com.patrickwilson.ardm.api.key;
 /**
  * An simple version of an entity key that attempts to save return a generic key in the requested format.
  * User: pwilson
- * @param <KEY_TYPE> a generic type for the actual key.
  */
-public class SimpleEntityKey<KEY_TYPE> implements LinkedKey<KEY_TYPE> {
+public class SimpleEntityKey implements LinkedKey {
 
-    private EntityKey<?> parent;
+    private EntityKey parent;
     private boolean isPopulated = false;
 
-    private Class<KEY_TYPE> keyTypeClass;
-    private KEY_TYPE key;
+    private Class keyTypeClass;
+    private Object key;
 
-    public SimpleEntityKey(KEY_TYPE key, Class<KEY_TYPE> keyTypeClass) {
+    public SimpleEntityKey(Object key, Class<?> keyTypeClass) {
         this.keyTypeClass = keyTypeClass;
         this.key = key;
     }
 
-    public SimpleEntityKey(KEY_TYPE key, Class<KEY_TYPE> keyTypeClass, boolean isPopulated) {
+    public SimpleEntityKey(Object key, Class<?> keyTypeClass, boolean isPopulated) {
         this.isPopulated = isPopulated;
         this.keyTypeClass = keyTypeClass;
         this.key = key;
     }
 
+
     @Override
-    public Class<KEY_TYPE> getKeyClass() {
+    public Class<?> getKeyClass() {
         return keyTypeClass;
     }
 
     @Override
-    public KEY_TYPE getKey() {
+    public Object getKey() {
         return key;
     }
 
-    public EntityKey<?> getLinkedKey() {
+    public EntityKey getLinkedKey() {
         return parent;
     }
 
-    public void setLinkedKey(EntityKey<?> parent) {
+    public void setLinkedKey(EntityKey parent) {
         this.parent = parent;
     }
 
@@ -80,7 +80,7 @@ public class SimpleEntityKey<KEY_TYPE> implements LinkedKey<KEY_TYPE> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        SimpleEntityKey<?> that = (SimpleEntityKey<?>) o;
+        SimpleEntityKey that = (SimpleEntityKey) o;
 
         if (!keyTypeClass.equals(that.keyTypeClass)) return false;
         return key.equals(that.key);

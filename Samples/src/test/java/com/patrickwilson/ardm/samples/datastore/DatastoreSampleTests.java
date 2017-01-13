@@ -87,7 +87,7 @@ public class DatastoreSampleTests {
         private String firstName;
         private int age;
 
-        private EntityKey<com.google.cloud.datastore.Key> primaryKey;
+        private EntityKey primaryKey;
 
         @Indexed
         public String getFirstName() {
@@ -110,11 +110,11 @@ public class DatastoreSampleTests {
         }
 
         @Key(com.google.cloud.datastore.Key.class)
-        public EntityKey<com.google.cloud.datastore.Key> getPrimaryKey() {
+        public EntityKey getPrimaryKey() {
             return primaryKey;
         }
 
-        public void setPrimaryKey(EntityKey<com.google.cloud.datastore.Key> primaryKey) {
+        public void setPrimaryKey(EntityKey primaryKey) {
             this.primaryKey = primaryKey;
         }
 
@@ -134,7 +134,7 @@ public class DatastoreSampleTests {
                 return this;
             }
 
-            public Builder setPrimaryKey(EntityKey<com.google.cloud.datastore.Key> primaryKey) {
+            public Builder setPrimaryKey(EntityKey primaryKey) {
                 instance.setPrimaryKey(primaryKey);
                 return this;
             }
@@ -150,7 +150,7 @@ public class DatastoreSampleTests {
      * For testing.
      */
     @Repository(User.class)
-    public interface UserRepository extends CRUDRepository<User, Key> {
+    public interface UserRepository extends CRUDRepository<User> {
 
         @Query
         List<User> findByFirstName(String fname);

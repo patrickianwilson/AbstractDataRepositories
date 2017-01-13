@@ -29,14 +29,14 @@ public class ScannableRepositoryWiringTests extends BaseJMockTest {
         MyDataRepository underTest = provider.bind(MyDataRepository.class).to(mockDataSource);
 
         addExpectations(new Expectations() { {
-           oneOf(mockDataSource).buildPrefixKey(with((EntityKey) new SimpleEntityKey<String>("123", String.class, true)), with(MyEntity.class));
-           SimpleEntityKey parent = new SimpleEntityKey<>("123", String.class, true);
+           oneOf(mockDataSource).buildPrefixKey(with((EntityKey) new SimpleEntityKey("123", String.class, true)), with(MyEntity.class));
+           SimpleEntityKey parent = new SimpleEntityKey("123", String.class, true);
            SimpleEntityKey id = new SimpleEntityKey(null, String.class);
            id.setLinkedKey(parent);
             will(returnValue(id));
         } });
 
-        LinkedKey<String> key = underTest.buildPrefixKey(new SimpleEntityKey<>("123", String.class, true));
+        LinkedKey key = underTest.buildPrefixKey(new SimpleEntityKey("123", String.class, true));
 
         Assert.assertNotNull(key.getLinkedKey());
         Assert.assertEquals("123", key.getLinkedKey().getKey());
@@ -48,7 +48,7 @@ public class ScannableRepositoryWiringTests extends BaseJMockTest {
      * used for testing.
      */
     @Repository(MyEntity.class)
-    public interface MyDataRepository extends ScannableRepository<RepositoryCorrectnessTests.MyEntity, String> {
+    public interface MyDataRepository extends ScannableRepository<RepositoryCorrectnessTests.MyEntity> {
 
     }
 

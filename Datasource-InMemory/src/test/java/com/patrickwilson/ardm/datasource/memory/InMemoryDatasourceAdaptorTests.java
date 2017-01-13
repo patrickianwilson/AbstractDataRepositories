@@ -77,7 +77,7 @@ public class InMemoryDatasourceAdaptorTests {
         Assert.assertEquals("My Different Value", updatedEntity.getValue());
         Assert.assertNotNull(updatedEntity.getKey());
 
-        EntityKey<String> providedKey = updatedEntity.getKey();
+        EntityKey providedKey = updatedEntity.getKey();
         updatedEntity.setValue("Updated Value");
         underTest.save(updatedEntity, SampleEntity.class);
 
@@ -150,16 +150,16 @@ public class InMemoryDatasourceAdaptorTests {
      */
     @Entity
     public static class SampleEntity {
-        private EntityKey<String> key;
+        private EntityKey key;
 
         private String value;
 
         @Key(String.class)
-        public EntityKey<String> getKey() {
+        public EntityKey getKey() {
             return key;
         }
 
-        public void setKey(EntityKey<String> key) {
+        public void setKey(EntityKey key) {
             this.key = key;
         }
 
@@ -181,7 +181,7 @@ public class InMemoryDatasourceAdaptorTests {
         private String fname;
         private String lname;
         private long age;
-        private EntityKey<String> key;
+        private EntityKey key;
 
         public String getFname() {
             return fname;
@@ -207,12 +207,12 @@ public class InMemoryDatasourceAdaptorTests {
             this.age = age;
         }
 
-        public EntityKey<String> getKey() {
+        public EntityKey getKey() {
             return key;
         }
 
         @Key(String.class)
-        public void setKey(EntityKey<String> key) {
+        public void setKey(EntityKey key) {
             this.key = key;
         }
     }

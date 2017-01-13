@@ -25,18 +25,18 @@ package com.patrickwilson.ardm.api.key;
 /**
  * A typesafe key interface.
  * User: pwilson
- * @param <KEY_TYPE> the Type of object representing the key.
  */
-public interface EntityKey<KEY_TYPE> extends Comparable<SimpleEntityKey> {
+public interface EntityKey extends Comparable<SimpleEntityKey> {
 
-    KEY_TYPE getKey();
+    Object getKey();
 
-    Class<KEY_TYPE> getKeyClass();
+    Class<?> getKeyClass();
 
     /**
      * A way to tell whether this key complete (in that there is a unique id) or incomplete (datasource will autogenerate).
      * @return
      */
     boolean isPopulated();
+
 
 }

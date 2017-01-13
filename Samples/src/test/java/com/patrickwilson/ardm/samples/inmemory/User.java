@@ -37,7 +37,7 @@ public class User {
     private String firstName;
     private int age;
 
-    private EntityKey<String> primaryKey;
+    private EntityKey primaryKey;
 
     @Indexed
     public String getFirstName() {
@@ -60,11 +60,11 @@ public class User {
     }
 
     @Key(String.class)
-    public EntityKey<String> getPrimaryKey() {
+    public EntityKey getPrimaryKey() {
         return primaryKey;
     }
 
-    public void setPrimaryKey(EntityKey<String> primaryKey) {
+    public void setPrimaryKey(EntityKey primaryKey) {
         this.primaryKey = primaryKey;
     }
 }

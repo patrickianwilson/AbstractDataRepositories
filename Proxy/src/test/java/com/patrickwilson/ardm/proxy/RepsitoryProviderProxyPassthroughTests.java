@@ -69,11 +69,11 @@ public class RepsitoryProviderProxyPassthroughTests extends BaseJMockTest {
 
 
         final MyEntity saved = underTest.save(entity);
-        underTest.delete(new SimpleEntityKey<String>("row-id", String.class));
+        underTest.delete(new SimpleEntityKey("row-id", String.class));
         
         Assert.assertTrue(entity.equals(saved));
 
-        Assert.assertTrue(underTest.findOne(new SimpleEntityKey<String>("row-id", String.class)).equals(saved));
+        Assert.assertTrue(underTest.findOne(new SimpleEntityKey("row-id", String.class)).equals(saved));
 
 
 
@@ -87,10 +87,10 @@ public class RepsitoryProviderProxyPassthroughTests extends BaseJMockTest {
 
         addExpectations(new Expectations() { {
             oneOf(mockDataSource).buildKey(with("abc123"), with(MyEntity.class));
-                will(returnValue(new SimpleEntityKey<>("abc123", String.class, true)));
+                will(returnValue(new SimpleEntityKey("abc123", String.class, true)));
         } });
 
-        EntityKey<String> key = underTest.buildKey("abc123");
+        EntityKey key = underTest.buildKey("abc123");
         Assert.assertEquals("abc123", key.getKey());
     }
 
@@ -99,7 +99,7 @@ public class RepsitoryProviderProxyPassthroughTests extends BaseJMockTest {
      * used for testing.
      */
     @Repository(MyEntity.class)
-    public interface MyDataRepository extends CRUDRepository<MyEntity, String> {
+    public interface MyDataRepository extends CRUDRepository<MyEntity> {
 
 
     }

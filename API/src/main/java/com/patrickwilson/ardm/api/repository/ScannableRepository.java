@@ -30,18 +30,17 @@ import com.patrickwilson.ardm.api.key.LinkedKey;
 /**
  * Created by pwilson on 1/3/17.
  * @param <ENTITY> the entity type for this repository.
- * @param <KEY> the type of key that can be used to scan.
  */
-public interface ScannableRepository<ENTITY, KEY> {
+public interface ScannableRepository<ENTITY> {
     QueryResult<ENTITY> findAll();
-    QueryResult<ENTITY> findAllWithKeyPrefix(EntityKey<KEY> prefix);
+    QueryResult<ENTITY> findAllWithKeyPrefix(EntityKey prefix);
 
     /**
      * build a new entity key using the provided prefix/parent as a reference.  The resulting key will be incomplete.
      * @param parent the parent key to use.
      * @return a linked key that references the parent.
      */
-    LinkedKey<KEY> buildPrefixKey(EntityKey<KEY> parent);
-    LinkedKey<KEY> buildPrefixKey(EntityKey<KEY> prefix, String id);
-    LinkedKey<KEY> buildPrefixKey(EntityKey<KEY> prefix, long id);
+    LinkedKey buildPrefixKey(EntityKey parent);
+    LinkedKey buildPrefixKey(EntityKey prefix, String id);
+    LinkedKey buildPrefixKey(EntityKey prefix, long id);
 }

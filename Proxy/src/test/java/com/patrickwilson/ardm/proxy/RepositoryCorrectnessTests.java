@@ -96,7 +96,7 @@ public class RepositoryCorrectnessTests extends BaseJMockTest {
      * used for testing.
      */
     @Repository(MyEntity.class)
-    public interface MyDataRepository extends CRUDRepository<MyEntity, String> {
+    public interface MyDataRepository extends CRUDRepository<MyEntity> {
 
          String findAll();
         
@@ -107,7 +107,7 @@ public class RepositoryCorrectnessTests extends BaseJMockTest {
      * used for testing.
      */
     @Repository(MyEntity.class)
-    public interface MyValidRepository extends CRUDRepository<MyEntity, String>, ScannableRepository<MyEntity, String> {
+    public interface MyValidRepository extends CRUDRepository<MyEntity>, ScannableRepository<MyEntity> {
 
 
 

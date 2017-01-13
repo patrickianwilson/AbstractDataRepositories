@@ -45,7 +45,7 @@ public class APICompilationTest {
     public static class UserEntity {
 
         @Attribute
-        private EntityKey<String> key;  //we know this is the key for the entity based on the type.
+        private EntityKey key;  //we know this is the key for the entity based on the type.
 
         @Attribute
         private String email;
@@ -56,11 +56,11 @@ public class APICompilationTest {
         @Attribute(dbColumn = "lastName")
         private String lname;
 
-        public EntityKey<String> getKey() {
+        public EntityKey getKey() {
             return key;
         }
 
-        public void setKey(EntityKey<String> key) {
+        public void setKey(EntityKey key) {
             this.key = key;
         }
 

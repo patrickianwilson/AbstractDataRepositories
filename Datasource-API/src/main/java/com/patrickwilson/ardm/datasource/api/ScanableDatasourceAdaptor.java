@@ -35,8 +35,8 @@ public interface ScanableDatasourceAdaptor extends DataSourceAdaptor {
 
     <ENTITY> QueryResult<ENTITY> findAll(Class<ENTITY> clazz);
 
-    <ENTITY, KEY> QueryResult<ENTITY> findAllWithKeyPrefix(EntityKey<KEY> prefix, Class<ENTITY> clazz);
-    <ENTITY> LinkedKey<Object> buildPrefixKey(EntityKey<Object> parent, Class<ENTITY> clazz);
-    <ENTITY> LinkedKey<Object> buildPrefixKey(EntityKey<Object> prefix, String id, Class<ENTITY> clazz);
-    <ENTITY> LinkedKey<Object> buildPrefixKey(EntityKey<Object> prefix, long id, Class<ENTITY> clazz);
+    <ENTITY> QueryResult<ENTITY> findAllWithKeyPrefix(EntityKey prefix, Class<ENTITY> clazz);
+    <ENTITY> LinkedKey buildPrefixKey(EntityKey parent, Class<ENTITY> clazz);
+    <ENTITY> LinkedKey buildPrefixKey(EntityKey prefix, String id, Class<ENTITY> clazz);
+    <ENTITY> LinkedKey buildPrefixKey(EntityKey prefix, long id, Class<ENTITY> clazz);
 }

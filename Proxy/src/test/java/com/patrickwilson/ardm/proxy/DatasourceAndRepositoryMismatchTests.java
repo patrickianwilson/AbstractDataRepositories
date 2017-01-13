@@ -50,7 +50,7 @@ public class DatasourceAndRepositoryMismatchTests extends BaseJMockTest {
      * used for testing.
      */
     @Repository(MyEntity.class)
-    public interface MyDataRepository extends CRUDRepository<MyEntity, String> {
+    public interface MyDataRepository extends CRUDRepository<MyEntity> {
 
 
     }

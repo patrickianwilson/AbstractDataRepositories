@@ -39,7 +39,7 @@ public class EntityUtilsTests {
     public static final AnnotatedImplicitKeyEntity ANNOTATED_IMPLICIT_KEY_ENTITY = new AnnotatedImplicitKeyEntity();
 
     static {
-        EXPLICIT_KEY_ENTITY.setKey(new SimpleEntityKey<String>("test", String.class));
+        EXPLICIT_KEY_ENTITY.setKey(new SimpleEntityKey("test", String.class));
         ANNOTATED_IMPLICIT_KEY_ENTITY.setKey("test");
         ANNOTATED_KEY_ENTITY.setKey(new SimpleEntityKey("test", String.class, true));
     }
@@ -121,14 +121,14 @@ public class EntityUtilsTests {
      */
     public static class ExplicitKeyEntity {
 
-        private EntityKey<String> key;
+        private EntityKey key;
 
         @Key(String.class)
-        public EntityKey<String> getKey() {
+        public EntityKey getKey() {
             return key;
         }
 
-        public void setKey(EntityKey<String> key) {
+        public void setKey(EntityKey key) {
             this.key = key;
         }
     }

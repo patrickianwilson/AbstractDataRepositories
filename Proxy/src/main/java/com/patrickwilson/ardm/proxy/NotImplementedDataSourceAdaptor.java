@@ -69,37 +69,37 @@ public class NotImplementedDataSourceAdaptor implements DataSourceAdaptor, Queri
     }
 
     @Override
-    public <ENTITY, KEY> QueryResult<ENTITY> findAllWithKeyPrefix(EntityKey<KEY> prefix, Class<ENTITY> clazz) {
+    public <ENTITY> QueryResult<ENTITY> findAllWithKeyPrefix(EntityKey prefix, Class<ENTITY> clazz) {
         return null;
     }
 
     @Override
-    public <ENTITY, KEY> EntityKey<KEY> buildEmptyKey(Class<ENTITY> clazz) {
+    public <ENTITY> EntityKey buildEmptyKey(Class<ENTITY> clazz) {
         return null;
     }
 
     @Override
-    public <ENTITY> LinkedKey<Object> buildPrefixKey(EntityKey<Object> parent, Class<ENTITY> clazz) {
+    public <ENTITY> LinkedKey buildPrefixKey(EntityKey parent, Class<ENTITY> clazz) {
         return null;
     }
 
     @Override
-    public <ENTITY, KEY> EntityKey<KEY> buildKey(String id, Class<ENTITY> clazz) {
+    public <ENTITY> EntityKey buildKey(String id, Class<ENTITY> clazz) {
         return null;
     }
 
     @Override
-    public <ENTITY> LinkedKey<Object> buildPrefixKey(EntityKey<Object> prefix, String id, Class<ENTITY> clazz) {
+    public <ENTITY> LinkedKey buildPrefixKey(EntityKey prefix, String id, Class<ENTITY> clazz) {
         return null;
     }
 
     @Override
-    public <ENTITY, KEY> EntityKey<KEY> buildKey(long id, Class<ENTITY> clazz) {
+    public <ENTITY> EntityKey buildKey(long id, Class<ENTITY> clazz) {
         return null;
     }
 
     @Override
-    public <ENTITY> LinkedKey<Object> buildPrefixKey(EntityKey<Object> prefix, long id, Class<ENTITY> clazz) {
+    public <ENTITY> LinkedKey buildPrefixKey(EntityKey prefix, long id, Class<ENTITY> clazz) {
         return null;
     }
 }

@@ -42,13 +42,13 @@ import com.patrickwilson.ardm.api.annotation.Indexed;
 import com.patrickwilson.ardm.api.key.EntityKey;
 import com.patrickwilson.ardm.api.key.Key;
 import com.patrickwilson.ardm.api.key.LinkedKey;
-import com.patrickwilson.ardm.api.key.SimpleEntityKey;
 import com.patrickwilson.ardm.api.repository.QueryResult;
 import com.patrickwilson.ardm.datasource.api.query.LogicTreeCompositeNode;
 import com.patrickwilson.ardm.datasource.api.query.QueryData;
 import com.patrickwilson.ardm.datasource.api.query.QueryLogicTree;
 import com.patrickwilson.ardm.datasource.api.query.QueryPage;
 import com.patrickwilson.ardm.datasource.api.query.ValueEqualsLogicTreeNode;
+import com.patrickwilson.ardm.datasource.gcp.datastore.DatastoreEntityKey;
 import com.patrickwilson.ardm.datasource.gcp.datastore.GCPDatastoreDatasourceAdaptor;
 
 /**
@@ -139,14 +139,14 @@ public class GCPDatastoreDatasourceAdaptorTests {
 
         Assert.assertNotNull(key.getId());
 
-        SimpleEntity fromDB = underTest.findOne(new SimpleEntityKey(key, com.google.cloud.datastore.Key.class), SimpleEntity.class);
+        SimpleEntity fromDB = underTest.findOne(new DatastoreEntityKey(key), SimpleEntity.class);
 
         Assert.assertNotNull(fromDB);
         Assert.assertEquals(result.email, fromDB.email);
         Assert.assertEquals(result.firstName, fromDB.firstName);
         Assert.assertEquals(result.age, fromDB.age);
 
-        SimpleEntity secondFromDB = underTest.findOne(new SimpleEntityKey(secondKey, com.google.cloud.datastore.Key.class), SimpleEntity.class);
+        SimpleEntity secondFromDB = underTest.findOne(new DatastoreEntityKey(secondKey), SimpleEntity.class);
 
         Assert.assertNotNull(secondFromDB);
         Assert.assertEquals(secondResult.email, secondFromDB.email);
@@ -228,15 +228,15 @@ public class GCPDatastoreDatasourceAdaptorTests {
 
     @Test
     public void shouldGenerateValidKey() {
-        EntityKey<com.google.cloud.datastore.Key> k = underTest.<SimpleEntity, com.google.cloud.datastore.Key>buildKey(SAMPLE_ID, SimpleEntity.class);
+        EntityKey k = underTest.<SimpleEntity>buildKey(SAMPLE_ID, SimpleEntity.class);
         Assert.assertNotNull(k);
-        Assert.assertEquals(SAMPLE_ID, (long) k.getKey().getId());
-        Assert.assertEquals("SimpleEntityForTesting", k.getKey().getKind());
+        Assert.assertEquals(SAMPLE_ID, (long) ((com.google.cloud.datastore.Key) k.getKey()).getId());
+        Assert.assertEquals("SimpleEntityForTesting", ((com.google.cloud.datastore.Key) k.getKey()).getKind());
 
-        k = underTest.<SimpleEntity, com.google.cloud.datastore.Key>buildKey("abc123", SimpleEntity.class);
+        k = underTest.<SimpleEntity>buildKey("abc123", SimpleEntity.class);
         Assert.assertNotNull(k);
-        Assert.assertEquals("abc123", k.getKey().getName());
-        Assert.assertEquals("SimpleEntityForTesting", k.getKey().getKind());
+        Assert.assertEquals("abc123", ((com.google.cloud.datastore.Key) k.getKey()).getName());
+        Assert.assertEquals("SimpleEntityForTesting", ((com.google.cloud.datastore.Key) k.getKey()).getKind());
 
     }
 
@@ -247,7 +247,7 @@ public class GCPDatastoreDatasourceAdaptorTests {
     @Entity(domainOrTable = "SimpleEntityForTesting")
     public static class SimpleEntity {
 
-        private LinkedKey<com.google.cloud.datastore.IncompleteKey> entityKey;
+        private LinkedKey entityKey;
         private String firstName;
         private String email;
         private short age;
@@ -255,11 +255,11 @@ public class GCPDatastoreDatasourceAdaptorTests {
         private List<InnerObject> embeddedObjects = new ArrayList<>();
 
         @Key(IncompleteKey.class)
-        public void setEntityKey(LinkedKey<IncompleteKey> entityKey) {
+        public void setEntityKey(LinkedKey entityKey) {
             this.entityKey = entityKey;
         }
 
-        public LinkedKey<IncompleteKey> getEntityKey() {
+        public LinkedKey getEntityKey() {
             return entityKey;
         }
 
@@ -359,15 +359,15 @@ public class GCPDatastoreDatasourceAdaptorTests {
      */
     @Entity
     public static class ChildEntity {
-        private LinkedKey<IncompleteKey> key;
+        private LinkedKey key;
         private Date now;
 
-        public LinkedKey<IncompleteKey> getKey() {
+        public LinkedKey getKey() {
             return key;
         }
 
         @Key(com.google.cloud.datastore.IncompleteKey.class)
-        public void setKey(LinkedKey<IncompleteKey> key) {
+        public void setKey(LinkedKey key) {
             this.key = key;
         }
 

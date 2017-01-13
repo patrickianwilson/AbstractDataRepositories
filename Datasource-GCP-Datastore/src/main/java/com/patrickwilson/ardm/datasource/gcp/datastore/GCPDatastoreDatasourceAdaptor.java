@@ -47,7 +47,6 @@ import com.google.cloud.datastore.Value;
 import com.google.cloud.datastore.ValueBuilder;
 import com.patrickwilson.ardm.api.key.EntityKey;
 import com.patrickwilson.ardm.api.key.LinkedKey;
-import com.patrickwilson.ardm.api.key.SimpleEntityKey;
 import com.patrickwilson.ardm.datasource.api.CRUDDatasourceAdaptor;
 import com.patrickwilson.ardm.datasource.api.QueriableDatasourceAdaptor;
 import com.patrickwilson.ardm.datasource.api.ScanableDatasourceAdaptor;
@@ -102,7 +101,7 @@ public class GCPDatastoreDatasourceAdaptor implements QueriableDatasourceAdaptor
             if (key.getKey() == null) {
                 KeyFactory entityKeyFactory = getKeyFactory(clazz);
                 IncompleteKey datastoreKey = entityKeyFactory.newKey();
-                key = new SimpleEntityKey(datastoreKey, key.getKeyClass());
+                key = new DatastoreEntityKey(datastoreKey);
             }
 
             Map<String, Object> entityProperties = EntityUtils.fetchAllProperties(entity);
@@ -136,7 +135,7 @@ public class GCPDatastoreDatasourceAdaptor implements QueriableDatasourceAdaptor
             FullEntity<IncompleteKey> partialEntity = datastoreEntityBuilder.build();
             FullEntity<Key> identifiedEntity = datastoreClient.put(partialEntity);
 
-            SimpleEntityKey<Key> updatedKey = new SimpleEntityKey(identifiedEntity.getKey(), Key.class, true);
+            DatastoreEntityKey updatedKey = new DatastoreEntityKey(identifiedEntity.getKey());
 
             EntityUtils.updateEntityKey(entity, updatedKey);
 
@@ -281,7 +280,7 @@ public class GCPDatastoreDatasourceAdaptor implements QueriableDatasourceAdaptor
 
     @Override
     public <ENTITY> void delete(ENTITY entity, Class<ENTITY> clazz) {
-        EntityKey<?> entityKey = null;
+        EntityKey entityKey = null;
         try {
             entityKey = EntityUtils.findEntityKeyType(entity);
         } catch (NoEntityKeyException e) {
@@ -330,7 +329,7 @@ public class GCPDatastoreDatasourceAdaptor implements QueriableDatasourceAdaptor
 
         ENTITY ent = (ENTITY) EntityUtils.rehydrateObject(attributes, clazz);
 
-        EntityUtils.updateEntityKey(ent, new SimpleEntityKey(entity.getKey(), Key.class, true));
+        EntityUtils.updateEntityKey(ent, new DatastoreEntityKey(entity.getKey()));
 
         return ent;
     }
@@ -385,7 +384,7 @@ public class GCPDatastoreDatasourceAdaptor implements QueriableDatasourceAdaptor
 
 
     @Override
-    public <ENTITY, KEY> QueryResult<ENTITY> findAllWithKeyPrefix(EntityKey<KEY> prefix, Class<ENTITY> clazz) {
+    public <ENTITY> QueryResult<ENTITY> findAllWithKeyPrefix(EntityKey prefix, Class<ENTITY> clazz) {
         if (!Key.class.isAssignableFrom(prefix.getKeyClass())) {
             //in datastore a prefix query is called an ancestor query.  it must be a Key class.
             throw new RepositoryEntityException(String.format("Invalid Key class for Datastore.  Only %s is valid.", Key.class.getName()));
@@ -414,7 +413,7 @@ public class GCPDatastoreDatasourceAdaptor implements QueriableDatasourceAdaptor
     }
 
     @Override
-    public <ENTITY> LinkedKey<Object> buildPrefixKey(EntityKey<Object> prefix, Class<ENTITY> clazz) {
+    public <ENTITY> LinkedKey buildPrefixKey(EntityKey prefix, Class<ENTITY> clazz) {
         if (!Key.class.isAssignableFrom(prefix.getKeyClass())) {
             //in datastore a prefix query is called an ancestor query.  it must be a Key class.
             throw new RepositoryEntityException(String.format("Invalid Key class for Datastore.  Only %s is valid.", Key.class.getName()));
@@ -426,29 +425,29 @@ public class GCPDatastoreDatasourceAdaptor implements QueriableDatasourceAdaptor
 
         prefixFactory.addAncestor(PathElement.of(parent.getKind(), parent.getId()));
 
-        return new SimpleEntityKey(prefixFactory.newKey(), IncompleteKey.class, false);
+        return new DatastoreEntityKey(prefixFactory.newKey());
     }
 
     @Override
-    public <ENTITY, KEY> EntityKey buildKey(String id, Class<ENTITY> clazz) {
+    public <ENTITY> EntityKey buildKey(String id, Class<ENTITY> clazz) {
         KeyFactory keys = getKeyFactory(clazz);
-        return new SimpleEntityKey((KEY) keys.newKey(id), Key.class, true);
+        return new DatastoreEntityKey(keys.newKey(id));
     }
 
     @Override
-    public <ENTITY, KEY> EntityKey buildKey(long id, Class<ENTITY> clazz) {
+    public <ENTITY> EntityKey buildKey(long id, Class<ENTITY> clazz) {
         KeyFactory keys = getKeyFactory(clazz);
-        return new SimpleEntityKey((KEY) keys.newKey(id), Key.class, true);
+        return new DatastoreEntityKey(keys.newKey(id));
     }
 
     @Override
-    public <ENTITY, KEY> EntityKey<KEY> buildEmptyKey(Class<ENTITY> clazz) {
+    public <ENTITY> EntityKey buildEmptyKey(Class<ENTITY> clazz) {
         KeyFactory keys = getKeyFactory(clazz);
-        return new SimpleEntityKey((KEY) keys.newKey(), Key.class, false);
+        return new DatastoreEntityKey(keys.newKey());
     }
 
     @Override
-    public <ENTITY> LinkedKey buildPrefixKey(EntityKey<Object> prefix, String id, Class<ENTITY> clazz) {
+    public <ENTITY> LinkedKey buildPrefixKey(EntityKey prefix, String id, Class<ENTITY> clazz) {
         if (!Key.class.isAssignableFrom(prefix.getKeyClass())) {
             //in datastore a prefix query is called an ancestor query.  it must be a Key class.
             throw new RepositoryEntityException(String.format("Invalid Key class for Datastore.  Only %s is valid.", Key.class.getName()));
@@ -459,11 +458,11 @@ public class GCPDatastoreDatasourceAdaptor implements QueriableDatasourceAdaptor
         KeyFactory prefixFactory = getKeyFactory(clazz);
 
         prefixFactory.addAncestor(PathElement.of(parent.getKind(), parent.getId()));
-        return new SimpleEntityKey(prefixFactory.newKey(id), Key.class, true);
+        return new DatastoreEntityKey(prefixFactory.newKey(id));
     }
 
     @Override
-    public <ENTITY> LinkedKey buildPrefixKey(EntityKey<Object> prefix, long id, Class<ENTITY> clazz) {
+    public <ENTITY> LinkedKey buildPrefixKey(EntityKey prefix, long id, Class<ENTITY> clazz) {
         if (!Key.class.isAssignableFrom(prefix.getKeyClass())) {
             //in datastore a prefix query is called an ancestor query.  it must be a Key class.
             throw new RepositoryEntityException(String.format("Invalid Key class for Datastore.  Only %s is valid.", Key.class.getName()));
@@ -474,6 +473,6 @@ public class GCPDatastoreDatasourceAdaptor implements QueriableDatasourceAdaptor
         KeyFactory prefixFactory = getKeyFactory(clazz);
 
         prefixFactory.addAncestor(PathElement.of(parent.getKind(), parent.getId()));
-        return new SimpleEntityKey(prefixFactory.newKey(id), Key.class, true);
+        return new DatastoreEntityKey(prefixFactory.newKey(id));
     }
 }

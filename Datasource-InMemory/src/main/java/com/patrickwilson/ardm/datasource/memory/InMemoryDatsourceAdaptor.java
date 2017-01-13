@@ -127,7 +127,7 @@ public class InMemoryDatsourceAdaptor implements QueriableDatasourceAdaptor, CRU
 
     @Override
     public <ENTITY> void delete(ENTITY entity, Class<ENTITY> clazz) {
-        EntityKey<?> entityKey = null;
+        EntityKey entityKey = null;
         try {
             entityKey = EntityUtils.findEntityKeyType(entity);
         } catch (NoEntityKeyException e) {
@@ -309,7 +309,7 @@ public class InMemoryDatsourceAdaptor implements QueriableDatasourceAdaptor, CRU
     }
 
     @Override
-    public <ENTITY, KEY> QueryResult<ENTITY> findAllWithKeyPrefix(EntityKey<KEY> prefix, Class<ENTITY> clazz) {
+    public <ENTITY> QueryResult<ENTITY> findAllWithKeyPrefix(EntityKey prefix, Class<ENTITY> clazz) {
         if (String.class.isAssignableFrom(prefix.getKeyClass())) {
             throw new RepositoryEntityException("Only String key types are supported.");
         }
@@ -337,7 +337,7 @@ public class InMemoryDatsourceAdaptor implements QueriableDatasourceAdaptor, CRU
      * @return a minted key that can be extended. In the case of a string this is really just returning the string of the parent key
      */
     @Override
-    public <ENTITY> LinkedKey<Object> buildPrefixKey(EntityKey<Object> prefix, Class<ENTITY> clazz) {
+    public <ENTITY> LinkedKey buildPrefixKey(EntityKey prefix, Class<ENTITY> clazz) {
         if (String.class.isAssignableFrom(prefix.getKeyClass())) {
             throw new RepositoryEntityException("Only String key types are supported.");
         }
@@ -349,7 +349,7 @@ public class InMemoryDatsourceAdaptor implements QueriableDatasourceAdaptor, CRU
     }
 
     @Override
-    public <ENTITY> LinkedKey<Object> buildPrefixKey(EntityKey<Object> prefix, String id, Class<ENTITY> clazz) {
+    public <ENTITY> LinkedKey buildPrefixKey(EntityKey prefix, String id, Class<ENTITY> clazz) {
         if (String.class.isAssignableFrom(prefix.getKeyClass())) {
             throw new RepositoryEntityException("Only String key types are supported.");
         }
@@ -361,7 +361,7 @@ public class InMemoryDatsourceAdaptor implements QueriableDatasourceAdaptor, CRU
     }
 
     @Override
-    public <ENTITY> LinkedKey<Object> buildPrefixKey(EntityKey<Object> prefix, long id, Class<ENTITY> clazz) {
+    public <ENTITY> LinkedKey buildPrefixKey(EntityKey prefix, long id, Class<ENTITY> clazz) {
         if (String.class.isAssignableFrom(prefix.getKeyClass())) {
             throw new RepositoryEntityException("Only String key types are supported.");
         }
@@ -373,17 +373,17 @@ public class InMemoryDatsourceAdaptor implements QueriableDatasourceAdaptor, CRU
     }
 
     @Override
-    public <ENTITY, KEY> EntityKey<KEY> buildKey(String id, Class<ENTITY> clazz) {
+    public <ENTITY> EntityKey buildKey(String id, Class<ENTITY> clazz) {
         return new SimpleEntityKey(id, String.class);
     }
 
     @Override
-    public <ENTITY, KEY> EntityKey<KEY> buildKey(long id, Class<ENTITY> clazz) {
+    public <ENTITY> EntityKey buildKey(long id, Class<ENTITY> clazz) {
         return new SimpleEntityKey(String.format("%d", id), String.class);
     }
 
     @Override
-    public <ENTITY, KEY> EntityKey<KEY> buildEmptyKey(Class<ENTITY> clazz) {
+    public <ENTITY> EntityKey buildEmptyKey(Class<ENTITY> clazz) {
         return new SimpleEntityKey((String) null, String.class);
     }
 
