@@ -23,6 +23,8 @@ package com.patrickwilson.ardm.datasource.api;
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
+import com.patrickwilson.ardm.api.key.EntityKey;
+import com.patrickwilson.ardm.api.key.LinkedKey;
 import com.patrickwilson.ardm.api.repository.QueryResult;
 
 /**
@@ -33,7 +35,8 @@ public interface ScanableDatasourceAdaptor extends DataSourceAdaptor {
 
     <ENTITY> QueryResult<ENTITY> findAll(Class<ENTITY> clazz);
 
-    <ENTITY, KEY> QueryResult<ENTITY> findAllWithKeyPrefix(KEY prefix, Class<ENTITY> clazz);
-
-    <ENTITY, KEY> KEY buildPrefixKey(Object prefix, Class<ENTITY> clazz);
+    <ENTITY, KEY> QueryResult<ENTITY> findAllWithKeyPrefix(EntityKey<KEY> prefix, Class<ENTITY> clazz);
+    <ENTITY> LinkedKey<Object> buildPrefixKey(EntityKey<Object> parent, Class<ENTITY> clazz);
+    <ENTITY> LinkedKey<Object> buildPrefixKey(EntityKey<Object> prefix, String id, Class<ENTITY> clazz);
+    <ENTITY> LinkedKey<Object> buildPrefixKey(EntityKey<Object> prefix, long id, Class<ENTITY> clazz);
 }

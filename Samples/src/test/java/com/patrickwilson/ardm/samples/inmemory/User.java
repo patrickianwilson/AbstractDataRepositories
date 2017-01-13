@@ -24,6 +24,7 @@ package com.patrickwilson.ardm.samples.inmemory;
  */
 import com.patrickwilson.ardm.api.annotation.Entity;
 import com.patrickwilson.ardm.api.annotation.Indexed;
+import com.patrickwilson.ardm.api.key.EntityKey;
 import com.patrickwilson.ardm.api.key.Key;
 
 /**
@@ -36,7 +37,7 @@ public class User {
     private String firstName;
     private int age;
 
-    private String primaryKey;
+    private EntityKey<String> primaryKey;
 
     @Indexed
     public String getFirstName() {
@@ -58,12 +59,12 @@ public class User {
         return this;
     }
 
-    @Key(keyClass = String.class)
-    public String getPrimaryKey() {
+    @Key(String.class)
+    public EntityKey<String> getPrimaryKey() {
         return primaryKey;
     }
 
-    public void setPrimaryKey(String primaryKey) {
+    public void setPrimaryKey(EntityKey<String> primaryKey) {
         this.primaryKey = primaryKey;
     }
 }

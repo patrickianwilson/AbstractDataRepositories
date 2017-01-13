@@ -29,7 +29,6 @@ import com.patrickwilson.ardm.api.annotation.Entity;
 import com.patrickwilson.ardm.api.annotation.Indexed;
 import com.patrickwilson.ardm.api.key.EntityKey;
 import com.patrickwilson.ardm.api.key.Key;
-import com.patrickwilson.ardm.api.key.SimpleEnitityKey;
 import com.patrickwilson.ardm.datasource.api.query.QueryData;
 import com.patrickwilson.ardm.datasource.api.query.QueryLogicTree;
 import com.patrickwilson.ardm.api.repository.QueryResult;
@@ -78,7 +77,7 @@ public class InMemoryDatasourceAdaptorTests {
         Assert.assertEquals("My Different Value", updatedEntity.getValue());
         Assert.assertNotNull(updatedEntity.getKey());
 
-        String providedKey = updatedEntity.getKey();
+        EntityKey<String> providedKey = updatedEntity.getKey();
         updatedEntity.setValue("Updated Value");
         underTest.save(updatedEntity, SampleEntity.class);
 
@@ -86,10 +85,10 @@ public class InMemoryDatasourceAdaptorTests {
         Assert.assertEquals("Updated Value", updatedEntity.getValue());
         Assert.assertEquals(providedKey, updatedEntity.getKey());
 
-        Assert.assertNotNull(underTest.findOne(new SimpleEnitityKey(providedKey, String.class), SampleEntity.class));
+        Assert.assertNotNull(underTest.findOne(providedKey, SampleEntity.class));
 
-        underTest.delete(new SimpleEnitityKey(providedKey, String.class), SampleEntity.class);
-        Assert.assertNull(underTest.findOne(new SimpleEnitityKey(providedKey, String.class), SampleEntity.class));
+        underTest.delete(providedKey, SampleEntity.class);
+        Assert.assertNull(underTest.findOne(providedKey, SampleEntity.class));
 
     }
 
@@ -151,16 +150,16 @@ public class InMemoryDatasourceAdaptorTests {
      */
     @Entity
     public static class SampleEntity {
-        private String key;
+        private EntityKey<String> key;
 
         private String value;
 
-        @Key(keyClass = String.class)
-        public String getKey() {
+        @Key(String.class)
+        public EntityKey<String> getKey() {
             return key;
         }
 
-        public void setKey(String key) {
+        public void setKey(EntityKey<String> key) {
             this.key = key;
         }
 
@@ -182,8 +181,6 @@ public class InMemoryDatasourceAdaptorTests {
         private String fname;
         private String lname;
         private long age;
-
-
         private EntityKey<String> key;
 
         public String getFname() {
@@ -214,7 +211,7 @@ public class InMemoryDatasourceAdaptorTests {
             return key;
         }
 
-        @Key(keyClass = String.class)
+        @Key(String.class)
         public void setKey(EntityKey<String> key) {
             this.key = key;
         }

@@ -27,7 +27,7 @@ import com.patrickwilson.ardm.api.annotation.Entity;
 import com.patrickwilson.ardm.api.annotation.Indexed;
 import com.patrickwilson.ardm.api.key.EntityKey;
 import com.patrickwilson.ardm.api.key.Key;
-import com.patrickwilson.ardm.api.key.SimpleEnitityKey;
+import com.patrickwilson.ardm.api.key.SimpleEntityKey;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +56,7 @@ public final class EntityUtils {
      * reads the provided object entity and returns its key.
      * @return the com.patrickwilson.ardm.api.key.EntityKey of the entity
      */
-    public static EntityKey findEntityKey(Object entity) throws NoEntityKeyException {
+    public static EntityKey findEntityKeyType(Object entity) throws NoEntityKeyException {
         Preconditions.checkNotNull(entity);
 
         try {
@@ -64,7 +64,7 @@ public final class EntityUtils {
 
             PropertyDescriptor[] result  = PropertyUtils.getPropertyDescriptors(entity);
             for (PropertyDescriptor prop: result) {
-                if (prop.getPropertyType().equals(EntityKey.class)) {
+                if (EntityKey.class.isAssignableFrom(prop.getPropertyType())) {
                     //this is the entity key.  might return null.
 
                     EntityKey key = (EntityKey) prop.getReadMethod().invoke(entity, new Object[]{});
@@ -72,19 +72,21 @@ public final class EntityUtils {
                     Class keyValueClass = null;
 
                     if (key != null) {
-                         key.getKeyClass();
+                        keyValueClass = key.getKeyClass();
                     }
 
                     //explicit annotations will override a provided value (for consistency)
                     if (prop.getReadMethod() != null && prop.getReadMethod().isAnnotationPresent(Key.class)) {
+
                         Key annotation = prop.getReadMethod().getAnnotation(Key.class);
-                        if (annotation.keyClass() != null) {
-                            keyValueClass = annotation.keyClass();
+                        if (annotation.value() != null) {
+                            keyValueClass = annotation.value();
                         }
                     } else if (prop.getWriteMethod() != null && prop.getWriteMethod().isAnnotationPresent(Key.class)) {
+
                         Key annotation = prop.getWriteMethod().getAnnotation(Key.class);
-                        if (annotation.keyClass() != null) {
-                            keyValueClass = annotation.keyClass();
+                        if (annotation.value() != null) {
+                            keyValueClass = annotation.value();
                         }
                     }
 
@@ -93,38 +95,13 @@ public final class EntityUtils {
                     }
 
                     if (key == null) {
-                        key = new SimpleEnitityKey(null, keyValueClass);
+                        key = new SimpleEntityKey(null, keyValueClass);
                     }
 
                     return key;
-
-                } else if ((prop.getReadMethod() != null && prop.getReadMethod().isAnnotationPresent(Key.class))
+                } else if (prop.getReadMethod() != null && prop.getReadMethod().isAnnotationPresent(Key.class)
                         || prop.getWriteMethod() != null && prop.getWriteMethod().isAnnotationPresent(Key.class)) {
-                    Object keyValue = prop.getReadMethod().invoke(entity, new Object[]{});
-                    Class keyValueClass = null;
-                    if (prop.getReadMethod() != null && prop.getReadMethod().isAnnotationPresent(Key.class)) {
-                        Key annotation = prop.getReadMethod().getAnnotation(Key.class);
-                        if (annotation.keyClass() != null) {
-                            keyValueClass = annotation.keyClass();
-                        }
-                    } else {
-                        Key annotation = prop.getWriteMethod().getAnnotation(Key.class);
-                        if (annotation.keyClass() != null) {
-                            keyValueClass = annotation.keyClass();
-                        }
-                    }
-
-                    if (keyValueClass == null) {
-                        if (keyValue != null) {
-                            keyValueClass = keyValue.getClass();
-                        } else {
-                            keyValueClass = Object.class;
-                        }
-                    }
-
-                    EntityKey key = new SimpleEnitityKey(keyValue, keyValueClass);
-
-                    return key;
+                    throw new NoEntityKeyException("Entity key fields must be suptypes of EntityKey.  Raw keys are not supported.");
                 }
             }
         } catch (IllegalAccessException | InvocationTargetException e) {
@@ -138,28 +115,24 @@ public final class EntityUtils {
      * reads the provided object entity and returns its key.
      * @return the com.patrickwilson.ardm.api.key.EntityKey of the entity
      */
-    public static Class<?> findEntityKey(Class entityClazz) throws NoEntityKeyException {
+    public static Class<?> findEntityKeyType(Class entityClazz) throws NoEntityKeyException {
         Preconditions.checkNotNull(entityClazz);
 
         PropertyDescriptor[] result  = PropertyUtils.getPropertyDescriptors(entityClazz);
         for (PropertyDescriptor prop: result) {
-            if (prop.getPropertyType().equals(EntityKey.class)) {
-                //this is the entity
-                return EntityKey.class;
-
-            } else if ((prop.getReadMethod() != null && prop.getReadMethod().isAnnotationPresent(Key.class))
+            if ((prop.getReadMethod() != null && prop.getReadMethod().isAnnotationPresent(Key.class))
                     || prop.getWriteMethod() != null && prop.getWriteMethod().isAnnotationPresent(Key.class)) {
 
                 Class keyValueClass = null;
                 if (prop.getReadMethod() != null && prop.getReadMethod().isAnnotationPresent(Key.class)) {
                     Key annotation = prop.getReadMethod().getAnnotation(Key.class);
-                    if (annotation.keyClass() != null) {
-                        keyValueClass = annotation.keyClass();
+                    if (annotation.value() != null) {
+                        keyValueClass = annotation.value();
                     }
                 } else {
                     Key annotation = prop.getWriteMethod().getAnnotation(Key.class);
-                    if (annotation.keyClass() != null) {
-                        keyValueClass = annotation.keyClass();
+                    if (annotation.value() != null) {
+                        keyValueClass = annotation.value();
                     }
                 }
 
@@ -178,13 +151,9 @@ public final class EntityUtils {
         try {
             PropertyDescriptor[] result  = PropertyUtils.getPropertyDescriptors(entity);
             for (PropertyDescriptor prop: result) {
-                if (prop.getPropertyType().equals(EntityKey.class)) {
+                if (EntityKey.class.isAssignableFrom(prop.getPropertyType())) {
                     //this is the entity
                     PropertyUtils.setProperty(entity, prop.getName(), key);
-                    return;
-                } else if ((prop.getReadMethod() != null && prop.getReadMethod().isAnnotationPresent(Key.class))
-                        || prop.getWriteMethod() != null && prop.getWriteMethod().isAnnotationPresent(Key.class)) {
-                    PropertyUtils.setProperty(entity, prop.getName(), key.getKey());
                     return;
                 }
             }

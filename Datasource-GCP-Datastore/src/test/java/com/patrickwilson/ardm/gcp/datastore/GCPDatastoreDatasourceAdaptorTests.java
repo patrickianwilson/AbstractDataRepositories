@@ -39,8 +39,10 @@ import com.google.cloud.datastore.IncompleteKey;
 import com.google.common.collect.Lists;
 import com.patrickwilson.ardm.api.annotation.Entity;
 import com.patrickwilson.ardm.api.annotation.Indexed;
+import com.patrickwilson.ardm.api.key.EntityKey;
 import com.patrickwilson.ardm.api.key.Key;
-import com.patrickwilson.ardm.api.key.SimpleEnitityKey;
+import com.patrickwilson.ardm.api.key.LinkedKey;
+import com.patrickwilson.ardm.api.key.SimpleEntityKey;
 import com.patrickwilson.ardm.api.repository.QueryResult;
 import com.patrickwilson.ardm.datasource.api.query.LogicTreeCompositeNode;
 import com.patrickwilson.ardm.datasource.api.query.QueryData;
@@ -57,7 +59,7 @@ public class GCPDatastoreDatasourceAdaptorTests {
 
     public static final short SAMPLE_AGE = 35;
     public static final int EVENTUAL_CONSISTENCY_PAUSE = 2000;
-    public static final long SAMPLE_ID = 100l;
+    public static final long SAMPLE_ID = 100L;
     public static final long DOES_NOT_EXIST = 102391237309821L;
     private static Datastore datastore;
 
@@ -112,8 +114,8 @@ public class GCPDatastoreDatasourceAdaptorTests {
         secondResult = underTest.save(second, SimpleEntity.class);
 
         ChildEntity child1 = new ChildEntity();
-        com.google.cloud.datastore.Key parent = (com.google.cloud.datastore.Key) result.entityKey;
-        child1.setKey(underTest.<ChildEntity, IncompleteKey>buildPrefixKey(parent, ChildEntity.class));
+        LinkedKey parent = result.entityKey;
+        child1.setKey(underTest.buildPrefixKey(parent, ChildEntity.class));
         child1.setNow(new Date());
 
          child1Persisted = underTest.save(child1, ChildEntity.class);
@@ -123,28 +125,28 @@ public class GCPDatastoreDatasourceAdaptorTests {
 
     @AfterClass
     public static void tearDown() throws InterruptedException {
-        underTest.delete(new SimpleEnitityKey(result.getEntityKey(), com.google.cloud.datastore.Key.class), SimpleEntity.class);
-        underTest.delete(new SimpleEnitityKey(secondResult.getEntityKey(), com.google.cloud.datastore.Key.class), SimpleEntity.class);
-        underTest.delete(new SimpleEnitityKey(child1Persisted.getKey(), com.google.cloud.datastore.Key.class), SimpleEntity.class);
+        underTest.delete(result.getEntityKey(), SimpleEntity.class);
+        underTest.delete(secondResult.getEntityKey(), SimpleEntity.class);
+        underTest.delete(child1Persisted.getKey(), SimpleEntity.class);
         Thread.sleep(EVENTUAL_CONSISTENCY_PAUSE); //ensure datastore consistency.
     }
 
     @Test
     public void doIt() throws InterruptedException {
 
-        com.google.cloud.datastore.Key key = ((com.google.cloud.datastore.Key) result.getEntityKey());
-        com.google.cloud.datastore.Key secondKey = ((com.google.cloud.datastore.Key) secondResult.getEntityKey());
+        com.google.cloud.datastore.Key key = (com.google.cloud.datastore.Key) result.getEntityKey().getKey();
+        com.google.cloud.datastore.Key secondKey = ((com.google.cloud.datastore.Key) secondResult.getEntityKey().getKey());
 
         Assert.assertNotNull(key.getId());
 
-        SimpleEntity fromDB = underTest.findOne(new SimpleEnitityKey(key, com.google.cloud.datastore.Key.class), SimpleEntity.class);
+        SimpleEntity fromDB = underTest.findOne(new SimpleEntityKey(key, com.google.cloud.datastore.Key.class), SimpleEntity.class);
 
         Assert.assertNotNull(fromDB);
         Assert.assertEquals(result.email, fromDB.email);
         Assert.assertEquals(result.firstName, fromDB.firstName);
         Assert.assertEquals(result.age, fromDB.age);
 
-        SimpleEntity secondFromDB = underTest.findOne(new SimpleEnitityKey(secondKey, com.google.cloud.datastore.Key.class), SimpleEntity.class);
+        SimpleEntity secondFromDB = underTest.findOne(new SimpleEntityKey(secondKey, com.google.cloud.datastore.Key.class), SimpleEntity.class);
 
         Assert.assertNotNull(secondFromDB);
         Assert.assertEquals(secondResult.email, secondFromDB.email);
@@ -171,7 +173,7 @@ public class GCPDatastoreDatasourceAdaptorTests {
         Assert.assertNotNull(allEntities.getResults());
         Assert.assertEquals(2, allEntities.getResults().size());
 
-        SimpleEntity shouldBeNull = underTest.findOne(new SimpleEnitityKey(underTest.buildKey(DOES_NOT_EXIST, SimpleEntity.class), com.google.cloud.datastore.Key.class), SimpleEntity.class);
+        SimpleEntity shouldBeNull = underTest.findOne(underTest.buildKey(DOES_NOT_EXIST, SimpleEntity.class), SimpleEntity.class);
         Assert.assertNull(shouldBeNull);
 
     }
@@ -198,8 +200,8 @@ public class GCPDatastoreDatasourceAdaptorTests {
         Assert.assertNotNull(qResult);
         Assert.assertEquals(1, qResult.getNumResults());
         Assert.assertNotNull(qResult.getResults().get(0));
-        Assert.assertTrue(qResult.getResults().get(0).getKey() instanceof com.google.cloud.datastore.Key);
-        Assert.assertNotNull(((com.google.cloud.datastore.Key) qResult.getResults().get(0).getKey()).getId());
+        Assert.assertTrue(qResult.getResults().get(0).getKey().getKey() instanceof com.google.cloud.datastore.Key);
+        Assert.assertNotNull(((com.google.cloud.datastore.Key) qResult.getResults().get(0).getKey().getKey()).getId());
 
     }
 
@@ -226,15 +228,15 @@ public class GCPDatastoreDatasourceAdaptorTests {
 
     @Test
     public void shouldGenerateValidKey() {
-        com.google.cloud.datastore.Key k = underTest.buildKey(SAMPLE_ID, SimpleEntity.class);
+        EntityKey<com.google.cloud.datastore.Key> k = underTest.<SimpleEntity, com.google.cloud.datastore.Key>buildKey(SAMPLE_ID, SimpleEntity.class);
         Assert.assertNotNull(k);
-        Assert.assertEquals(SAMPLE_ID, (long) k.getId());
-        Assert.assertEquals("SimpleEntityForTesting", k.getKind());
+        Assert.assertEquals(SAMPLE_ID, (long) k.getKey().getId());
+        Assert.assertEquals("SimpleEntityForTesting", k.getKey().getKind());
 
-        k = underTest.buildKey("abc123", SimpleEntity.class);
+        k = underTest.<SimpleEntity, com.google.cloud.datastore.Key>buildKey("abc123", SimpleEntity.class);
         Assert.assertNotNull(k);
-        Assert.assertEquals("abc123", k.getName());
-        Assert.assertEquals("SimpleEntityForTesting", k.getKind());
+        Assert.assertEquals("abc123", k.getKey().getName());
+        Assert.assertEquals("SimpleEntityForTesting", k.getKey().getKind());
 
     }
 
@@ -245,20 +247,20 @@ public class GCPDatastoreDatasourceAdaptorTests {
     @Entity(domainOrTable = "SimpleEntityForTesting")
     public static class SimpleEntity {
 
-        private com.google.cloud.datastore.IncompleteKey entityKey;
+        private LinkedKey<com.google.cloud.datastore.IncompleteKey> entityKey;
         private String firstName;
         private String email;
         private short age;
         private InnerObject inner;
         private List<InnerObject> embeddedObjects = new ArrayList<>();
 
-        public com.google.cloud.datastore.IncompleteKey getEntityKey() {
-            return entityKey;
+        @Key(IncompleteKey.class)
+        public void setEntityKey(LinkedKey<IncompleteKey> entityKey) {
+            this.entityKey = entityKey;
         }
 
-        @Key(keyClass = IncompleteKey.class)
-        public void setEntityKey(com.google.cloud.datastore.IncompleteKey entityKey) {
-            this.entityKey = entityKey;
+        public LinkedKey<IncompleteKey> getEntityKey() {
+            return entityKey;
         }
 
         public String getFirstName() {
@@ -357,15 +359,15 @@ public class GCPDatastoreDatasourceAdaptorTests {
      */
     @Entity
     public static class ChildEntity {
-        private IncompleteKey key;
+        private LinkedKey<IncompleteKey> key;
         private Date now;
 
-        public IncompleteKey getKey() {
+        public LinkedKey<IncompleteKey> getKey() {
             return key;
         }
 
-        @Key(keyClass = com.google.cloud.datastore.IncompleteKey.class)
-        public void setKey(IncompleteKey key) {
+        @Key(com.google.cloud.datastore.IncompleteKey.class)
+        public void setKey(LinkedKey<IncompleteKey> key) {
             this.key = key;
         }
 

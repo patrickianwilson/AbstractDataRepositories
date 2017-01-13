@@ -23,6 +23,7 @@ package com.patrickwilson.ardm.proxy;
  SOFTWARE.
  */
 import com.patrickwilson.ardm.api.key.EntityKey;
+import com.patrickwilson.ardm.api.key.LinkedKey;
 import com.patrickwilson.ardm.datasource.api.CRUDDatasourceAdaptor;
 import com.patrickwilson.ardm.datasource.api.DataSourceAdaptor;
 import com.patrickwilson.ardm.datasource.api.QueriableDatasourceAdaptor;
@@ -48,18 +49,13 @@ public class NotImplementedDataSourceAdaptor implements DataSourceAdaptor, Queri
     }
 
     @Override
-    public <ENTITY> void delete(ENTITY entity, Class<ENTITY> clazz) {
-
-    }
-
-    @Override
-    public <ENTITY> ENTITY findOne(EntityKey id, Class<ENTITY> clazz) {
-        return null;
-    }
-
-    @Override
     public <ENTITY> QueryResult<ENTITY> findByCriteria(QueryData query, Class<ENTITY> clazz) {
         return null;
+    }
+
+    @Override
+    public <ENTITY> void delete(ENTITY entity, Class<ENTITY> clazz) {
+
     }
 
     @Override
@@ -68,22 +64,42 @@ public class NotImplementedDataSourceAdaptor implements DataSourceAdaptor, Queri
     }
 
     @Override
-    public <ENTITY, KEY> QueryResult<ENTITY> findAllWithKeyPrefix(KEY prefix, Class<ENTITY> clazz) {
+    public <ENTITY> ENTITY findOne(EntityKey id, Class<ENTITY> clazz) {
         return null;
     }
 
     @Override
-    public <ENTITY, KEY> KEY buildPrefixKey(Object prefix, Class<ENTITY> clazz) {
+    public <ENTITY, KEY> QueryResult<ENTITY> findAllWithKeyPrefix(EntityKey<KEY> prefix, Class<ENTITY> clazz) {
         return null;
     }
 
     @Override
-    public <ENTITY, KEY> KEY buildKey(String id, Class<ENTITY> clazz) {
+    public <ENTITY, KEY> EntityKey<KEY> buildEmptyKey(Class<ENTITY> clazz) {
         return null;
     }
 
     @Override
-    public <ENTITY, KEY> KEY buildKey(long id, Class<ENTITY> clazz) {
+    public <ENTITY> LinkedKey<Object> buildPrefixKey(EntityKey<Object> parent, Class<ENTITY> clazz) {
+        return null;
+    }
+
+    @Override
+    public <ENTITY, KEY> EntityKey<KEY> buildKey(String id, Class<ENTITY> clazz) {
+        return null;
+    }
+
+    @Override
+    public <ENTITY> LinkedKey<Object> buildPrefixKey(EntityKey<Object> prefix, String id, Class<ENTITY> clazz) {
+        return null;
+    }
+
+    @Override
+    public <ENTITY, KEY> EntityKey<KEY> buildKey(long id, Class<ENTITY> clazz) {
+        return null;
+    }
+
+    @Override
+    public <ENTITY> LinkedKey<Object> buildPrefixKey(EntityKey<Object> prefix, long id, Class<ENTITY> clazz) {
         return null;
     }
 }

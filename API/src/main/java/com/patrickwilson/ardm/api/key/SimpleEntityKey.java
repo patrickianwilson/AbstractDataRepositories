@@ -27,12 +27,21 @@ package com.patrickwilson.ardm.api.key;
  * User: pwilson
  * @param <KEY_TYPE> a generic type for the actual key.
  */
-public class SimpleEnitityKey<KEY_TYPE> implements EntityKey<KEY_TYPE> {
+public class SimpleEntityKey<KEY_TYPE> implements LinkedKey<KEY_TYPE> {
+
+    private EntityKey<?> parent;
+    private boolean isPopulated = false;
 
     private Class<KEY_TYPE> keyTypeClass;
     private KEY_TYPE key;
 
-    public SimpleEnitityKey(KEY_TYPE key, Class<KEY_TYPE> keyTypeClass) {
+    public SimpleEntityKey(KEY_TYPE key, Class<KEY_TYPE> keyTypeClass) {
+        this.keyTypeClass = keyTypeClass;
+        this.key = key;
+    }
+
+    public SimpleEntityKey(KEY_TYPE key, Class<KEY_TYPE> keyTypeClass, boolean isPopulated) {
+        this.isPopulated = isPopulated;
         this.keyTypeClass = keyTypeClass;
         this.key = key;
     }
@@ -47,6 +56,23 @@ public class SimpleEnitityKey<KEY_TYPE> implements EntityKey<KEY_TYPE> {
         return key;
     }
 
+    public EntityKey<?> getLinkedKey() {
+        return parent;
+    }
+
+    public void setLinkedKey(EntityKey<?> parent) {
+        this.parent = parent;
+    }
+
+    @Override
+    public boolean isPopulated() {
+        return this.key != null && isPopulated;
+    }
+
+    public void setPopulated(boolean populated) {
+        this.isPopulated = populated;
+    }
+
     //CheckStyle:OFF
 
     @Override
@@ -54,7 +80,7 @@ public class SimpleEnitityKey<KEY_TYPE> implements EntityKey<KEY_TYPE> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        SimpleEnitityKey<?> that = (SimpleEnitityKey<?>) o;
+        SimpleEntityKey<?> that = (SimpleEntityKey<?>) o;
 
         if (!keyTypeClass.equals(that.keyTypeClass)) return false;
         return key.equals(that.key);
@@ -74,6 +100,14 @@ public class SimpleEnitityKey<KEY_TYPE> implements EntityKey<KEY_TYPE> {
                 "keyTypeClass=" + keyTypeClass +
                 ", key=" + key +
                 '}';
+    }
+
+    @Override
+    public int compareTo(SimpleEntityKey o) {
+        if (this.getKey() instanceof Comparable && o.getKey() instanceof Comparable) {
+            return ((Comparable) this.getKey()).compareTo(o.getKey());
+        }
+        return 0;
     }
 
     //CheckStyle:ON

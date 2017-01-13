@@ -39,7 +39,9 @@ public interface CRUDDatasourceAdaptor extends DataSourceAdaptor {
 
     <ENTITY> ENTITY findOne(EntityKey id, Class<ENTITY> clazz);
 
-    <ENTITY, KEY> KEY buildKey(String id, Class<ENTITY> clazz);
+    <ENTITY, KEY> EntityKey<KEY> buildEmptyKey(Class<ENTITY> clazz);
 
-    <ENTITY, KEY> KEY buildKey(long id, Class<ENTITY> clazz);
+    <ENTITY, KEY> EntityKey<KEY> buildKey(String id, Class<ENTITY> clazz);
+
+    <ENTITY, KEY> EntityKey<KEY> buildKey(long id, Class<ENTITY> clazz);
 }

@@ -34,7 +34,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.common.collect.Lists;
 import com.patrickwilson.ardm.api.key.EntityKey;
-import com.patrickwilson.ardm.api.key.SimpleEnitityKey;
+import com.patrickwilson.ardm.api.key.LinkedKey;
+import com.patrickwilson.ardm.api.key.SimpleEntityKey;
 import com.patrickwilson.ardm.datasource.api.CRUDDatasourceAdaptor;
 import com.patrickwilson.ardm.datasource.api.QueriableDatasourceAdaptor;
 import com.patrickwilson.ardm.datasource.api.ScanableDatasourceAdaptor;
@@ -59,8 +60,8 @@ public class InMemoryDatsourceAdaptor implements QueriableDatasourceAdaptor, CRU
     public static final Logger LOG = LoggerFactory.getLogger(InMemoryDatsourceAdaptor.class);
 
     //the next two datastructures are the basis of the inmemory implementation.
-    private HashMap<Class, TreeMap<EntityKey<Comparable>, Object>> tables = new HashMap<>();  //horrendous but necessary to represent "tables"
-    private HashMap<Class, HashMap<String, TreeMap<Object, List<EntityKey<Comparable>>>>> tableIndexSelector = new HashMap<>();
+    private HashMap<Class, TreeMap<EntityKey, Object>> tables = new HashMap<>();  //horrendous but necessary to represent "tables"
+    private HashMap<Class, HashMap<String, TreeMap<Object, List<EntityKey>>>> tableIndexSelector = new HashMap<>();
 
     @Override
     public <ENTITY> ENTITY save(ENTITY entity, Class<ENTITY> clazz) {
@@ -69,9 +70,9 @@ public class InMemoryDatsourceAdaptor implements QueriableDatasourceAdaptor, CRU
 
             //this table doesn't yet exist.
         }
-        TreeMap<EntityKey<Comparable>, Object> mockDb = tables.get(clazz);
+        TreeMap<EntityKey, Object> mockDb = tables.get(clazz);
         try {
-            EntityKey key = EntityUtils.findEntityKey(entity);
+            EntityKey key = EntityUtils.findEntityKeyType(entity);
 
             if (key == null) {
                 //means the key was of the type "EntityKey" but we don't know how to auto generate keys..\
@@ -82,7 +83,7 @@ public class InMemoryDatsourceAdaptor implements QueriableDatasourceAdaptor, CRU
                     throw new RepositoryEntityException("Only String or Comparable key types are supported.");
                 }
                 String newKey = UUID.randomUUID().toString();
-                key = new SimpleEnitityKey(newKey, String.class);
+                key = new SimpleEntityKey(newKey, String.class);
                 EntityUtils.updateEntityKey(entity, key);
             }
             mockDb.put(key, entity);
@@ -100,26 +101,26 @@ public class InMemoryDatsourceAdaptor implements QueriableDatasourceAdaptor, CRU
      * @param entity
      */
     private void updateIndexes(Object entity, Class entityType) throws NoEntityKeyException {
-        HashMap<String, TreeMap<Object, List<EntityKey<Comparable>>>> indexes = selectTableIndexes(entityType);
+        HashMap<String, TreeMap<Object, List<EntityKey>>> indexes = selectTableIndexes(entityType);
         Map<String, Object> indexedProps = EntityUtils.fetchIndexableProperties(entity);
 
         for (String index: indexedProps.keySet()) {
             if (!indexes.containsKey(index)) {
-                indexes.put(index, new TreeMap<Object, List<EntityKey<Comparable>>>()); //create a new index
+                indexes.put(index, new TreeMap<Object, List<EntityKey>>()); //create a new index
             }
 
             if (!indexes.get(index).containsKey(indexedProps.get(index))) {
-                indexes.get(index).put(indexedProps.get(index), new LinkedList<EntityKey<Comparable>>());
+                indexes.get(index).put(indexedProps.get(index), new LinkedList<EntityKey>());
             }
 
-            indexes.get(index).get(indexedProps.get(index)).add(EntityUtils.findEntityKey(entity)); //reverse index (value -> object.key)
+            indexes.get(index).get(indexedProps.get(index)).add(EntityUtils.findEntityKeyType(entity)); //reverse index (value -> object.key)
          }
 
     }
 
     @Override
     public <ENTITY> void delete(EntityKey id, Class<ENTITY> clazz) {
-        TreeMap<EntityKey<Comparable>, Object> mockDb = selectTable(clazz);
+        TreeMap<EntityKey, Object> mockDb = selectTable(clazz);
         mockDb.remove(id);
 
     }
@@ -128,7 +129,7 @@ public class InMemoryDatsourceAdaptor implements QueriableDatasourceAdaptor, CRU
     public <ENTITY> void delete(ENTITY entity, Class<ENTITY> clazz) {
         EntityKey<?> entityKey = null;
         try {
-            entityKey = EntityUtils.findEntityKey(entity);
+            entityKey = EntityUtils.findEntityKeyType(entity);
         } catch (NoEntityKeyException e) {
             throw new RepositoryEntityException(e);
         }
@@ -137,14 +138,14 @@ public class InMemoryDatsourceAdaptor implements QueriableDatasourceAdaptor, CRU
 
     @Override
     public <ENTITY> ENTITY findOne(EntityKey id, Class<ENTITY> clazz) {
-        TreeMap<EntityKey<Comparable>, Object> mockDb = selectTable(clazz);
+        TreeMap<EntityKey, Object> mockDb = selectTable(clazz);
         return (ENTITY) mockDb.get(id);
     }
 
     @Override
     public <ENTITY> QueryResult<ENTITY> findByCriteria(QueryData query, Class<ENTITY> clazz) {
-        HashMap<String, TreeMap<Object, List<EntityKey<Comparable>>>> indexes = selectTableIndexes(clazz);
-        TreeMap<EntityKey<Comparable>, Object> mockDb = selectTable(clazz);
+        HashMap<String, TreeMap<Object, List<EntityKey>>> indexes = selectTableIndexes(clazz);
+        TreeMap<EntityKey, Object> mockDb = selectTable(clazz);
 
         HashSet<ENTITY> potentials; //sorted
 
@@ -188,7 +189,7 @@ public class InMemoryDatsourceAdaptor implements QueriableDatasourceAdaptor, CRU
     }
 
     private <ENTITY> HashSet<ENTITY> fullTableScan(QueryData query, Class<ENTITY> clazz, int offset, int limit) {
-        TreeMap<EntityKey<Comparable>, Object> mockDb = selectTable(clazz);
+        TreeMap<EntityKey, Object> mockDb = selectTable(clazz);
         boolean verboseLogging = true;
         LOG.debug("No indexes can satisfy this query, resulting in Full Table Scan.  Query={}", query.getCriteria().toString());
         int capacityRemaining = limit;
@@ -224,8 +225,8 @@ public class InMemoryDatsourceAdaptor implements QueriableDatasourceAdaptor, CRU
     }
 
     private <ENTITY> HashSet<ENTITY> indexScan(String index, Object queryValue, Class<ENTITY> clazz, int offset, int limit) {
-        HashMap<String, TreeMap<Object, List<EntityKey<Comparable>>>> indexes = selectTableIndexes(clazz);
-        TreeMap<EntityKey<Comparable>, Object> mockDb = selectTable(clazz);
+        HashMap<String, TreeMap<Object, List<EntityKey>>> indexes = selectTableIndexes(clazz);
+        TreeMap<EntityKey, Object> mockDb = selectTable(clazz);
 
         boolean verboseLogging = true;
         LOG.debug("Query Plan:  using index {} and searching for value '{}'", index, queryValue);
@@ -294,7 +295,7 @@ public class InMemoryDatsourceAdaptor implements QueriableDatasourceAdaptor, CRU
 
     @Override
     public <ENTITY> QueryResult<ENTITY> findAll(Class<ENTITY> clazz) {
-        TreeMap<EntityKey<Comparable>, Object> mockDb = selectTable(clazz);
+        TreeMap<EntityKey, Object> mockDb = selectTable(clazz);
 
         QueryResult<ENTITY> result = new QueryResult<>();
         List<ENTITY> holder = new ArrayList<>();
@@ -308,17 +309,17 @@ public class InMemoryDatsourceAdaptor implements QueriableDatasourceAdaptor, CRU
     }
 
     @Override
-    public <ENTITY, KEY> QueryResult<ENTITY> findAllWithKeyPrefix(KEY prefix, Class<ENTITY> clazz) {
-        if (!(prefix instanceof String)) {
+    public <ENTITY, KEY> QueryResult<ENTITY> findAllWithKeyPrefix(EntityKey<KEY> prefix, Class<ENTITY> clazz) {
+        if (String.class.isAssignableFrom(prefix.getKeyClass())) {
             throw new RepositoryEntityException("Only String key types are supported.");
         }
 
-        TreeMap<EntityKey<Comparable>, Object> mockDb = selectTable(clazz);
+        TreeMap<EntityKey, java.lang.Object> mockDb = selectTable(clazz);
         QueryResult<ENTITY> result = new QueryResult<>();
-
+        String parentKey = (String) prefix.getKey();
         List<ENTITY> holder = new ArrayList<>();
-        for (Map.Entry<EntityKey<Comparable>, Object> ent: mockDb.entrySet()) {
-            if (((String) ent.getKey().getKey()).startsWith((String) prefix)) {
+        for (Map.Entry<EntityKey, Object> ent: mockDb.entrySet()) {
+            if (((String) ent.getKey().getKey()).startsWith(parentKey)) {
                 holder.add((ENTITY) ent);
             }
         }
@@ -333,17 +334,57 @@ public class InMemoryDatsourceAdaptor implements QueriableDatasourceAdaptor, CRU
      * @param prefix A parent key with which to make a new key from.
      * @param clazz the class of the entity
      * @param <ENTITY> ENTITY type/
-     * @param <KEY> the resulting key type.
      * @return a minted key that can be extended. In the case of a string this is really just returning the string of the parent key
      */
     @Override
-    public <ENTITY, KEY> KEY buildPrefixKey(Object prefix, Class<ENTITY> clazz) {
-        if (!(prefix instanceof String)) {
-            throw new RepositoryEntityException("Only String key types are supported in the InMemory Datasource Adaptor.");
+    public <ENTITY> LinkedKey<Object> buildPrefixKey(EntityKey<Object> prefix, Class<ENTITY> clazz) {
+        if (String.class.isAssignableFrom(prefix.getKeyClass())) {
+            throw new RepositoryEntityException("Only String key types are supported.");
         }
 
+        SimpleEntityKey r = new SimpleEntityKey(null, String.class);
+        r.setLinkedKey(prefix);
 
-        return (KEY) prefix.toString();
+        return r;
+    }
+
+    @Override
+    public <ENTITY> LinkedKey<Object> buildPrefixKey(EntityKey<Object> prefix, String id, Class<ENTITY> clazz) {
+        if (String.class.isAssignableFrom(prefix.getKeyClass())) {
+            throw new RepositoryEntityException("Only String key types are supported.");
+        }
+
+        SimpleEntityKey r = new SimpleEntityKey(String.format("%d", id), String.class);
+        r.setLinkedKey(prefix);
+
+        return r;
+    }
+
+    @Override
+    public <ENTITY> LinkedKey<Object> buildPrefixKey(EntityKey<Object> prefix, long id, Class<ENTITY> clazz) {
+        if (String.class.isAssignableFrom(prefix.getKeyClass())) {
+            throw new RepositoryEntityException("Only String key types are supported.");
+        }
+
+        SimpleEntityKey r = new SimpleEntityKey(id, String.class);
+        r.setLinkedKey(prefix);
+
+        return r;
+    }
+
+    @Override
+    public <ENTITY, KEY> EntityKey<KEY> buildKey(String id, Class<ENTITY> clazz) {
+        return new SimpleEntityKey(id, String.class);
+    }
+
+    @Override
+    public <ENTITY, KEY> EntityKey<KEY> buildKey(long id, Class<ENTITY> clazz) {
+        return new SimpleEntityKey(String.format("%d", id), String.class);
+    }
+
+    @Override
+    public <ENTITY, KEY> EntityKey<KEY> buildEmptyKey(Class<ENTITY> clazz) {
+        return new SimpleEntityKey((String) null, String.class);
     }
 
     /**
@@ -354,15 +395,12 @@ public class InMemoryDatsourceAdaptor implements QueriableDatasourceAdaptor, CRU
     }
 
     private <ENTITY> void createTable(Class<ENTITY> entityType) throws RepositoryEntityException {
-        try {
-            this.tables.put(entityType, new TreeMap<>(new GenericKeyComparator(entityType)));
-            this.tableIndexSelector.put(entityType, new HashMap<String, TreeMap<Object, List<EntityKey<Comparable>>>>());
-        } catch (NoEntityKeyException e) {
-            throw new RepositoryEntityException(entityType, e);
-        }
+        this.tables.put(entityType, new TreeMap<EntityKey, Object>());
+        this.tableIndexSelector.put(entityType, new HashMap<String, TreeMap<Object, List<EntityKey>>>());
+
     }
 
-    private TreeMap<EntityKey<Comparable>, Object> selectTable(Class entityType) {
+    private TreeMap<EntityKey, Object> selectTable(Class entityType) {
         if (!tables.containsKey(entityType)) {
             throw new NoSuchEntityRepositoryException(entityType);
         }
@@ -370,7 +408,7 @@ public class InMemoryDatsourceAdaptor implements QueriableDatasourceAdaptor, CRU
         return this.tables.get(entityType);
     }
 
-    private HashMap<String, TreeMap<Object, List<EntityKey<Comparable>>>> selectTableIndexes(Class entityType) {
+    private HashMap<String, TreeMap<Object, List<EntityKey>>> selectTableIndexes(Class entityType) {
         if (!tables.containsKey(entityType)) {
             throw new NoSuchEntityRepositoryException(entityType);
         }
@@ -379,13 +417,4 @@ public class InMemoryDatsourceAdaptor implements QueriableDatasourceAdaptor, CRU
 
     }
 
-    @Override
-    public <ENTITY, KEY> KEY buildKey(String id, Class<ENTITY> clazz) {
-        return (KEY) id;
-    }
-
-    @Override
-    public <ENTITY, KEY> KEY buildKey(long id, Class<ENTITY> clazz) {
-        return (KEY) String.format("%d", id);
-    }
 }

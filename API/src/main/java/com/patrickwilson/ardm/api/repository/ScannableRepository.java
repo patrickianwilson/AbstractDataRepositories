@@ -23,6 +23,10 @@ package com.patrickwilson.ardm.api.repository;
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
+
+import com.patrickwilson.ardm.api.key.EntityKey;
+import com.patrickwilson.ardm.api.key.LinkedKey;
+
 /**
  * Created by pwilson on 1/3/17.
  * @param <ENTITY> the entity type for this repository.
@@ -30,12 +34,14 @@ package com.patrickwilson.ardm.api.repository;
  */
 public interface ScannableRepository<ENTITY, KEY> {
     QueryResult<ENTITY> findAll();
-    QueryResult<ENTITY> findAllWithKeyPrefix(KEY prefix);
+    QueryResult<ENTITY> findAllWithKeyPrefix(EntityKey<KEY> prefix);
 
     /**
-     * build a new entity key using the provided prefix/parent as a reference.
-     * @param prefix
-     * @return
+     * build a new entity key using the provided prefix/parent as a reference.  The resulting key will be incomplete.
+     * @param parent the parent key to use.
+     * @return a linked key that references the parent.
      */
-    KEY buildPrefixKey(KEY prefix);
+    LinkedKey<KEY> buildPrefixKey(EntityKey<KEY> parent);
+    LinkedKey<KEY> buildPrefixKey(EntityKey<KEY> prefix, String id);
+    LinkedKey<KEY> buildPrefixKey(EntityKey<KEY> prefix, long id);
 }

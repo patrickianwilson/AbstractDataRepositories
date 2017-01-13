@@ -27,7 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 import com.patrickwilson.ardm.api.key.EntityKey;
 import com.patrickwilson.ardm.api.key.Key;
-import com.patrickwilson.ardm.api.key.SimpleEnitityKey;
+import com.patrickwilson.ardm.api.key.SimpleEntityKey;
 
 /**
  * Created by pwilson on 3/29/16.
@@ -39,9 +39,9 @@ public class EntityUtilsTests {
     public static final AnnotatedImplicitKeyEntity ANNOTATED_IMPLICIT_KEY_ENTITY = new AnnotatedImplicitKeyEntity();
 
     static {
-        EXPLICIT_KEY_ENTITY.setKey(new SimpleEnitityKey<String>("test", String.class));
+        EXPLICIT_KEY_ENTITY.setKey(new SimpleEntityKey<String>("test", String.class));
         ANNOTATED_IMPLICIT_KEY_ENTITY.setKey("test");
-        ANNOTATED_KEY_ENTITY.setKey("test");
+        ANNOTATED_KEY_ENTITY.setKey(new SimpleEntityKey("test", String.class, true));
     }
 
     public static final Object[] ENTITIES = new Object[] {
@@ -75,7 +75,7 @@ public class EntityUtilsTests {
     public void fetchKeyInAllDecalarationMethods() {
         for (Object entity: ENTITIES) {
             try {
-                EntityKey key = EntityUtils.findEntityKey(entity);
+                EntityKey key = EntityUtils.findEntityKeyType(entity);
 
                 Assert.assertNotNull(key);
                 Assert.assertNotNull(key.getKey());
@@ -92,13 +92,13 @@ public class EntityUtilsTests {
     @Test(expected = NoEntityKeyException.class)
     public void shouldThrowNoKeyException() throws NoEntityKeyException {
         for (Object entity: INVALID_ENTITIES) {
-            EntityUtils.findEntityKey(entity);
+            EntityUtils.findEntityKeyType(entity);
         }
     }
 
     @Test
     public void shouldFetchNullKeyValue() throws NoEntityKeyException {
-        EntityKey key = EntityUtils.findEntityKey(annotatedButNullKeyEntity);
+        EntityKey key = EntityUtils.findEntityKeyType(annotatedButNullKeyEntity);
 
         Assert.assertNotNull(key);
         Assert.assertEquals(String.class, key.getKeyClass());
@@ -107,9 +107,9 @@ public class EntityUtilsTests {
 
     @Test
     public void shouldUpdateTheKeyToValue() throws NoEntityKeyException {
-        EntityUtils.updateEntityKey(annotatedButNullKeyEntity, new SimpleEnitityKey("test", String.class));
+        EntityUtils.updateEntityKey(annotatedButNullKeyEntity, new SimpleEntityKey("test", String.class));
 
-        EntityKey key = EntityUtils.findEntityKey(annotatedButNullKeyEntity);
+        EntityKey key = EntityUtils.findEntityKeyType(annotatedButNullKeyEntity);
 
         Assert.assertNotNull(key);
         Assert.assertEquals(String.class, key.getKeyClass());
@@ -123,7 +123,7 @@ public class EntityUtilsTests {
 
         private EntityKey<String> key;
 
-        @Key(keyClass = String.class)
+        @Key(String.class)
         public EntityKey<String> getKey() {
             return key;
         }
@@ -137,14 +137,14 @@ public class EntityUtilsTests {
      * for testing.
      */
     public static class AnnotatedExplicitKeyEntity {
-        private String key;
+        private EntityKey key;
 
-        @Key(keyClass = String.class)
-        public String getKey() {
+        @Key(String.class)
+        public EntityKey getKey() {
             return key;
         }
 
-        public void setKey(String key) {
+        public void setKey(EntityKey key) {
             this.key = key;
         }
     }
@@ -160,17 +160,19 @@ public class EntityUtilsTests {
             return key;
         }
 
-        @Key
+        @Key(String.class)
         public void setKey(String key) {
             this.key = key;
         }
     }
 
+
+
     /**
      * for testing.
      */
     public static class PrivateImplicitKey {
-        @Key
+        @Key(String.class)
         private String key;
 
         private String getKey() {

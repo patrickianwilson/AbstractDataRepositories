@@ -25,7 +25,7 @@ package com.patrickwilson.ardm.proxy;
 import com.patrickwilson.ardm.api.annotation.Attribute;
 import com.patrickwilson.ardm.api.annotation.Repository;
 import com.patrickwilson.ardm.api.key.EntityKey;
-import com.patrickwilson.ardm.api.key.SimpleEnitityKey;
+import com.patrickwilson.ardm.api.key.SimpleEntityKey;
 import com.patrickwilson.ardm.api.repository.CRUDRepository;
 import com.patrickwilson.ardm.datasource.api.CRUDDatasourceAdaptor;
 import com.patrickwilson.shared.util.test.BaseJMockTest;
@@ -69,11 +69,11 @@ public class RepsitoryProviderProxyPassthroughTests extends BaseJMockTest {
 
 
         final MyEntity saved = underTest.save(entity);
-        underTest.delete(new SimpleEnitityKey<String>("row-id", String.class));
+        underTest.delete(new SimpleEntityKey<String>("row-id", String.class));
         
         Assert.assertTrue(entity.equals(saved));
 
-        Assert.assertTrue(underTest.findOne(new SimpleEnitityKey<String>("row-id", String.class)).equals(saved));
+        Assert.assertTrue(underTest.findOne(new SimpleEntityKey<String>("row-id", String.class)).equals(saved));
 
 
 
@@ -87,11 +87,11 @@ public class RepsitoryProviderProxyPassthroughTests extends BaseJMockTest {
 
         addExpectations(new Expectations() { {
             oneOf(mockDataSource).buildKey(with("abc123"), with(MyEntity.class));
-                will(returnValue("abc123"));
+                will(returnValue(new SimpleEntityKey<>("abc123", String.class, true)));
         } });
 
-        String key = underTest.buildKey("abc123");
-        Assert.assertEquals("abc123", key);
+        EntityKey<String> key = underTest.buildKey("abc123");
+        Assert.assertEquals("abc123", key.getKey());
     }
 
 
@@ -167,7 +167,7 @@ public class RepsitoryProviderProxyPassthroughTests extends BaseJMockTest {
         }
 
         public static EntityKeyMatcher anEntityKey(Object key, Class keyClass) {
-            return new EntityKeyMatcher(new SimpleEnitityKey(key, keyClass));
+            return new EntityKeyMatcher(new SimpleEntityKey(key, keyClass));
         }
 
 

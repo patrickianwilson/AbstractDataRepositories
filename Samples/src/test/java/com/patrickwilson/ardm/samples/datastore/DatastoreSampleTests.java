@@ -28,6 +28,7 @@ import com.patrickwilson.ardm.api.annotation.Entity;
 import com.patrickwilson.ardm.api.annotation.Indexed;
 import com.patrickwilson.ardm.api.annotation.Query;
 import com.patrickwilson.ardm.api.annotation.Repository;
+import com.patrickwilson.ardm.api.key.EntityKey;
 import com.patrickwilson.ardm.api.key.Key;
 import com.patrickwilson.ardm.api.repository.CRUDRepository;
 import com.patrickwilson.ardm.datasource.gcp.datastore.GCPDatastoreDatasourceAdaptor;
@@ -86,7 +87,7 @@ public class DatastoreSampleTests {
         private String firstName;
         private int age;
 
-        private com.google.cloud.datastore.Key primaryKey;
+        private EntityKey<com.google.cloud.datastore.Key> primaryKey;
 
         @Indexed
         public String getFirstName() {
@@ -108,12 +109,12 @@ public class DatastoreSampleTests {
             this.age = age;
         }
 
-        @Key(keyClass = com.google.cloud.datastore.Key.class)
-        public com.google.cloud.datastore.Key getPrimaryKey() {
+        @Key(com.google.cloud.datastore.Key.class)
+        public EntityKey<com.google.cloud.datastore.Key> getPrimaryKey() {
             return primaryKey;
         }
 
-        public void setPrimaryKey(com.google.cloud.datastore.Key primaryKey) {
+        public void setPrimaryKey(EntityKey<com.google.cloud.datastore.Key> primaryKey) {
             this.primaryKey = primaryKey;
         }
 
@@ -133,7 +134,7 @@ public class DatastoreSampleTests {
                 return this;
             }
 
-            public Builder setPrimaryKey(com.google.cloud.datastore.Key primaryKey) {
+            public Builder setPrimaryKey(EntityKey<com.google.cloud.datastore.Key> primaryKey) {
                 instance.setPrimaryKey(primaryKey);
                 return this;
             }

@@ -8,7 +8,8 @@ import org.junit.Test;
 import com.patrickwilson.ardm.api.annotation.Attribute;
 import com.patrickwilson.ardm.api.annotation.Repository;
 import com.patrickwilson.ardm.api.key.EntityKey;
-import com.patrickwilson.ardm.api.key.SimpleEnitityKey;
+import com.patrickwilson.ardm.api.key.LinkedKey;
+import com.patrickwilson.ardm.api.key.SimpleEntityKey;
 import com.patrickwilson.ardm.api.repository.ScannableRepository;
 import com.patrickwilson.ardm.datasource.api.ScanableDatasourceAdaptor;
 import com.patrickwilson.shared.util.test.BaseJMockTest;
@@ -28,14 +29,17 @@ public class ScannableRepositoryWiringTests extends BaseJMockTest {
         MyDataRepository underTest = provider.bind(MyDataRepository.class).to(mockDataSource);
 
         addExpectations(new Expectations() { {
-           oneOf(mockDataSource).buildPrefixKey("123", MyEntity.class);
-            will(returnValue("123"));
+           oneOf(mockDataSource).buildPrefixKey(with((EntityKey) new SimpleEntityKey<String>("123", String.class, true)), with(MyEntity.class));
+           SimpleEntityKey parent = new SimpleEntityKey<>("123", String.class, true);
+           SimpleEntityKey id = new SimpleEntityKey(null, String.class);
+           id.setLinkedKey(parent);
+            will(returnValue(id));
         } });
 
-        String parentKey = underTest.buildPrefixKey("123");
+        LinkedKey<String> key = underTest.buildPrefixKey(new SimpleEntityKey<>("123", String.class, true));
 
-        Assert.assertNotNull(parentKey);
-        Assert.assertEquals("123", parentKey);
+        Assert.assertNotNull(key.getLinkedKey());
+        Assert.assertEquals("123", key.getLinkedKey().getKey());
 
     }
 
@@ -111,7 +115,7 @@ public class ScannableRepositoryWiringTests extends BaseJMockTest {
         }
 
         public static EntityKeyMatcher anEntityKey(Object key, Class keyClass) {
-            return new EntityKeyMatcher(new SimpleEnitityKey(key, keyClass));
+            return new EntityKeyMatcher(new SimpleEntityKey(key, keyClass));
         }
 
 

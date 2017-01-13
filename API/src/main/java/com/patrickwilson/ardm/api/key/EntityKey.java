@@ -27,10 +27,16 @@ package com.patrickwilson.ardm.api.key;
  * User: pwilson
  * @param <KEY_TYPE> the Type of object representing the key.
  */
-public interface EntityKey<KEY_TYPE> {
+public interface EntityKey<KEY_TYPE> extends Comparable<SimpleEntityKey> {
 
     KEY_TYPE getKey();
 
     Class<KEY_TYPE> getKeyClass();
+
+    /**
+     * A way to tell whether this key complete (in that there is a unique id) or incomplete (datasource will autogenerate).
+     * @return
+     */
+    boolean isPopulated();
 
 }
