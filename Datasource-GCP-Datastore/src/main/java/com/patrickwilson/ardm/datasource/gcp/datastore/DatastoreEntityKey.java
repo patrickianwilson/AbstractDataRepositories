@@ -1,5 +1,6 @@
 package com.patrickwilson.ardm.datasource.gcp.datastore;
 
+import java.util.Objects;
 import com.google.cloud.datastore.IncompleteKey;
 import com.google.cloud.datastore.Key;
 import com.patrickwilson.ardm.api.key.EntityKey;
@@ -44,4 +45,30 @@ public class DatastoreEntityKey implements LinkedKey {
     public int compareTo(SimpleEntityKey o) {
         return 0; //not comparable.
     }
+
+    //CheckStyle:OFF
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DatastoreEntityKey that = (DatastoreEntityKey) o;
+        return Objects.equals(key, that.key);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(key);
+    }
+
+    @Override
+    public String toString() {
+        return "DatastoreEntityKey{" +
+                "key=" + key +
+                '}';
+    }
+
+    //CheckStyle:ON
 }
+
+
