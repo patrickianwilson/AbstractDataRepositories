@@ -167,7 +167,7 @@ public class RepositoryDynamicProxyInvocationHandler implements InvocationHandle
             }
 
             if (passthroughMethod == null) {
-                throw new RepositoryDeclarationException("Method " + method.getName() +  " cannot be bound to Abstract Repository.  It appears there is no method with matching parameters on the repository adaptor.");
+                throw new RepositoryDeclarationException("Method [" + method +  "]cannot be bound to Abstract Repository.  It appears there is no method with matching parameters on the repository adaptor.");
             }
 
             //we always tag on the class object as a final param to help the datasource adaptor avoid generics complexity.
@@ -217,9 +217,9 @@ public class RepositoryDynamicProxyInvocationHandler implements InvocationHandle
         try {
             return passthroughMethod.invoke(this.adaptor, passThroughArgs);
         } catch (IllegalAccessException | IllegalArgumentException e) {
-            throw new RepositoryInvocationException(e);
+            throw new RepositoryInvocationException("Method [" + passthroughMethod +  "] cannot be executed to Abstract Repository.", e);
         } catch (InvocationTargetException e) {
-            throw new RepositoryInteractionException(e.getTargetException());
+            throw new RepositoryInteractionException("Method [" + passthroughMethod +  "] cannot be executed to Abstract Repository.", e.getTargetException());
         }
     }
 
