@@ -44,7 +44,7 @@ import org.junit.Test;
  */
 public class RepsitoryProviderProxyPassthroughTests extends BaseJMockTest {
 
-    public static final long MOCK_ID = 123l;
+    public static final long MOCK_ID = 123L;
     private final CompositeAdaptor mockDataSource = createMock(CompositeAdaptor.class);
 
     @Test
