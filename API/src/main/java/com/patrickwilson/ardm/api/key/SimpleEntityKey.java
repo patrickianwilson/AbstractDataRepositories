@@ -22,6 +22,9 @@ package com.patrickwilson.ardm.api.key;
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
+
+import java.util.Objects;
+
 /**
  * An simple version of an entity key that attempts to save return a generic key in the requested format.
  * User: pwilson
@@ -75,29 +78,29 @@ public class SimpleEntityKey implements LinkedKey {
 
     //CheckStyle:OFF
 
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         SimpleEntityKey that = (SimpleEntityKey) o;
-
-        if (!keyTypeClass.equals(that.keyTypeClass)) return false;
-        return key.equals(that.key);
-
+        return isPopulated == that.isPopulated &&
+                Objects.equals(parent, that.parent) &&
+                Objects.equals(keyTypeClass, that.keyTypeClass) &&
+                Objects.equals(key, that.key);
     }
 
     @Override
     public int hashCode() {
-        int result = keyTypeClass.hashCode();
-        result = 31 * result + key.hashCode();
-        return result;
+        return Objects.hash(parent, isPopulated, keyTypeClass, key);
     }
 
     @Override
     public String toString() {
-        return "SimpleEnitityKey{" +
-                "keyTypeClass=" + keyTypeClass +
+        return "SimpleEntityKey{" +
+                "parent=" + parent +
+                ", isPopulated=" + isPopulated +
+                ", keyTypeClass=" + keyTypeClass +
                 ", key=" + key +
                 '}';
     }

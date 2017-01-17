@@ -25,9 +25,12 @@ package com.patrickwilson.ardm.proxy;
 import com.patrickwilson.ardm.api.annotation.Attribute;
 import com.patrickwilson.ardm.api.annotation.Repository;
 import com.patrickwilson.ardm.api.key.EntityKey;
+import com.patrickwilson.ardm.api.key.LinkedKey;
 import com.patrickwilson.ardm.api.key.SimpleEntityKey;
 import com.patrickwilson.ardm.api.repository.CRUDRepository;
+import com.patrickwilson.ardm.api.repository.ScannableRepository;
 import com.patrickwilson.ardm.datasource.api.CRUDDatasourceAdaptor;
+import com.patrickwilson.ardm.datasource.api.ScanableDatasourceAdaptor;
 import com.patrickwilson.shared.util.test.BaseJMockTest;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
@@ -41,7 +44,8 @@ import org.junit.Test;
  */
 public class RepsitoryProviderProxyPassthroughTests extends BaseJMockTest {
 
-     private final CRUDDatasourceAdaptor mockDataSource = createMock(CRUDDatasourceAdaptor.class);
+    public static final long MOCK_ID = 123l;
+    private final CompositeAdaptor mockDataSource = createMock(CompositeAdaptor.class);
 
     @Test
     public void testGenericsApi() {
@@ -94,13 +98,53 @@ public class RepsitoryProviderProxyPassthroughTests extends BaseJMockTest {
         Assert.assertEquals("abc123", key.getKey());
     }
 
+    @Test
+    public void shouldGenerateStringPrefixKey() {
+        RepositoryProvider provider = new RepositoryProvider();
+
+        MyDataRepository underTest = provider.bind(MyDataRepository.class).to(mockDataSource);
+
+        addExpectations(new Expectations() { {
+            oneOf(mockDataSource).buildKey(with("abc123"), with(MyEntity.class));
+                will(returnValue(new SimpleEntityKey("abc123", String.class, true)));
+            oneOf(mockDataSource).buildPrefixKey(with(new SimpleEntityKey("abc123", String.class, true)), with("123"), with(MyEntity.class));
+                SimpleEntityKey result = new SimpleEntityKey("123", String.class, true);
+                result.setLinkedKey(new SimpleEntityKey("abc123", String.class, true));
+                will(returnValue(result));
+        } });
+
+        EntityKey parent = underTest.buildKey("abc123");
+        LinkedKey key = underTest.buildPrefixKey(parent, "123");
+        Assert.assertEquals("123", key.getKey());
+        Assert.assertEquals("abc123", key.getLinkedKey().getKey());
+    }
+
+    @Test
+    public void shouldGenerateLongPrefixKey() {
+        RepositoryProvider provider = new RepositoryProvider();
+
+        MyDataRepository underTest = provider.bind(MyDataRepository.class).to(mockDataSource);
+
+        addExpectations(new Expectations() { {
+            oneOf(mockDataSource).buildKey(with("abc123"), with(MyEntity.class));
+            will(returnValue(new SimpleEntityKey("abc123", String.class, true)));
+            oneOf(mockDataSource).buildPrefixKey(with(new SimpleEntityKey("abc123", String.class, true)), with(MOCK_ID), with(MyEntity.class));
+            SimpleEntityKey result = new SimpleEntityKey("123", String.class, true);
+            result.setLinkedKey(new SimpleEntityKey("abc123", String.class, true));
+            will(returnValue(result));
+        } });
+
+        EntityKey parent = underTest.buildKey("abc123");
+        LinkedKey key = underTest.buildPrefixKey(parent, MOCK_ID);
+        Assert.assertEquals("123", key.getKey());
+        Assert.assertEquals("abc123", key.getLinkedKey().getKey());
+    }
 
     /**
      * used for testing.
      */
     @Repository(MyEntity.class)
-    public interface MyDataRepository extends CRUDRepository<MyEntity> {
-
+    public interface MyDataRepository extends CRUDRepository<MyEntity>, ScannableRepository<MyEntity> {
 
     }
 
@@ -173,5 +217,6 @@ public class RepsitoryProviderProxyPassthroughTests extends BaseJMockTest {
 
     }
 
+    private interface CompositeAdaptor extends CRUDDatasourceAdaptor, ScanableDatasourceAdaptor { }
 
 }

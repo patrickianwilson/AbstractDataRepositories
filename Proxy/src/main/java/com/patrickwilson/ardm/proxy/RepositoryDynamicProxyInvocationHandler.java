@@ -150,13 +150,13 @@ public class RepositoryDynamicProxyInvocationHandler implements InvocationHandle
 
             Method passthroughMethod = null;
             for (Method m: passthroughMethods) {
-                boolean foundMatch = false;
+                boolean foundMatch = true;
                 if ((m.getParameterTypes().length - 1) != method.getParameterTypes().length) {
                     continue;
                 }
                 for (int paramNum = 0; paramNum < method.getParameterTypes().length; paramNum++) {
-                    if (method.getParameterTypes()[paramNum].equals(m.getParameterTypes()[paramNum])) {
-                        foundMatch = true;
+                    if (!method.getParameterTypes()[paramNum].equals(m.getParameterTypes()[paramNum])) {
+                        foundMatch = false;
                         break; //param mismatch.  not the passthough.  //try the next method instead.
                     }
                 }
