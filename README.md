@@ -1,10 +1,11 @@
 # AbstractDataRepositories
 
-##Build Status
-[![Build Status](http://builder.wilsonsinquest.com/buildStatus/icon?job=Open Source Projects/Abstract Data Repositories (Master Branch))](http://builder.wilsonsinquest.com/job/Open Source Projects/Abstract Data Repositories (Master Branch))
+## Build Status
 
+![Build Status](http://builder.wilsonsinquest.com/buildStatus/icon?job=OpenSourceProjects/AbstractDataRepositoriesMasterBranch)
 
-##Usage Instructions
+## Usage Instructions
+
 Using the Abstract Data Repositories Fremwork is very simple. First start by adding
 the maven repo to your maven configuration
 
@@ -19,7 +20,7 @@ then choose the Datasource you wish to include in your project.  The options are
 
 Include the desired dependency into your project.  Multiple implementations can be included at once with no ill effects.
 
-##Creating Repository Interfaces
+## Creating Repository Interfaces
 
 Three steps are required:  
 
