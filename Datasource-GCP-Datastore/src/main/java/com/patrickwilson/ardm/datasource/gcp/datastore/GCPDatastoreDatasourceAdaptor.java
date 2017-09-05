@@ -24,48 +24,22 @@ package com.patrickwilson.ardm.datasource.gcp.datastore;
  */
 
 import com.google.api.client.repackaged.com.google.common.base.Preconditions;
-import com.google.cloud.datastore.BooleanValue;
-import com.google.cloud.datastore.Datastore;
-import com.google.cloud.datastore.DateTime;
-import com.google.cloud.datastore.DateTimeValue;
-import com.google.cloud.datastore.DoubleValue;
-import com.google.cloud.datastore.Entity;
-import com.google.cloud.datastore.EntityQuery;
-import com.google.cloud.datastore.EntityValue;
-import com.google.cloud.datastore.FullEntity;
-import com.google.cloud.datastore.IncompleteKey;
-import com.google.cloud.datastore.Key;
-import com.google.cloud.datastore.KeyFactory;
-import com.google.cloud.datastore.ListValue;
-import com.google.cloud.datastore.LongValue;
-import com.google.cloud.datastore.PathElement;
-import com.google.cloud.datastore.Query;
-import com.google.cloud.datastore.QueryResults;
-import com.google.cloud.datastore.StringValue;
-import com.google.cloud.datastore.StructuredQuery;
-import com.google.cloud.datastore.Value;
-import com.google.cloud.datastore.ValueBuilder;
+import com.google.cloud.datastore.*;
 import com.patrickwilson.ardm.api.key.EntityKey;
 import com.patrickwilson.ardm.api.key.LinkedKey;
+import com.patrickwilson.ardm.api.repository.QueryResult;
 import com.patrickwilson.ardm.datasource.api.CRUDDatasourceAdaptor;
 import com.patrickwilson.ardm.datasource.api.QueriableDatasourceAdaptor;
 import com.patrickwilson.ardm.datasource.api.ScanableDatasourceAdaptor;
 import com.patrickwilson.ardm.datasource.api.exception.RepositoryEntityException;
 import com.patrickwilson.ardm.datasource.api.exception.RepositoryInteractionException;
 import com.patrickwilson.ardm.datasource.api.query.QueryData;
-import com.patrickwilson.ardm.api.repository.QueryResult;
 import com.patrickwilson.ardm.datasource.common.EntityUtils;
 import com.patrickwilson.ardm.datasource.common.NoEntityKeyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by pwilson on 12/22/16.
@@ -457,7 +431,7 @@ public class GCPDatastoreDatasourceAdaptor implements QueriableDatasourceAdaptor
 
         KeyFactory prefixFactory = getKeyFactory(clazz);
 
-        prefixFactory.addAncestor(PathElement.of(parent.getKind(), parent.getId()));
+        prefixFactory.addAncestor(getPathElement(parent));
         return new DatastoreEntityKey(prefixFactory.newKey(id));
     }
 
@@ -472,7 +446,18 @@ public class GCPDatastoreDatasourceAdaptor implements QueriableDatasourceAdaptor
 
         KeyFactory prefixFactory = getKeyFactory(clazz);
 
-        prefixFactory.addAncestor(PathElement.of(parent.getKind(), parent.getId()));
+        prefixFactory.addAncestor(getPathElement(parent));
         return new DatastoreEntityKey(prefixFactory.newKey(id));
     }
+
+    private PathElement getPathElement(Key parent) {
+        if (parent.hasId()) {
+            return PathElement.of(parent.getKind(), parent.getId());
+        } else if (parent.hasName()) {
+            return PathElement.of(parent.getKind(), parent.getName());
+        } else {
+            throw new IllegalArgumentException("Cannot construct a LinkedKey for a IncompleteKey.  First save() the parent object and then use the updated key.");
+        }
+    }
 }
+
