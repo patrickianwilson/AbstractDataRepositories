@@ -396,8 +396,10 @@ public class GCPDatastoreDatasourceAdaptor implements QueriableDatasourceAdaptor
         Key parent = (Key) prefix.getKey();
 
         KeyFactory prefixFactory = getKeyFactory(clazz);
-
-        prefixFactory.addAncestor(PathElement.of(parent.getKind(), parent.getId()));
+        if (parent.getName() != null)
+            prefixFactory.addAncestor(PathElement.of(parent.getKind(), parent.getName()));
+        else
+            prefixFactory.addAncestor(PathElement.of(parent.getKind(), parent.getId()));
 
         return new DatastoreEntityKey(prefixFactory.newKey());
     }
